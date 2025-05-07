@@ -1,0 +1,23 @@
+{
+  "name": "syokumemo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hina524/syokumemo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hina524/syokumemo/issues"
+  },
+  "homepage": "https://github.com/Hina524/syokumemo#readme",
+  "description": "",
+  "devDependencies": {
+    "apollo": "^2.34.0"
+  }
+}

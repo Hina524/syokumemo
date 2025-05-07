@@ -1,0 +1,10 @@
+mutation CreateIngredient($input: NewIngredient!) {
+	addIngredient(input: $input) {
+		id
+		name
+		category {
+			id
+			name
+		}
+	}
+}

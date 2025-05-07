@@ -1,0 +1,21 @@
+mutation CreateInventory($input: NewInventory!) {
+	addInventory(input: $input) {
+		id
+		ingredient {
+			id
+			name
+		}
+		quantity {
+			numerator
+			denominator
+		}
+		unit
+		expiryDate
+		frozen
+		location
+		price
+		expired
+		soonExpiry
+		soonDays
+	}
+}

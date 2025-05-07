@@ -1,0 +1,10 @@
+query GetCategoriesAndIngredients{
+    categories {
+        id
+        name
+        ingredients {
+            id
+            name
+        }
+    }
+}

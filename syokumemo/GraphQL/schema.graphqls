@@ -1,0 +1,170 @@
+"""
+Directs the executor to defer this fragment when the `if` argument is true or undefined.
+"""
+directive @defer(
+  """Deferred when true or undefined."""
+  if: Boolean = true
+
+  """Unique name"""
+  label: String
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+A directive used by the Apollo iOS client to annotate operations or fragments that should be used exclusively for generating local cache mutations instead of as standard operations.
+"""
+directive @apollo_client_ios_localCacheMutation on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""
+A directive used by the Apollo iOS code generation engine to generate custom import statements in operation or fragment definition files. An import statement to import a module with the name provided in the `module` argument will be added to the generated definition file.
+"""
+directive @import(
+  """The name of the module to import."""
+  module: String!
+) repeatable on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""Attach extra information to a given type."""
+directive @typePolicy(
+  """
+  A selection set containing fields used to compute the cache key of an object. Referenced fields must have non-nullable scalar types. Order is important.
+  """
+  keyFields: String!
+) on OBJECT | INTERFACE
+
+type Category {
+  id: ID!
+  name: String!
+  ingredients: [Ingredient!]!
+}
+
+type CountByDate {
+  date: String!
+  count: Int!
+}
+
+scalar Date
+
+type Fraction {
+  numerator: Int!
+  denominator: Int!
+}
+
+input FractionInput {
+  numerator: Int!
+  denominator: Int!
+}
+
+type Ingredient {
+  id: ID!
+  name: String!
+  category: Category!
+  inventory: [Inventory!]!
+  purchaseHistory: [PurchaseHistory!]!
+}
+
+type IngredientSuggestion {
+  name: String!
+  confidence: Float!
+  categoryID: ID!
+  categoryName: String!
+}
+
+type Inventory {
+  id: ID!
+  ingredient: Ingredient!
+  quantity: Fraction!
+  unit: String!
+  expiryDate: String
+  frozen: Boolean!
+  location: String
+  price: Float
+  expired: Boolean!
+  soonExpiry: Boolean!
+  soonDays: Int
+}
+
+input InventoryFilter {
+  expired: Boolean
+  soonExpiry: Boolean
+  soonDays: Int
+  frozen: Boolean
+}
+
+enum InventorySort {
+  EXPIRY_ASC
+  EXPIRY_DESC
+  PRICE_ASC
+  PRICE_DESC
+}
+
+type Mutation {
+  createCategory(input: NewCategory!): Category!
+  addIngredient(input: NewIngredient!): Ingredient!
+  addInventory(input: NewInventory!): Inventory!
+  updateInventory(id: ID!, input: UpdateInventory!): Inventory!
+  freezeInventory(id: ID!): Inventory!
+  deleteInventory(id: ID!): Boolean!
+  addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory!
+}
+
+input NewCategory {
+  name: String!
+}
+
+input NewIngredient {
+  name: String!
+  categoryId: ID!
+}
+
+input NewInventory {
+  ingredientId: ID!
+  quantity: FractionInput!
+  unit: String!
+  expiryDate: String
+  frozen: Boolean = false
+  location: String
+  price: Float
+}
+
+input NewPurchaseHistory {
+  ingredientId: ID!
+  quantity: FractionInput!
+  unit: String!
+  date: String
+  location: String!
+  price: Float!
+}
+
+type PricePoint {
+  date: String!
+  price: Float!
+  location: String!
+}
+
+type PurchaseHistory {
+  id: ID!
+  ingredient: Ingredient!
+  date: String!
+  location: String!
+  price: Float!
+}
+
+type Query {
+  categories: [Category!]!
+  ingredients(categoryId: ID, q: String): [Ingredient!]!
+  inventory(filter: InventoryFilter, sort: InventorySort): [Inventory!]!
+  priceTrend(ingredientId: ID!): [PricePoint!]!
+  expenseSummary(month: String!): Float!
+  countByDate(start: String!, end: String!): [CountByDate!]!
+  recognizeIngredients(image: Upload!): [IngredientSuggestion!]!
+}
+
+input UpdateInventory {
+  quantity: FractionInput
+  unit: String
+  expiryDate: String
+  frozen: Boolean
+  location: String
+  price: Float
+}
+
+scalar Upload

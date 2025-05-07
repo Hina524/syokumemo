@@ -1,0 +1,18 @@
+query GetInventories($sort: InventorySort) {
+	inventory(sort: $sort) {
+		id
+		ingredient {
+			id
+			name
+		}
+		quantity {
+			numerator
+			denominator
+		}
+		unit
+		expiryDate
+		frozen
+		location
+		price
+	}
+}
