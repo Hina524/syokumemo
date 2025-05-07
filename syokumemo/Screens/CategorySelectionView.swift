@@ -10,11 +10,8 @@ import ShokumemoAPI
 
 struct CategorySelectionView: View {
     var category: Category
-    @Binding var path: [ChoiceIngredient]
+    @Binding var path: [Category]
     var viewModel: InputViewModel
-    
-//    @ObservedObject var viewModel: InputViewModel
-//    @EnvironmentObject var appState: AppState
     
     var body: some View {
         VStack {
@@ -23,7 +20,9 @@ struct CategorySelectionView: View {
             
             List {
                 ForEach(category.ingredients, id: \.id) { ingredient in
-                    NavigationLink(value: ChoiceIngredient.ingredient(ingredient)) { // (5) 孫Viewに渡すデータを設定
+                    Button(action: {
+                        path.removeAll()
+                    }) {
                         Text("\(ingredient.name)")
                     }
                 }
