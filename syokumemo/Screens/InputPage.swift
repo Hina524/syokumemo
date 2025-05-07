@@ -14,30 +14,30 @@ struct InputPage: View {
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false  // fullScreenCover表示用のフラグ
     
+    @State private var path = [ChoiceIngredient]() // (1) 画面遷移管理配列
+    
     var body: some View {
-        VStack {
-            HStack {
-                Text("選択された食材：")
-                Text(selectedIngredient?.name ?? "未選択")
-                    .bold()
+        NavigationStack(path: $path) { // (2) NavigationStack に画面遷移管理配列を設定
+            List {
+                ForEach(viewModel.categories, id: \.id) { category in
+                    NavigationLink(value: ChoiceIngredient.category(category)) { // (3) 遷移先に渡すデータを設定
+                        Text(category.name)
+                    }
+                }
             }
-
-            Button {
-                showCategorySelection.toggle()  // ボタンで遷移をトリガー
-            } label: {
-                Text("食材を選択")
+            //   .navigationTitle("Team List")
+            .navigationDestination(for: ChoiceIngredient.self) { choiceIngredient in // (4) 遷移先を設定
+                switch choiceIngredient {
+                case .category(let category):
+                    CategorySelectionView(category: category, path: $path, viewModel: viewModel)
+                    
+                case .ingredient(let ingredient):
+                    IngredientSelectionView(ingredient: ingredient, path: $path, viewModel: viewModel)
+                }
             }
-
-            Spacer()
         }
         .onAppear {
             viewModel.fetchCategoriesAndIngredients()
-        }
-        .fullScreenCover(isPresented: $showCategorySelection) {
-            CategorySelectionView(viewModel: viewModel) { ingredient in
-                self.selectedIngredient = ingredient
-                showCategorySelection = false  // 選択後に閉じる
-            }
         }
     }
 }
