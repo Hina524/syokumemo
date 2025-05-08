@@ -10,20 +10,26 @@ import ShokumemoAPI
 
 typealias Category = GetCategoriesAndIngredientsQuery.Data.Category
 
+let numberFormatter: NumberFormatter = {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .none
+    formatter.zeroSymbol  = ""
+    return formatter
+}()
+
 struct InputPage: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel = InputViewModel()
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false
     @State private var path = [Category]()
-    @State var onFraction = false
+    @State private var onFraction = false
     @State private var onInputDate = false
     @State private var selectedDate = Date()
     
     @FocusState private var isFocused: Bool
     
-    
-    
+ 
     
     var body: some View {
         VStack {
@@ -78,7 +84,7 @@ struct InputPage: View {
                             }
                             
                             Spacer()
-                            TextField("単位", text: $viewModel.unit)
+                            TextField("個", text: $viewModel.unit)
                                 .focused($isFocused)
                         }
                         Toggle(isOn: $onFraction){
@@ -115,19 +121,46 @@ struct InputPage: View {
                                     }
                                 }
                         }
-                        
                     } header: {
                         Text("消費期限")
                             .font(.headline)
                     }
-                    
+                    // MARK: 金額
                     Section {
-                        TextField("location", text: $viewModel.location)
-                            .focused($isFocused)
+                        HStack {
+                            TextField("金額", value: $viewModel.price, formatter: numberFormatter)
+                                .keyboardType(.decimalPad)
+                                .focused($isFocused)
+                            Text("円")
+                        }
+                    } header: {
+                        Text("金額")
+                            .font(.headline)
                     }
                     
-                    Button("Save") {
-                        // 保存処理
+                    // MARK: 購入場所
+                    Section {
+                        TextField("ヨークベニマル会津大学店", text: $viewModel.location)
+                            .focused($isFocused)
+                    } header: {
+                        Text("購入場所")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 冷凍
+                    Section {
+                        Toggle(
+                            viewModel.frozen ? "冷凍されている" : "冷凍されていない",
+                            isOn: $viewModel.frozen
+                        )
+                    } header: {
+                        Text("冷凍")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 食材追加ボタン
+                    Button("追加") {
+                        
                     }
                 }
                 .navigationDestination(for: Category.self) { category in
