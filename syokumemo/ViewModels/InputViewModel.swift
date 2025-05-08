@@ -12,12 +12,13 @@ import ShokumemoAPI
 class InputViewModel: ObservableObject {
     // addInventory
     @Published var ingredientName: String?
-    @Published var ingredientId: Int?
+    @Published var ingredientId: String = ""
     @Published var categoryId: Int?
-    @Published var numerator: Int?
+    @Published var numerator: Int = 1
     @Published var denominator: Int?
-    @Published var unit: String?
-    @Published var expiryDate: String = ""
+    @Published var unit: String = ""
+    @Published var expiryDate: Date? // デフォルトは現在日付
+
     @Published var frozen: Bool = false
     @Published var location: String = ""
     @Published var price: Double = 0.0
@@ -27,23 +28,21 @@ class InputViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     
+    // カテゴリから食材を選んだ時に使うものたち
+    @Published var selectedIngredientName: String?
+    
     func addInventory() {
-        // Apolloの生成した型を使う
-        guard let numerator = numerator,
-              let denominator = denominator,
-              let ingredientId = ingredientId,
-              let unit = unit else { return }
         
         let fractionInput = FractionInput(
             numerator: numerator,
-            denominator: denominator
+            denominator: denominator == .none ? 1 : .init(integerLiteral: denominator!)
         )
-        
+
         let input = NewInventory(
-            ingredientId: String(ingredientId), // IDはGraphQLID型に変換
+            ingredientId: ingredientId, // IDはGraphQLID型に変換
             quantity: fractionInput,
             unit: unit,
-            expiryDate: expiryDate == "" ? .null : .init(stringLiteral: expiryDate),
+            expiryDate: expiryDate == .none ? .null : .init(stringLiteral: DateFormatter.apiFormat.string(from: expiryDate!)),
             frozen: frozen == false ? .null : .init(booleanLiteral: frozen),
             location: location == "" ? .null : .init(stringLiteral: location),
             price: price == 0.0 ? .null : .init(floatLiteral: price)

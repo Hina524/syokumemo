@@ -10,51 +10,138 @@ import ShokumemoAPI
 
 typealias Category = GetCategoriesAndIngredientsQuery.Data.Category
 
-
 struct InputPage: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel = InputViewModel()
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
-    @State private var showCategorySelection = false  // fullScreenCover表示用のフラグ
-    @State private var path = [Category]() // (1) 画面遷移管理配列
+    @State private var showCategorySelection = false
+    @State private var path = [Category]()
+    @State var onFraction = false
+    @State private var onInputDate = false
+    @State private var selectedDate = Date()
     
-    @State private var selectedIngredientName: String? = nil
-
+    @FocusState private var isFocused: Bool
+    
+    
+    
     
     var body: some View {
         VStack {
-            NavigationStack(path: $path) { // (2) NavigationStack に画面遷移管理配列を設定
+            NavigationStack(path: $path) {
                 Form {
+                    // MARK: 食材選択
+                    Section {
+                        if let name = viewModel.selectedIngredientName {
+                            Text(name)
+                        } else {
+                            Text("未選択")
+                        }
+                    } header: {
+                        (
+                            Text("食材") + Text("*").foregroundColor(.red)
+                        )
+                        .font(.headline)
+                    } footer: {
+                        Text("<食材カテゴリ>から選択or追加")
+                    }
+                    
                     Section {
                         ForEach(viewModel.categories, id: \.id) { category in
-                            NavigationLink(value: category) { // (3) 遷移先に渡すデータを設定
+                            NavigationLink(value: category) {
                                 Text(category.name)
                             }
                         }
                     } header: {
-                        Text("Categories")
+                        (
+                            Text("食材カテゴリ") + Text("*").foregroundColor(.red)
+                        )
+                        .font(.headline)
                     }
+                    
+                    // MARK: 数量
                     Section {
-                        if let name = selectedIngredientName {
-                            Text(name)
-                                .font(.headline)
+                        HStack {
+                            if onFraction {
+                                VStack {
+                                    TextField("分子(半角数字)", value: $viewModel.numerator, format: .number)
+                                        .keyboardType(.asciiCapableNumberPad)
+                                        .focused($isFocused)
+                                    Divider()
+                                    TextField("分母(半角数字)", value: $viewModel.denominator, format: .number)
+                                        .keyboardType(.asciiCapableNumberPad)
+                                        .focused($isFocused)
+                                }
+                            }else{
+                                TextField("数量(半角数字)", value: $viewModel.numerator, format: .number)
+                                    .keyboardType(.asciiCapableNumberPad)
+                                    .focused($isFocused)
+                            }
+                            
+                            Spacer()
+                            TextField("単位", text: $viewModel.unit)
+                                .focused($isFocused)
                         }
+                        Toggle(isOn: $onFraction){
+                            Text("分数入力")
+                        }
+                        
+                    } header: {
+                        (
+                            Text("数量") + Text("*").foregroundColor(.red)
+                        )
+                        .font(.headline)
                     }
+                    
+                    // MARK: 消費期限
+                    Section {
+                        Toggle(isOn: $onInputDate) {
+                            if onInputDate {
+                                Text("ON")
+                            } else {
+                                Text("OFF")
+                            }
+                        }
+                        .onChange(of: onInputDate) { isOn in
+                            viewModel.expiryDate = isOn ? selectedDate : .none
+                        }
+                        
+                        if onInputDate {
+                            DatePicker("消費期限", selection: $selectedDate, displayedComponents: .date)
+                               // .datePickerStyle(.graphical)
+                                .labelsHidden()
+                                .onChange(of: selectedDate) { newValue in
+                                    if onInputDate {
+                                        viewModel.expiryDate = selectedDate
+                                    }
+                                }
+                        }
+                        
+                    } header: {
+                        Text("消費期限")
+                            .font(.headline)
+                    }
+                    
                     Section {
                         TextField("location", text: $viewModel.location)
+                            .focused($isFocused)
                     }
+                    
                     Button("Save") {
-                        
+                        // 保存処理
                     }
                 }
-                .navigationDestination(for: Category.self) { category in // (4) 遷移先を設定
+                .navigationDestination(for: Category.self) { category in
                     CategorySelectionView(
                         path: $path,
-                        selectedIngredientName: $selectedIngredientName,
                         viewModel: viewModel,
                         category: category
                     )
                 }
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        isFocused = false
+                    }
+                )
             }
             .onAppear {
                 viewModel.fetchCategoriesAndIngredients()

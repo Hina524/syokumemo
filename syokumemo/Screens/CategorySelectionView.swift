@@ -11,7 +11,7 @@ import ShokumemoAPI
 struct CategorySelectionView: View {
     
     @Binding var path: [Category]
-    @Binding var selectedIngredientName: String?
+    
     var viewModel: InputViewModel
     var category: Category
     
@@ -23,7 +23,8 @@ struct CategorySelectionView: View {
             List {
                 ForEach(category.ingredients, id: \.id) { ingredient in
                     Button(action: {
-                        selectedIngredientName = ingredient.name
+                        viewModel.selectedIngredientName = ingredient.name
+                        viewModel.ingredientId = ingredient.id
                         path.removeAll()
                     }) {
                         Text("\(ingredient.name)")

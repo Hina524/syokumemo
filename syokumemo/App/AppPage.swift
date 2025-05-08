@@ -13,15 +13,12 @@ struct AppPage: View {
     var body: some View {
         VStack(spacing: 0) {
             TopBarView(title: appState.currentScreen.title)
-
             Spacer(minLength: 0)
-
             contentView
-
             Spacer(minLength: 0)
-
             BottomBarView()
         }
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
 
     @ViewBuilder
