@@ -160,7 +160,8 @@ struct InputPage: View {
                     
                     // MARK: 食材追加ボタン
                     Button("追加") {
-                        
+                        viewModel.addInventory()
+                        // viewModel = InputViewModel()
                     }
                 }
                 .navigationDestination(for: Category.self) { category in

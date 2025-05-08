@@ -70,6 +70,8 @@ class InputViewModel: ObservableObject {
         }
     }
     
+    
+    
     func fetchCategoriesAndIngredients() {
         isLoading = true
         
