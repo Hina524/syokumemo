@@ -9,9 +9,11 @@ import SwiftUI
 import ShokumemoAPI
 
 struct CategorySelectionView: View {
-    var category: Category
+    
     @Binding var path: [Category]
+    @Binding var selectedIngredientName: String?
     var viewModel: InputViewModel
+    var category: Category
     
     var body: some View {
         VStack {
@@ -21,6 +23,7 @@ struct CategorySelectionView: View {
             List {
                 ForEach(category.ingredients, id: \.id) { ingredient in
                     Button(action: {
+                        selectedIngredientName = ingredient.name
                         path.removeAll()
                     }) {
                         Text("\(ingredient.name)")

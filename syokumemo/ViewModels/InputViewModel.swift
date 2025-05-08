@@ -17,10 +17,10 @@ class InputViewModel: ObservableObject {
     @Published var numerator: Int?
     @Published var denominator: Int?
     @Published var unit: String?
-    @Published var expiryDate: String?
-    @Published var frozen: Bool?
-    @Published var location: String?
-    @Published var price: Double?
+    @Published var expiryDate: String = ""
+    @Published var frozen: Bool = false
+    @Published var location: String = ""
+    @Published var price: Double = 0.0
     
     // GetCategoriesAndIngredients
     @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
@@ -43,10 +43,10 @@ class InputViewModel: ObservableObject {
             ingredientId: String(ingredientId), // IDはGraphQLID型に変換
             quantity: fractionInput,
             unit: unit,
-            expiryDate: .init(optionalValue: expiryDate),
-            frozen: .init(optionalValue: frozen),
-            location: .init(optionalValue: location),
-            price: .init(optionalValue: price)
+            expiryDate: expiryDate == "" ? .null : .init(stringLiteral: expiryDate),
+            frozen: frozen == false ? .null : .init(booleanLiteral: frozen),
+            location: location == "" ? .null : .init(stringLiteral: location),
+            price: price == 0.0 ? .null : .init(floatLiteral: price)
         )
         
         let mutation = CreateInventoryMutation(input: input)
