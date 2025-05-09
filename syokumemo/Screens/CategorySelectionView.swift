@@ -12,7 +12,7 @@ struct CategorySelectionView: View {
     
     @Binding var path: [Category]
     
-    var viewModel: InputViewModel
+    var viewModel: InputInventoryViewModel
     var category: Category
     
     var body: some View {

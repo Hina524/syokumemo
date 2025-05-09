@@ -1,0 +1,16 @@
+mutation CreatePurchaseHistory($input: NewPurchaseHistory!) {
+	addPurchaseHistory(input: $input) {
+		id
+		ingredient {
+			id
+			name
+			category {
+				id
+				name
+			}
+		}
+		date
+		location
+		price
+	}
+}

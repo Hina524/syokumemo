@@ -25,6 +25,7 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
     case "Ingredient": return ShokumemoAPI.Objects.Ingredient
     case "Inventory": return ShokumemoAPI.Objects.Inventory
     case "Mutation": return ShokumemoAPI.Objects.Mutation
+    case "PurchaseHistory": return ShokumemoAPI.Objects.PurchaseHistory
     case "Query": return ShokumemoAPI.Objects.Query
     default: return nil
     }

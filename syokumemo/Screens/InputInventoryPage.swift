@@ -17,9 +17,9 @@ let numberFormatter: NumberFormatter = {
     return formatter
 }()
 
-struct InputPage: View {
+struct InputInventoryPage: View {
     @EnvironmentObject var appState: AppState
-    @StateObject var viewModel = InputViewModel()
+    @StateObject var viewModel = InputInventoryViewModel()
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false
     @State private var path = [Category]()
@@ -206,5 +206,5 @@ struct InputPage: View {
 }
 
 #Preview {
-    InputPage()
+    InputInventoryPage()
 }

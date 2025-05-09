@@ -104,6 +104,8 @@ type Mutation {
   freezeInventory(id: ID!): Inventory!
   deleteInventory(id: ID!): Boolean!
   addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory!
+  deleteCategory(id: ID!): Boolean!
+  deleteIngredient(id: ID!): Boolean!
 }
 
 input NewCategory {
