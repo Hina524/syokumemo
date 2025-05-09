@@ -29,7 +29,14 @@ struct InputPage: View {
     
     @FocusState private var isFocused: Bool
     
- 
+    var gesture: some Gesture {
+        DragGesture()
+            .onChanged{ value in
+                if value.translation.height != 0 {
+                    self.isFocused = false
+                }
+            }
+    }
     
     var body: some View {
         VStack {
@@ -37,7 +44,7 @@ struct InputPage: View {
                 Form {
                     // MARK: 食材選択
                     Section {
-                        if let name = viewModel.selectedIngredientName {
+                        if let name = viewModel.form.selectedIngredientName {
                             Text(name)
                         } else {
                             Text("未選択")
@@ -52,7 +59,7 @@ struct InputPage: View {
                     }
                     
                     Section {
-                        ForEach(viewModel.categories, id: \.id) { category in
+                        ForEach(viewModel.form.categories, id: \.id) { category in
                             NavigationLink(value: category) {
                                 Text(category.name)
                             }
@@ -69,22 +76,22 @@ struct InputPage: View {
                         HStack {
                             if onFraction {
                                 VStack {
-                                    TextField("分子(半角数字)", value: $viewModel.numerator, format: .number)
+                                    TextField("分子(半角数字)", value: $viewModel.form.numerator, format: .number)
                                         .keyboardType(.asciiCapableNumberPad)
                                         .focused($isFocused)
                                     Divider()
-                                    TextField("分母(半角数字)", value: $viewModel.denominator, format: .number)
+                                    TextField("分母(半角数字)", value: $viewModel.form.denominator, format: .number)
                                         .keyboardType(.asciiCapableNumberPad)
                                         .focused($isFocused)
                                 }
                             }else{
-                                TextField("数量(半角数字)", value: $viewModel.numerator, format: .number)
+                                TextField("数量(半角数字)", value: $viewModel.form.numerator, format: .number)
                                     .keyboardType(.asciiCapableNumberPad)
                                     .focused($isFocused)
                             }
                             
                             Spacer()
-                            TextField("個", text: $viewModel.unit)
+                            TextField("個", text: $viewModel.form.unit)
                                 .focused($isFocused)
                         }
                         Toggle(isOn: $onFraction){
@@ -102,22 +109,22 @@ struct InputPage: View {
                     Section {
                         Toggle(isOn: $onInputDate) {
                             if onInputDate {
-                                Text("ON")
+                                Text(DateFormatter.displayFormat.string(from: selectedDate))
                             } else {
                                 Text("OFF")
                             }
                         }
                         .onChange(of: onInputDate) { isOn in
-                            viewModel.expiryDate = isOn ? selectedDate : .none
+                            viewModel.form.expiryDate = isOn ? selectedDate : .none
                         }
                         
                         if onInputDate {
                             DatePicker("消費期限", selection: $selectedDate, displayedComponents: .date)
-                               // .datePickerStyle(.graphical)
+                                .datePickerStyle(.graphical)
                                 .labelsHidden()
                                 .onChange(of: selectedDate) { newValue in
                                     if onInputDate {
-                                        viewModel.expiryDate = selectedDate
+                                        viewModel.form.expiryDate = selectedDate
                                     }
                                 }
                         }
@@ -128,7 +135,7 @@ struct InputPage: View {
                     // MARK: 金額
                     Section {
                         HStack {
-                            TextField("金額", value: $viewModel.price, formatter: numberFormatter)
+                            TextField("金額", value: $viewModel.form.price, formatter: numberFormatter)
                                 .keyboardType(.decimalPad)
                                 .focused($isFocused)
                             Text("円")
@@ -140,7 +147,7 @@ struct InputPage: View {
                     
                     // MARK: 購入場所
                     Section {
-                        TextField("ヨークベニマル会津大学店", text: $viewModel.location)
+                        TextField("ヨークベニマル会津大学店", text: $viewModel.form.location)
                             .focused($isFocused)
                     } header: {
                         Text("購入場所")
@@ -150,20 +157,21 @@ struct InputPage: View {
                     // MARK: 冷凍
                     Section {
                         Toggle(
-                            viewModel.frozen ? "冷凍されている" : "冷凍されていない",
-                            isOn: $viewModel.frozen
+                            viewModel.form.frozen ? "冷凍されている" : "冷凍されていない",
+                            isOn: $viewModel.form.frozen
                         )
                     } header: {
                         Text("冷凍")
                             .font(.headline)
                     }
                     
-                    // MARK: 食材追加ボタン
-                    Button("追加") {
-                        viewModel.addInventory()
-                        // viewModel = InputViewModel()
+                    Section {
+                        Text(viewModel.form.errorMessage ?? "エラーないよ")
                     }
                 }
+                .foregroundColor(.brown)
+                .tint(.pink)
+                .gesture(self.gesture)
                 .navigationDestination(for: Category.self) { category in
                     CategorySelectionView(
                         path: $path,
@@ -171,11 +179,24 @@ struct InputPage: View {
                         category: category
                     )
                 }
-                .simultaneousGesture(
-                    TapGesture().onEnded {
-                        isFocused = false
+                
+                // MARK: 食材追加ボタン
+                Button("追加") {
+                    viewModel.addInventory()
+                }
+                .alert("追加失敗", isPresented: $viewModel.isMutationError) {
+                    // ダイアログ内で行うアクション処理...
+                    Button("閉じる", role: .cancel) {
+                        viewModel.isMutationError = false
                     }
-                )
+                } message: {
+                    // アラートのメッセージ...
+                    Text("入力を確認してください")
+                }
+                
+                Text("*").foregroundColor(.red) + Text("がついている項目は必ず入力してください。")
+                
+                
             }
             .onAppear {
                 viewModel.fetchCategoriesAndIngredients()

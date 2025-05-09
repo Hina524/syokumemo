@@ -16,61 +16,40 @@ struct CategorySelectionView: View {
     var category: Category
     
     var body: some View {
-        VStack {
-            Text(category.name)
-                .font(.title)
-            
-            List {
-                ForEach(category.ingredients, id: \.id) { ingredient in
-                    Button(action: {
-                        viewModel.selectedIngredientName = ingredient.name
-                        viewModel.ingredientId = ingredient.id
-                        path.removeAll()
-                    }) {
-                        Text("\(ingredient.name)")
+        ZStack {
+            HStack {
+                Button(action: {
+                    path.removeLast()
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("食材を追加")
+                            .font(.body)
                     }
+                    .foregroundColor(.black)
                 }
+                Spacer()
             }
-            
-            Button(action: { // 〈戻る〉ボタン
-                path.removeLast()
-            }) {
-                Text("Back")
+
+            Text(category.name)
+                .font(.headline)
+                .foregroundColor(.black)
+        }
+        .padding()
+        .frame(height: 50)
+        
+        List {
+            ForEach(category.ingredients, id: \.id) { ingredient in
+                Button(action: {
+                    viewModel.form.selectedIngredientName = ingredient.name
+                    viewModel.form.ingredientId = ingredient.id
+                    path.removeAll()
+                }) {
+                    Text("\(ingredient.name)")
+                }
             }
         }
 
-        //        VStack(spacing: 0) {
-//            HStack {
-//                Button(action: {
-//                    dismiss() // 前の画面に戻る
-//                }) {
-//                    HStack(spacing: 4) {
-//                        Image(systemName: "chevron.left")
-//                        Text("食材を追加")
-//                            .font(.body)
-//                    }
-//                    .foregroundColor(.black)
-//                }
-//                
-//                Spacer()
-//                Text("カテゴリ選択")
-//                    .font(.headline)
-//                    .foregroundColor(.black)
-//                Spacer()
-//                // 右側をスペースで調整して中央揃えを保つ
-//                Spacer().frame(width: 80)
-//            }
-//            .padding()
-//            .frame(height: 50)
-//            
-//            List(viewModel.categories, id: \.id) { category in
-//                NavigationLink {
-//                    IngredientSelectionView(ingredients: category.ingredients, onSelect: onSelect)
-//                } label: {
-//                    Text(category.name)
-//                }
-//            }
-//        }
-//        .navigationBarBackButtonHidden(true) // デフォルトの戻るボタンを非表示
+        .navigationBarBackButtonHidden(true)
     }
 }

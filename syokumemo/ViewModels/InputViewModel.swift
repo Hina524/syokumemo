@@ -9,84 +9,100 @@ import SwiftUI
 import Apollo
 import ShokumemoAPI
 
-class InputViewModel: ObservableObject {
+struct FormData {
     // addInventory
-    @Published var ingredientName: String?
-    @Published var ingredientId: String = ""
-    @Published var categoryId: Int?
-    @Published var numerator: Int = 1
-    @Published var denominator: Int?
-    @Published var unit: String = ""
-    @Published var expiryDate: Date? // デフォルトは現在日付
+    var ingredientName: String? = .none
+    var ingredientId: String = ""
+    var categoryId: Int? = .none
+    var numerator: Int = 1
+    var denominator: Int? = .none
+    var unit: String = ""
+    var expiryDate: Date? = .none
 
-    @Published var frozen: Bool = false
-    @Published var location: String = ""
-    @Published var price: Double = 0.0
+    var frozen: Bool = false
+    var location: String = ""
+    var price: Double = 0.0
     
     // GetCategoriesAndIngredients
-    @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String? = nil
+    var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
+    var isLoading = false
+    var errorMessage: String? = .none
     
     // カテゴリから食材を選んだ時に使うものたち
-    @Published var selectedIngredientName: String?
+    var selectedIngredientName: String? = .none
+}
+
+class InputViewModel: ObservableObject {
+    @Published var form = FormData()
+    @Published var isSubmitting = false
+    @Published var isMutationError: Bool = false
+    
     
     func addInventory() {
         
         let fractionInput = FractionInput(
-            numerator: numerator,
-            denominator: denominator == .none ? 1 : .init(integerLiteral: denominator!)
+            numerator: form.numerator,
+            denominator: form.denominator == .none ? 1 : .init(integerLiteral: form.denominator!)
         )
 
         let input = NewInventory(
-            ingredientId: ingredientId, // IDはGraphQLID型に変換
+            ingredientId: form.ingredientId, // IDはGraphQLID型に変換
             quantity: fractionInput,
-            unit: unit,
-            expiryDate: expiryDate == .none ? .null : .init(stringLiteral: DateFormatter.apiFormat.string(from: expiryDate!)),
-            frozen: frozen == false ? .null : .init(booleanLiteral: frozen),
-            location: location == "" ? .null : .init(stringLiteral: location),
-            price: price == 0.0 ? .null : .init(floatLiteral: price)
+            unit: form.unit,
+            expiryDate: form.expiryDate == .none ? .null : .init(stringLiteral: DateFormatter.apiFormat.string(from: form.expiryDate!)),
+            frozen: form.frozen == false ? .null : .init(booleanLiteral: form.frozen),
+            location: form.location == "" ? .null : .init(stringLiteral: form.location),
+            price: form.price == 0.0 ? .null : .init(floatLiteral: form.price)
         )
         
         let mutation = CreateInventoryMutation(input: input)
         
-        isLoading = true
+        form.isLoading = true
+        isSubmitting = true
         Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                self?.form.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
                     if let _ = graphQLResult.data?.addInventory {
+                        self?.isSubmitting = false
+                        self?.resetForm()
                         //                        completion(true)
                     } else if let errors = graphQLResult.errors {
-                        self?.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
                         //                        completion(false)
                     }
                 case .failure(let error):
-                    self?.errorMessage = "登録に失敗しました: \(error.localizedDescription)"
+                    self?.form.errorMessage = "登録に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
                     //                    completion(false)
                 }
             }
         }
     }
     
-    
+    func resetForm() {
+        form = FormData()  // デフォルトイニシャライザでクリア
+    }
     
     func fetchCategoriesAndIngredients() {
-        isLoading = true
+        form.isLoading = true
         
         Network.shared.apollo.fetch(query: GetCategoriesAndIngredientsQuery()) { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
+                self?.form.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
                     if let data = graphQLResult.data {
-                        self?.categories = data.categories
+                        self?.form.categories = data.categories
+                        
                     } else if let errors = graphQLResult.errors {
-                        self?.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
                     }
                 case .failure(let error):
-                    self?.errorMessage = "データ取得に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                    self?.form.errorMessage = "データ取得に失敗しました: \(error.localizedDescription)"
                 }
             }
         }
