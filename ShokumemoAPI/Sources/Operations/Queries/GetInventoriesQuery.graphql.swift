@@ -7,7 +7,7 @@ public class GetInventoriesQuery: GraphQLQuery {
   public static let operationName: String = "GetInventories"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen location price } }"#
+      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen } }"#
     ))
 
   public var sort: GraphQLNullable<GraphQLEnum<InventorySort>>
@@ -43,20 +43,16 @@ public class GetInventoriesQuery: GraphQLQuery {
         .field("ingredient", Ingredient.self),
         .field("quantity", Quantity.self),
         .field("unit", String.self),
-        .field("expiryDate", String?.self),
+        .field("expiryDate", String.self),
         .field("frozen", Bool.self),
-        .field("location", String?.self),
-        .field("price", Double?.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var ingredient: Ingredient { __data["ingredient"] }
       public var quantity: Quantity { __data["quantity"] }
       public var unit: String { __data["unit"] }
-      public var expiryDate: String? { __data["expiryDate"] }
+      public var expiryDate: String { __data["expiryDate"] }
       public var frozen: Bool { __data["frozen"] }
-      public var location: String? { __data["location"] }
-      public var price: Double? { __data["price"] }
 
       /// Inventory.Ingredient
       ///

@@ -14,7 +14,7 @@ public struct NewPurchaseHistory: InputObject {
     ingredientId: ID,
     quantity: FractionInput,
     unit: String,
-    date: GraphQLNullable<String> = nil,
+    date: String,
     location: String,
     price: Double
   ) {
@@ -43,7 +43,7 @@ public struct NewPurchaseHistory: InputObject {
     set { __data["unit"] = newValue }
   }
 
-  public var date: GraphQLNullable<String> {
+  public var date: String {
     get { __data["date"] }
     set { __data["date"] = newValue }
   }

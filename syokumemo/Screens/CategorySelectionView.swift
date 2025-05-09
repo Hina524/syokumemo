@@ -46,6 +46,7 @@ struct CategorySelectionView: View {
                     path.removeAll()
                 }) {
                     Text("\(ingredient.name)")
+                        .foregroundColor(.black)
                 }
             }
         }

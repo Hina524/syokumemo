@@ -1,0 +1,33 @@
+mutation CreateInventoryAndPurchaseHistory($input1: NewInventory!, $input2: NewPurchaseHistory!) {
+  addInventory(input: $input1) {
+		id
+		ingredient {
+			id
+			name
+		}
+		quantity {
+			numerator
+			denominator
+		}
+		unit
+		expiryDate
+		frozen
+		expired
+		soonExpiry
+		soonDays
+	}
+  addPurchaseHistory(input: $input2) {
+		id
+		ingredient {
+			id
+			name
+			category {
+				id
+				name
+			}
+		}
+		date
+		location
+		price
+	}
+}

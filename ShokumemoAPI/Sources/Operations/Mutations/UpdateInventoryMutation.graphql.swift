@@ -7,7 +7,7 @@ public class UpdateInventoryMutation: GraphQLMutation {
   public static let operationName: String = "UpdateInventory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"mutation UpdateInventory($id: ID!, $input: UpdateInventory!) { updateInventory(id: $id, input: $input) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen location price } }"#
+      #"mutation UpdateInventory($id: ID!, $input: UpdateInventory!) { updateInventory(id: $id, input: $input) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen } }"#
     ))
 
   public var id: ID
@@ -54,20 +54,16 @@ public class UpdateInventoryMutation: GraphQLMutation {
         .field("ingredient", Ingredient.self),
         .field("quantity", Quantity.self),
         .field("unit", String.self),
-        .field("expiryDate", String?.self),
+        .field("expiryDate", String.self),
         .field("frozen", Bool.self),
-        .field("location", String?.self),
-        .field("price", Double?.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var ingredient: Ingredient { __data["ingredient"] }
       public var quantity: Quantity { __data["quantity"] }
       public var unit: String { __data["unit"] }
-      public var expiryDate: String? { __data["expiryDate"] }
+      public var expiryDate: String { __data["expiryDate"] }
       public var frozen: Bool { __data["frozen"] }
-      public var location: String? { __data["location"] }
-      public var price: Double? { __data["price"] }
 
       /// UpdateInventory.Ingredient
       ///

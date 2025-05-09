@@ -12,8 +12,6 @@ mutation CreateInventory($input: NewInventory!) {
 		unit
 		expiryDate
 		frozen
-		location
-		price
 		expired
 		soonExpiry
 		soonDays

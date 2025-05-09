@@ -23,9 +23,11 @@ struct InputInventoryPage: View {
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false
     @State private var path = [Category]()
-    @State private var onFraction = false
-    @State private var onInputDate = false
+    @State private var isOnFractionInput = false
+    @State private var isOnInputExpiryDate = false
+    @State private var isOnGraphInput = false
     @State private var selectedDate = Date()
+    @State private var setExpiryDateOneYearLater = false
     
     @FocusState private var isFocused: Bool
     
@@ -74,7 +76,7 @@ struct InputInventoryPage: View {
                     // MARK: 数量
                     Section {
                         HStack {
-                            if onFraction {
+                            if isOnFractionInput {
                                 VStack {
                                     TextField("分子(半角数字)", value: $viewModel.form.numerator, format: .number)
                                         .keyboardType(.asciiCapableNumberPad)
@@ -94,7 +96,7 @@ struct InputInventoryPage: View {
                             TextField("個", text: $viewModel.form.unit)
                                 .focused($isFocused)
                         }
-                        Toggle(isOn: $onFraction){
+                        Toggle(isOn: $isOnFractionInput){
                             Text("分数入力")
                         }
                         
@@ -107,53 +109,47 @@ struct InputInventoryPage: View {
                     
                     // MARK: 消費期限
                     Section {
-                        Toggle(isOn: $onInputDate) {
-                            if onInputDate {
-                                Text(DateFormatter.displayFormat.string(from: selectedDate))
+                        // 表示用のText（今日+1年 or selectedDate）
+                        Text(
+                            DateFormatter.displayFormat.string(
+                                from: setExpiryDateOneYearLater
+                                    ? Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+                                : viewModel.form.expiryDate
+                            )
+                        )
+
+                        // Toggle（切り替えたら viewModel.form.expiryDate を更新）
+                        Toggle(isOn: $setExpiryDateOneYearLater) {
+                            if setExpiryDateOneYearLater {
+                                Text("ON")
                             } else {
-                                Text("OFF")
+                                Text("消費期限を一年後に設定する")
                             }
                         }
-                        .onChange(of: onInputDate) { isOn in
-                            viewModel.form.expiryDate = isOn ? selectedDate : .none
+                        .onChange(of: setExpiryDateOneYearLater) { newValue in
+                            if newValue {
+                                // ToggleがONになった → 今日から1年後をセット
+                                viewModel.form.expiryDate = Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+                            } else {
+                                // ToggleがOFFになった → 選択された日付をセット
+                                viewModel.form.expiryDate = selectedDate
+                            }
                         }
-                        
-                        if onInputDate {
+
+                        // ToggleがOFFのときのみ、DatePicker表示＆変更時に更新
+                        if !setExpiryDateOneYearLater {
                             DatePicker("消費期限", selection: $selectedDate, displayedComponents: .date)
                                 .datePickerStyle(.graphical)
                                 .labelsHidden()
                                 .onChange(of: selectedDate) { newValue in
-                                    if onInputDate {
-                                        viewModel.form.expiryDate = selectedDate
-                                    }
+                                    viewModel.form.expiryDate = newValue
                                 }
                         }
                     } header: {
                         Text("消費期限")
                             .font(.headline)
                     }
-                    // MARK: 金額
-                    Section {
-                        HStack {
-                            TextField("金額", value: $viewModel.form.price, formatter: numberFormatter)
-                                .keyboardType(.decimalPad)
-                                .focused($isFocused)
-                            Text("円")
-                        }
-                    } header: {
-                        Text("金額")
-                            .font(.headline)
-                    }
-                    
-                    // MARK: 購入場所
-                    Section {
-                        TextField("ヨークベニマル会津大学店", text: $viewModel.form.location)
-                            .focused($isFocused)
-                    } header: {
-                        Text("購入場所")
-                            .font(.headline)
-                    }
-                    
+
                     // MARK: 冷凍
                     Section {
                         Toggle(
@@ -165,12 +161,75 @@ struct InputInventoryPage: View {
                             .font(.headline)
                     }
                     
+                    //MARK: ↓Graphに必要な情報
+                    Section {
+                        Toggle(isOn: $isOnGraphInput) {
+                            HStack {
+                                if isOnGraphInput {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                    Text("以下全項目入力必須")
+                                } else {
+                                    Text("OFF")
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("金額推移グラフに必要な情報")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 金額
+                    if isOnGraphInput {
+                        Section {
+                            HStack {
+                                TextField("金額", value: $viewModel.form.price, formatter: numberFormatter)
+                                    .keyboardType(.decimalPad)
+                                    .focused($isFocused)
+                                Text("円")
+                            }
+                        } header: {
+                            Text("金額")
+                                .font(.headline)
+                        }
+                    }
+                    
+                    // MARK: 購入場所
+                    if isOnGraphInput {
+                        Section {
+                            TextField("ヨークベニマル会津大学店", text: $viewModel.form.location)
+                                .focused($isFocused)
+                        } header: {
+                            Text("購入場所")
+                                .font(.headline)
+                        }
+                    }
+                    
+                    // MARK: 食材追加ボタン
+                    Section {
+                        Button("追加") {
+                            if  isOnGraphInput {
+                                viewModel.addInventoryAndPurchaseHistory()
+                            } else if !isOnGraphInput{
+                                viewModel.addInventory()
+                            }
+                        }
+                        .alert("追加失敗", isPresented: $viewModel.isMutationError) {
+                            // ダイアログ内で行うアクション処理...
+                            Button("閉じる", role: .cancel) {
+                                viewModel.isMutationError = false
+                            }
+                        } message: {
+                            // アラートのメッセージ...
+                            Text("入力を確認してください")
+                        }
+                    }
+                    
                     Section {
                         Text(viewModel.form.errorMessage ?? "エラーないよ")
                     }
                 }
-                .foregroundColor(.brown)
-                .tint(.pink)
+                .foregroundColor(.black)
+                .tint(.orange)
                 .gesture(self.gesture)
                 .navigationDestination(for: Category.self) { category in
                     CategorySelectionView(
@@ -179,24 +238,6 @@ struct InputInventoryPage: View {
                         category: category
                     )
                 }
-                
-                // MARK: 食材追加ボタン
-                Button("追加") {
-                    viewModel.addInventory()
-                }
-                .alert("追加失敗", isPresented: $viewModel.isMutationError) {
-                    // ダイアログ内で行うアクション処理...
-                    Button("閉じる", role: .cancel) {
-                        viewModel.isMutationError = false
-                    }
-                } message: {
-                    // アラートのメッセージ...
-                    Text("入力を確認してください")
-                }
-                
-                Text("*").foregroundColor(.red) + Text("がついている項目は必ず入力してください。")
-                
-                
             }
             .onAppear {
                 viewModel.fetchCategoriesAndIngredients()

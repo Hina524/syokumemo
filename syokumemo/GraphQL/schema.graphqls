@@ -73,10 +73,8 @@ type Inventory {
   ingredient: Ingredient!
   quantity: Fraction!
   unit: String!
-  expiryDate: String
+  expiryDate: String!
   frozen: Boolean!
-  location: String
-  price: Float
   expired: Boolean!
   soonExpiry: Boolean!
   soonDays: Int
@@ -121,17 +119,15 @@ input NewInventory {
   ingredientId: ID!
   quantity: FractionInput!
   unit: String!
-  expiryDate: String
-  frozen: Boolean = false
-  location: String
-  price: Float
+  expiryDate: String!
+  frozen: Boolean!
 }
 
 input NewPurchaseHistory {
   ingredientId: ID!
   quantity: FractionInput!
   unit: String!
-  date: String
+  date: String!
   location: String!
   price: Float!
 }
@@ -153,7 +149,7 @@ type PurchaseHistory {
 type Query {
   categories: [Category!]!
   ingredients(categoryId: ID, q: String): [Ingredient!]!
-  inventory(filter: InventoryFilter, sort: InventorySort): [Inventory!]!
+  inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]!
   priceTrend(ingredientId: ID!): [PricePoint!]!
   expenseSummary(month: String!): Float!
   countByDate(start: String!, end: String!): [CountByDate!]!
@@ -165,8 +161,6 @@ input UpdateInventory {
   unit: String
   expiryDate: String
   frozen: Boolean
-  location: String
-  price: Float
 }
 
 scalar Upload

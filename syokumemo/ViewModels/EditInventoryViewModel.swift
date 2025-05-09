@@ -48,9 +48,7 @@ class EditInventoryViewModel: ObservableObject {
             quantity: .init(fractionInput),
             unit: form.unit == "" ? .null : .init(stringLiteral: form.unit),
             expiryDate: form.expiryDate == .none ? .null : .init(stringLiteral: DateFormatter.apiFormat.string(from: form.expiryDate!)),
-            frozen: form.frozen == false ? .null : .init(booleanLiteral: form.frozen),
-            location: form.location == "" ? .null : .init(stringLiteral: form.location),
-            price: form.price == 0.0 ? .null : .init(floatLiteral: form.price)
+            frozen: form.frozen == false ? .null : .init(booleanLiteral: form.frozen)
         )
         
         let mutation = UpdateInventoryMutation(id: inventoryId, input: input)

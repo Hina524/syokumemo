@@ -14,17 +14,13 @@ public struct UpdateInventory: InputObject {
     quantity: GraphQLNullable<FractionInput> = nil,
     unit: GraphQLNullable<String> = nil,
     expiryDate: GraphQLNullable<String> = nil,
-    frozen: GraphQLNullable<Bool> = nil,
-    location: GraphQLNullable<String> = nil,
-    price: GraphQLNullable<Double> = nil
+    frozen: GraphQLNullable<Bool> = nil
   ) {
     __data = InputDict([
       "quantity": quantity,
       "unit": unit,
       "expiryDate": expiryDate,
-      "frozen": frozen,
-      "location": location,
-      "price": price
+      "frozen": frozen
     ])
   }
 
@@ -46,15 +42,5 @@ public struct UpdateInventory: InputObject {
   public var frozen: GraphQLNullable<Bool> {
     get { __data["frozen"] }
     set { __data["frozen"] = newValue }
-  }
-
-  public var location: GraphQLNullable<String> {
-    get { __data["location"] }
-    set { __data["location"] = newValue }
-  }
-
-  public var price: GraphQLNullable<Double> {
-    get { __data["price"] }
-    set { __data["price"] = newValue }
   }
 }

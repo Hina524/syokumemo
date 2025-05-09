@@ -12,7 +12,5 @@ mutation UpdateInventory($id: ID!, $input: UpdateInventory!) {
 		unit
 		expiryDate
 		frozen
-		location
-		price
 	}
 }
