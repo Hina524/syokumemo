@@ -1,0 +1,12 @@
+query GetIngredientsAndParchaseHistory {
+	ingredients {
+		id
+		name
+		purchaseHistory {
+			id
+			date
+			location
+			price
+		}
+	}
+}

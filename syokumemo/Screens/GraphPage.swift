@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import ShokumemoAPI
 
 struct GraphPage: View {
+    @StateObject private var viewModel = GraphViewModel()
+    
     var body: some View {
         VStack {
             Text("食材リスト")
