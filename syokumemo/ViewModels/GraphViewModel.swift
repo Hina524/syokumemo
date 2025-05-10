@@ -9,10 +9,18 @@ import SwiftUI
 import Apollo
 import ShokumemoAPI
 
+// データモデル
+struct LineData: Identifiable {
+    var id: String
+    var date: Date
+    var price: Int
+}
+
 class GraphViewModel: ObservableObject {
     @Published var ingredients: [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient] = []
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
+    @Published var lineData: [LineData] = []
     
     private var watcher: GraphQLQueryWatcher<GetIngredientsAndParchaseHistoryQuery>?
     
