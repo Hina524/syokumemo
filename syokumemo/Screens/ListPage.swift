@@ -38,8 +38,8 @@ struct ListPage: View {
                                     .foregroundColor(.gray)
                                 
                                 
-                                Text("冷凍:\(inventory.frozen)")
-                                    .font(.caption2)
+//                                Text("冷凍:\(inventory.frozen)")
+//                                    .font(.caption2)
                                 
                             }
                             .padding(.vertical, 4)
