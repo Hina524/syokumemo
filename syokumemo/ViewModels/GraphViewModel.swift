@@ -13,7 +13,7 @@ import ShokumemoAPI
 struct LineData: Identifiable {
     var id: String
     var date: Date
-    var price: Int
+    var price: Double
 }
 
 class GraphViewModel: ObservableObject {

@@ -28,6 +28,7 @@ struct InputInventoryPage: View {
     @State private var isOnGraphInput = false
     @State private var selectedDate = Date()
     @State private var setExpiryDateOneYearLater = false
+    @State private var setDateNotToday: Bool = false
     
     @FocusState private var isFocused: Bool
     
@@ -176,6 +177,67 @@ struct InputInventoryPage: View {
                     } header: {
                         Text("金額推移グラフに必要な情報")
                             .font(.headline)
+                    }
+                    
+                    // MARK: 購入日
+                    if isOnGraphInput {
+                        Section {
+                            // 表示用のText（今日+1年 or selectedDate）
+                            Text(
+                                DateFormatter.displayFormat.string(
+                                    from: setDateNotToday
+                                    ?  selectedDate
+                                    : viewModel.form.date
+                                )
+                            )
+                            
+                            // Toggle（切り替えたら viewModel.form.expiryDate を更新）
+                            Toggle(isOn: $setDateNotToday) {
+                                if setDateNotToday {
+                                    Text("ON")
+                                } else {
+                                    Text("今日以外の日付に設定する")
+                                }
+                            }
+                            .onChange(of: setDateNotToday) { newValue in
+                                if newValue {
+                                    // ToggleがONになった → 選択された日付をセット
+                                    viewModel.form.date = selectedDate
+                                    
+                                } else {
+                                    // ToggleがOFFになった → 今日に戻す
+                                    viewModel.form.date = Date()
+                                }
+                            }
+                            
+                            // ToggleがOFFのときのみ、DatePicker表示＆変更時に更新
+                            if setDateNotToday {
+                                DatePicker("購入日", selection: $selectedDate, displayedComponents: .date)
+                                    .datePickerStyle(.graphical)
+                                    .labelsHidden()
+                                    .onChange(of: selectedDate) { newValue in
+                                        viewModel.form.date = newValue
+                                    }
+                            }
+                        } header: {
+                            Text("購入日")
+                                .font(.headline)
+                        }
+                    }
+                    
+                    // MARK: 金額
+                    if isOnGraphInput {
+                        Section {
+                            HStack {
+                                TextField("金額", value: $viewModel.form.price, formatter: numberFormatter)
+                                    .keyboardType(.decimalPad)
+                                    .focused($isFocused)
+                                Text("円")
+                            }
+                        } header: {
+                            Text("金額")
+                                .font(.headline)
+                        }
                     }
                     
                     // MARK: 金額
