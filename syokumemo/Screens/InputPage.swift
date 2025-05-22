@@ -9,6 +9,12 @@ import SwiftUI
 import ShokumemoAPI
 
 typealias Category = GetCategoriesAndIngredientsQuery.Data.Category
+typealias Ingredient = GetCategoriesAndIngredientsQuery.Data.Category.Ingredient
+
+enum SelectIngredient: Hashable {
+    case category([Category])
+    case ingredients(Category)
+}
 
 let numberFormatter: NumberFormatter = {
     let formatter = NumberFormatter()
@@ -17,12 +23,12 @@ let numberFormatter: NumberFormatter = {
     return formatter
 }()
 
-struct InputInventoryPage: View {
+struct InputPage: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel = InputInventoryViewModel()
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false
-    @State private var path = [Category]()
+    @State private var path = [SelectIngredient]()
     @State private var isOnFractionInput = false
     @State private var isOnInputExpiryDate = false
     @State private var isOnGraphInput = false
@@ -47,29 +53,16 @@ struct InputInventoryPage: View {
                 Form {
                     // MARK: 食材選択
                     Section {
-                        if let name = viewModel.form.selectedIngredientName {
-                            Text(name)
-                        } else {
-                            Text("未選択")
-                        }
-                    } header: {
-                        (
-                            Text("食材") + Text("*").foregroundColor(.red)
-                        )
-                        .font(.headline)
-                    } footer: {
-                        Text("<食材カテゴリ>から選択or追加")
-                    }
-                    
-                    Section {
-                        ForEach(viewModel.form.categories, id: \.id) { category in
-                            NavigationLink(value: category) {
-                                Text(category.name)
+                        NavigationLink(value: SelectIngredient.category(viewModel.form.categories)) {
+                            if let name = viewModel.form.selectedIngredientName {
+                                Text(name)
+                            } else {
+                                Text("未選択")
                             }
                         }
                     } header: {
                         (
-                            Text("食材カテゴリ") + Text("*").foregroundColor(.red)
+                            Text("食材") + Text("*").foregroundColor(.red)
                         )
                         .font(.headline)
                     }
@@ -114,11 +107,11 @@ struct InputInventoryPage: View {
                         Text(
                             DateFormatter.displayFormat.string(
                                 from: setExpiryDateOneYearLater
-                                    ? Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+                                ? Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
                                 : viewModel.form.expiryDate
                             )
                         )
-
+                        
                         // Toggle（切り替えたら viewModel.form.expiryDate を更新）
                         Toggle(isOn: $setExpiryDateOneYearLater) {
                             if setExpiryDateOneYearLater {
@@ -136,7 +129,7 @@ struct InputInventoryPage: View {
                                 viewModel.form.expiryDate = selectedDate
                             }
                         }
-
+                        
                         // ToggleがOFFのときのみ、DatePicker表示＆変更時に更新
                         if !setExpiryDateOneYearLater {
                             DatePicker("消費期限", selection: $selectedDate, displayedComponents: .date)
@@ -150,7 +143,7 @@ struct InputInventoryPage: View {
                         Text("消費期限")
                             .font(.headline)
                     }
-
+                    
                     // MARK: 冷凍
                     Section {
                         Toggle(
@@ -240,21 +233,6 @@ struct InputInventoryPage: View {
                         }
                     }
                     
-                    // MARK: 金額
-                    if isOnGraphInput {
-                        Section {
-                            HStack {
-                                TextField("金額", value: $viewModel.form.price, formatter: numberFormatter)
-                                    .keyboardType(.decimalPad)
-                                    .focused($isFocused)
-                                Text("円")
-                            }
-                        } header: {
-                            Text("金額")
-                                .font(.headline)
-                        }
-                    }
-                    
                     // MARK: 購入場所
                     if isOnGraphInput {
                         Section {
@@ -293,21 +271,25 @@ struct InputInventoryPage: View {
                 .foregroundColor(.black)
                 .tint(.orange)
                 .gesture(self.gesture)
-                .navigationDestination(for: Category.self) { category in
-                    CategorySelectionView(
-                        path: $path,
-                        viewModel: viewModel,
-                        category: category
-                    )
+                .onAppear {
+                    viewModel.fetchCategoriesAndIngredients()
                 }
-            }
-            .onAppear {
-                viewModel.fetchCategoriesAndIngredients()
+                .navigationDestination(for: SelectIngredient.self) { selectIngredient in // (4) 遷移先を設定
+                    switch selectIngredient {
+                    case .category(let categories):
+                        CategorySelectionPage(
+                            categories: categories, path: $path, viewModel: viewModel
+                        )
+    //
+                        case .ingredients(let category):
+                        IngredientSelectionView(path: $path, viewModel: viewModel, category: category)
+                    }
+                }
             }
         }
     }
 }
 
 #Preview {
-    InputInventoryPage()
+    InputPage()
 }

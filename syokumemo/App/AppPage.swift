@@ -27,7 +27,7 @@ struct AppPage: View {
         case .list:
             ListPage()
         case .input:
-            InputInventoryPage()
+            InputPage()
         case .graph:
             GraphPage()
         }

@@ -21,3 +21,12 @@ extension DateFormatter {
         return formatter
     }()
 }
+
+extension Date {
+    func formattedJapaneseMonth() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = "M月"
+        return formatter.string(from: self)
+    }
+}

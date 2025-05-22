@@ -8,21 +8,21 @@
 import SwiftUI
 import ShokumemoAPI
 
-//typealias Inventory = GetCategoriesAndIngredientsQuery.Data.Inventory
+typealias Inventory = GetInventoriesQuery.Data.Inventory
 
 struct ListPage: View {
     @StateObject private var viewModel = ListViewModel()
-    //    @State private var path = [Inventory]()
+    @State private var path = [Inventory]()
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if viewModel.isLoading {
-                    ProgressView("読み込み中…")
-                } else if let error = viewModel.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                } else {
+        VStack {
+            if viewModel.isLoading {
+                ProgressView("読み込み中…")
+            } else if let error = viewModel.errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+            } else {
+                NavigationStack(path: $path) {
                     List(viewModel.inventories, id: \.id) { inventory in
                         NavigationLink(value: inventory) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -37,26 +37,21 @@ struct ListPage: View {
                                     .font(.caption)
                                     .foregroundColor(.gray)
                                 
-                                
-//                                Text("冷凍:\(inventory.frozen)")
-//                                    .font(.caption2)
-                                
                             }
                             .padding(.vertical, 4)
                         }
                     }
+                    .navigationDestination(for: Inventory.self) { inventory in
+                        EditInventoryPage(
+                            path: $path,
+                            inventory: inventory
+                        )
+                    }
                 }
-                //                        .navigationDestination(for: Inventory.self) { inventory in
-                //                            EditingInventoryPage(
-                //                                path: $path,
-                //                                viewModel: viewModel,
-                //                                inventory: inventory
-                //                            )
-                //                        }
             }
-            .onAppear {
-                viewModel.fetchInventories()
-            }
+        }
+        .onAppear {
+            viewModel.fetchInventories()
         }
     }
 }

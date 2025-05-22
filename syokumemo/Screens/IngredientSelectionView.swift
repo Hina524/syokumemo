@@ -8,9 +8,9 @@
 import SwiftUI
 import ShokumemoAPI
 
-struct CategorySelectionView: View {
+struct IngredientSelectionView: View {
     
-    @Binding var path: [Category]
+    @Binding var path: [SelectIngredient]
     
     var viewModel: InputInventoryViewModel
     var category: Category
@@ -23,7 +23,7 @@ struct CategorySelectionView: View {
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
-                        Text("食材を追加")
+                        Text("カテゴリ選択")
                             .font(.body)
                     }
                     .foregroundColor(.black)
