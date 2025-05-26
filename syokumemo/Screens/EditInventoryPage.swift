@@ -16,27 +16,31 @@ struct EditInventoryPage: View {
     var inventory: Inventory
     
     var body: some View {
-        ZStack {
-            HStack {
-                Button(action: {
-                    path.removeLast()
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("消費期限リスト")
-                            .font(.body)
+        VStack {
+            ZStack {
+                HStack {
+                    Button(action: {
+                        path.removeLast()
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("消費期限リスト")
+                                .font(.body)
+                        }
+                        .foregroundColor(.black)
                     }
-                    .foregroundColor(.black)
+                    Spacer()
                 }
-                Spacer()
+                
+                Text(inventory.ingredient.name)
+                    .font(.headline)
+                    .foregroundColor(.black)
             }
+            .padding()
+            .frame(height: 50)
+            .navigationBarBackButtonHidden(true)
             
-            Text(inventory.ingredient.name)
-                .font(.headline)
-                .foregroundColor(.black)
+            
         }
-        .padding()
-        .frame(height: 50)
-        .navigationBarBackButtonHidden(true)
     }
 }

@@ -10,25 +10,15 @@ import Apollo
 import ShokumemoAPI
 
 struct EditFormData {
-    // editInventory
-    var ingredientName: String? = .none
-    var categoryId: Int? = .none
     var numerator: Int = 1
     var denominator: Int? = .none
     var unit: String = ""
-    var expiryDate: Date? = .none
 
     var frozen: Bool = false
-    var location: String = ""
-    var price: Double = 0.0
     
 //    // GetCategoriesAndIngredients
-//    var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
     var isLoading = false
     var errorMessage: String? = .none
-    
-//    // カテゴリから食材を選んだ時に使うものたち
-//    var selectedIngredientName: String? = .none
 }
 
 class EditInventoryViewModel: ObservableObject {
@@ -38,20 +28,13 @@ class EditInventoryViewModel: ObservableObject {
     
     var inventoryId: String = ""
     
-    func editInventory() {
-        let fractionInput = FractionInput(
+    func updateQuantity() {
+        let input = UpdateQuantity(
             numerator: form.numerator,
             denominator: form.denominator == .none ? 1 : .init(integerLiteral: form.denominator!)
         )
         
-        let input = UpdateInventory(
-            quantity: .init(fractionInput),
-            unit: form.unit == "" ? .null : .init(stringLiteral: form.unit),
-            expiryDate: form.expiryDate == .none ? .null : .init(stringLiteral: DateFormatter.apiFormat.string(from: form.expiryDate!)),
-            frozen: form.frozen == false ? .null : .init(booleanLiteral: form.frozen)
-        )
-        
-        let mutation = UpdateInventoryMutation(id: inventoryId, input: input)
+        let mutation = UpdateQuantityMutation(id: inventoryId, input: input)
         
         form.isLoading = true
         isSubmitting = true
@@ -60,7 +43,7 @@ class EditInventoryViewModel: ObservableObject {
                 self?.form.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
-                    if let _ = graphQLResult.data?.updateInventory {
+                    if let _ = graphQLResult.data?.updateQuantity {
                         self?.isSubmitting = false
                         self?.resetForm()
                     } else if let errors = graphQLResult.errors {

@@ -1,5 +1,5 @@
 //
-//  InputPage.swift
+//  InputInvestoryPage.swift
 //  syokumemo
 //
 //  Created by KONISHI Hina on 2025/05/06.
@@ -11,9 +11,10 @@ import ShokumemoAPI
 typealias Category = GetCategoriesAndIngredientsQuery.Data.Category
 typealias Ingredient = GetCategoriesAndIngredientsQuery.Data.Category.Ingredient
 
-enum SelectIngredient: Hashable {
+enum AppNavigationPath: Hashable {
     case category([Category])
     case ingredients(Category)
+    case purchaseHistoryPage(inventoryData: InventoryDataForPurchaseHistory)
 }
 
 let numberFormatter: NumberFormatter = {
@@ -23,18 +24,15 @@ let numberFormatter: NumberFormatter = {
     return formatter
 }()
 
-struct InputPage: View {
+struct InputInventoryPage: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel = InputInventoryViewModel()
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false
-    @State private var path = [SelectIngredient]()
+    @State private var path = [AppNavigationPath]()
     @State private var isOnFractionInput = false
-    @State private var isOnInputExpiryDate = false
-    @State private var isOnGraphInput = false
     @State private var selectedDate = Date()
     @State private var setExpiryDateOneYearLater = false
-    @State private var setDateNotToday: Bool = false
     
     @FocusState private var isFocused: Bool
     
@@ -53,7 +51,7 @@ struct InputPage: View {
                 Form {
                     // MARK: 食材選択
                     Section {
-                        NavigationLink(value: SelectIngredient.category(viewModel.form.categories)) {
+                        NavigationLink(value: AppNavigationPath.category(viewModel.categories)) {
                             if let name = viewModel.form.selectedIngredientName {
                                 Text(name)
                             } else {
@@ -61,10 +59,8 @@ struct InputPage: View {
                             }
                         }
                     } header: {
-                        (
-                            Text("食材") + Text("*").foregroundColor(.red)
-                        )
-                        .font(.headline)
+                        Text("食材")
+                            .font(.headline)
                     }
                     
                     // MARK: 数量
@@ -95,10 +91,8 @@ struct InputPage: View {
                         }
                         
                     } header: {
-                        (
-                            Text("数量") + Text("*").foregroundColor(.red)
-                        )
-                        .font(.headline)
+                        Text("数量")
+                            .font(.headline)
                     }
                     
                     // MARK: 消費期限
@@ -155,103 +149,11 @@ struct InputPage: View {
                             .font(.headline)
                     }
                     
-                    //MARK: ↓Graphに必要な情報
-                    Section {
-                        Toggle(isOn: $isOnGraphInput) {
-                            HStack {
-                                if isOnGraphInput {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                    Text("以下全項目入力必須")
-                                } else {
-                                    Text("OFF")
-                                }
-                            }
-                        }
-                    } header: {
-                        Text("金額推移グラフに必要な情報")
-                            .font(.headline)
-                    }
-                    
-                    // MARK: 購入日
-                    if isOnGraphInput {
-                        Section {
-                            // 表示用のText（今日+1年 or selectedDate）
-                            Text(
-                                DateFormatter.displayFormat.string(
-                                    from: setDateNotToday
-                                    ?  selectedDate
-                                    : viewModel.form.date
-                                )
-                            )
-                            
-                            // Toggle（切り替えたら viewModel.form.expiryDate を更新）
-                            Toggle(isOn: $setDateNotToday) {
-                                if setDateNotToday {
-                                    Text("ON")
-                                } else {
-                                    Text("今日以外の日付に設定する")
-                                }
-                            }
-                            .onChange(of: setDateNotToday) { newValue in
-                                if newValue {
-                                    // ToggleがONになった → 選択された日付をセット
-                                    viewModel.form.date = selectedDate
-                                    
-                                } else {
-                                    // ToggleがOFFになった → 今日に戻す
-                                    viewModel.form.date = Date()
-                                }
-                            }
-                            
-                            // ToggleがOFFのときのみ、DatePicker表示＆変更時に更新
-                            if setDateNotToday {
-                                DatePicker("購入日", selection: $selectedDate, displayedComponents: .date)
-                                    .datePickerStyle(.graphical)
-                                    .labelsHidden()
-                                    .onChange(of: selectedDate) { newValue in
-                                        viewModel.form.date = newValue
-                                    }
-                            }
-                        } header: {
-                            Text("購入日")
-                                .font(.headline)
-                        }
-                    }
-                    
-                    // MARK: 金額
-                    if isOnGraphInput {
-                        Section {
-                            HStack {
-                                TextField("金額", value: $viewModel.form.price, formatter: numberFormatter)
-                                    .keyboardType(.decimalPad)
-                                    .focused($isFocused)
-                                Text("円")
-                            }
-                        } header: {
-                            Text("金額")
-                                .font(.headline)
-                        }
-                    }
-                    
-                    // MARK: 購入場所
-                    if isOnGraphInput {
-                        Section {
-                            TextField("ヨークベニマル会津大学店", text: $viewModel.form.location)
-                                .focused($isFocused)
-                        } header: {
-                            Text("購入場所")
-                                .font(.headline)
-                        }
-                    }
-                    
                     // MARK: 食材追加ボタン
                     Section {
                         Button("追加") {
-                            if  isOnGraphInput {
-                                viewModel.addInventoryAndPurchaseHistory()
-                            } else if !isOnGraphInput{
-                                viewModel.addInventory()
-                            }
+                            viewModel.addInventory()
+//                            isShowSheet.toggle()
                         }
                         .alert("追加失敗", isPresented: $viewModel.isMutationError) {
                             // ダイアログ内で行うアクション処理...
@@ -262,6 +164,13 @@ struct InputPage: View {
                             // アラートのメッセージ...
                             Text("入力を確認してください")
                         }
+                        .sheet(isPresented: $viewModel.isShowSheet) {
+                            let inventoryDataForSheet = viewModel.convertToInventoryDataForPurchaseHistory()
+                            HalfSheetDetails(path: $path, inventoryData: inventoryDataForSheet, resetFormFunc: viewModel.resetForm)
+                                .presentationDetents([
+                                    .height(150)
+                                ])
+                        }
                     }
                     
                     Section {
@@ -270,19 +179,20 @@ struct InputPage: View {
                 }
                 .foregroundColor(.black)
                 .tint(.orange)
-                .gesture(self.gesture)
+                //                .gesture(self.gesture)
                 .onAppear {
                     viewModel.fetchCategoriesAndIngredients()
                 }
-                .navigationDestination(for: SelectIngredient.self) { selectIngredient in // (4) 遷移先を設定
-                    switch selectIngredient {
+                .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in // (4) 遷移先を設定
+                    switch appNavigationPath {
                     case .category(let categories):
                         CategorySelectionPage(
                             categories: categories, path: $path, viewModel: viewModel
                         )
-    //
-                        case .ingredients(let category):
-                        IngredientSelectionView(path: $path, viewModel: viewModel, category: category)
+                    case .ingredients(let category):
+                        IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
+                    case .purchaseHistoryPage(let inventoryData):
+                        InputPurchaseHistoryPage(inventoryData: inventoryData)
                     }
                 }
             }
@@ -290,6 +200,53 @@ struct InputPage: View {
     }
 }
 
+
+// MARK: HalfSheetDetails
+struct HalfSheetDetails: View {
+    @Binding var path: [AppNavigationPath] // (1) pathのBindingを受け取る
+    let inventoryData: InventoryDataForPurchaseHistory // (2) inventoryDataを受け取る
+    let resetFormFunc: () -> Void
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack {
+            Text("追加が完了しました")
+            Text("購入履歴を入力しますか？")
+            HStack {
+                Spacer()
+                Button(action: {
+                    resetFormFunc()
+                    dismiss()
+                }, label: {
+                    Text("入力しない")
+                        .font(.headline)
+                        .frame(width: 140, height: 30, alignment: .center)
+                        .background(.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(20)
+                })
+                Spacer()
+                Button(action: {
+                    path.append(.purchaseHistoryPage(inventoryData: self.inventoryData))
+                    resetFormFunc()
+                    dismiss()
+                }, label: {
+                    Text("入力する")
+                        .font(.headline)
+                        .frame(width: 140, height: 30, alignment: .center)
+                        .background(.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(20)
+                        
+                })
+                Spacer()
+            }
+        }
+        .padding()
+    }
+}
+
 #Preview {
-    InputPage()
+    InputInventoryPage()
 }

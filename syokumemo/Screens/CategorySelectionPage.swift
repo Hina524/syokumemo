@@ -10,7 +10,7 @@ import ShokumemoAPI
 
 struct CategorySelectionPage: View {
     var categories: [Category]
-    @Binding var path: [SelectIngredient]
+    @Binding var path: [AppNavigationPath]
     var viewModel: InputInventoryViewModel
     
     var body: some View {
@@ -35,14 +35,14 @@ struct CategorySelectionPage: View {
         
         List {
             ForEach(categories, id: \.id) { category in
-                NavigationLink(value: SelectIngredient.ingredients(category)) {
+                NavigationLink(value: AppNavigationPath.ingredients(category)) {
                     Text(category.name)
                 }
             }
         }
-        .navigationDestination(for: SelectIngredient.self) { selectIngredient in
-            if case SelectIngredient.ingredients(let category) = selectIngredient { // Item.member から associated value を取得する
-                IngredientSelectionView(path: $path, viewModel: viewModel, category: category)
+        .navigationDestination(for: AppNavigationPath.self) { selectIngredient in
+            if case AppNavigationPath.ingredients(let category) = selectIngredient { // Item.member から associated value を取得する
+                IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
             }
         }
         

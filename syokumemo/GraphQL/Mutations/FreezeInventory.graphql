@@ -1,5 +1,5 @@
-mutation UpdateInventory($id: ID!, $input: UpdateInventory!) {
-	updateInventory(id: $id, input: $input) {
+mutation FreezeInventory($id: ID!) {
+	freezeInventory(id: $id) {
 		id
 		ingredient {
 			id

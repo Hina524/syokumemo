@@ -8,9 +8,9 @@
 import SwiftUI
 import ShokumemoAPI
 
-struct IngredientSelectionView: View {
+struct IngredientSelectionPage: View {
     
-    @Binding var path: [SelectIngredient]
+    @Binding var path: [AppNavigationPath]
     
     var viewModel: InputInventoryViewModel
     var category: Category

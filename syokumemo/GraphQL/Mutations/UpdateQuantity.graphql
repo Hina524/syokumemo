@@ -1,0 +1,18 @@
+mutation UpdateQuantity($id: ID!, $input: UpdateQuantity!) {
+	updateQuantity(id: $id, input: $input) {
+		id
+		ingredient {
+			id
+			name
+			category {
+				id
+				name
+			}
+		}
+		quantity {
+			numerator
+			denominator
+		}
+		unit
+	}
+}

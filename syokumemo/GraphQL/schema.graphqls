@@ -96,6 +96,7 @@ enum InventorySort {
 
 type Mutation {
   createCategory(input: NewCategory!): Category!
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   addIngredient(input: NewIngredient!): Ingredient!
   addInventory(input: NewInventory!): Inventory!
   updateInventory(id: ID!, input: UpdateInventory!): Inventory!
@@ -105,6 +106,7 @@ type Mutation {
   updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory!
   deleteCategory(id: ID!): Boolean!
   deleteIngredient(id: ID!): Boolean!
+  updateQuantity(id: ID!, input: UpdateQuantity!): Inventory!
 }
 
 input NewCategory {
@@ -149,6 +151,7 @@ type PurchaseHistory {
 
 type Query {
   categories: [Category!]!
+  category(id: ID!): Category
   ingredients(categoryId: ID, q: String): [Ingredient!]!
   inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]!
   priceTrend(ingredientId: ID!): [PricePoint!]!
@@ -156,6 +159,10 @@ type Query {
   countByDate(start: String!, end: String!): [CountByDate!]!
   recognizeIngredients(image: Upload!): [IngredientSuggestion!]!
   purchaseHistory(ingredientId: ID): [PurchaseHistory!]!
+}
+
+input UpdateCategoryInput {
+  name: String!
 }
 
 input UpdateInventory {
@@ -171,6 +178,11 @@ input UpdatePurchaseHistory {
   date: String
   location: String
   price: Float
+}
+
+input UpdateQuantity {
+  numerator: Int!
+  denominator: Int!
 }
 
 scalar Upload

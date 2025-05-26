@@ -3,28 +3,20 @@
 
 @_exported import ApolloAPI
 
-public class UpdateInventoryMutation: GraphQLMutation {
-  public static let operationName: String = "UpdateInventory"
+public class FreezeInventoryMutation: GraphQLMutation {
+  public static let operationName: String = "FreezeInventory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"mutation UpdateInventory($id: ID!, $input: UpdateInventory!) { updateInventory(id: $id, input: $input) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen } }"#
+      #"mutation FreezeInventory($id: ID!) { freezeInventory(id: $id) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen } }"#
     ))
 
   public var id: ID
-  public var input: UpdateInventory
 
-  public init(
-    id: ID,
-    input: UpdateInventory
-  ) {
+  public init(id: ID) {
     self.id = id
-    self.input = input
   }
 
-  public var __variables: Variables? { [
-    "id": id,
-    "input": input
-  ] }
+  public var __variables: Variables? { ["id": id] }
 
   public struct Data: ShokumemoAPI.SelectionSet {
     public let __data: DataDict
@@ -32,18 +24,15 @@ public class UpdateInventoryMutation: GraphQLMutation {
 
     public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Mutation }
     public static var __selections: [ApolloAPI.Selection] { [
-      .field("updateInventory", UpdateInventory.self, arguments: [
-        "id": .variable("id"),
-        "input": .variable("input")
-      ]),
+      .field("freezeInventory", FreezeInventory.self, arguments: ["id": .variable("id")]),
     ] }
 
-    public var updateInventory: UpdateInventory { __data["updateInventory"] }
+    public var freezeInventory: FreezeInventory { __data["freezeInventory"] }
 
-    /// UpdateInventory
+    /// FreezeInventory
     ///
     /// Parent Type: `Inventory`
-    public struct UpdateInventory: ShokumemoAPI.SelectionSet {
+    public struct FreezeInventory: ShokumemoAPI.SelectionSet {
       public let __data: DataDict
       public init(_dataDict: DataDict) { __data = _dataDict }
 
@@ -65,7 +54,7 @@ public class UpdateInventoryMutation: GraphQLMutation {
       public var expiryDate: String { __data["expiryDate"] }
       public var frozen: Bool { __data["frozen"] }
 
-      /// UpdateInventory.Ingredient
+      /// FreezeInventory.Ingredient
       ///
       /// Parent Type: `Ingredient`
       public struct Ingredient: ShokumemoAPI.SelectionSet {
@@ -83,7 +72,7 @@ public class UpdateInventoryMutation: GraphQLMutation {
         public var name: String { __data["name"] }
       }
 
-      /// UpdateInventory.Quantity
+      /// FreezeInventory.Quantity
       ///
       /// Parent Type: `Fraction`
       public struct Quantity: ShokumemoAPI.SelectionSet {
