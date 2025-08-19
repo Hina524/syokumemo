@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		323A81352E5456B10027C1C7 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 323A81342E5456B10027C1C7 /* Config.xcconfig */; };
+		323A81362E5456B10027C1C7 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 323A81342E5456B10027C1C7 /* Config.xcconfig */; };
+		323A81372E5456B10027C1C7 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 323A81342E5456B10027C1C7 /* Config.xcconfig */; };
+		323A813D2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
+		323A813E2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
+		323A813F2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
 		32BC54402DCA5E640068D0D5 /* ShokumemoAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC543F2DCA5E640068D0D5 /* ShokumemoAPI */; };
 		32BC54422DCA60420068D0D5 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54412DCA60420068D0D5 /* Apollo */; };
 		32BC54462DCA60420068D0D5 /* ApolloAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54452DCA60420068D0D5 /* ApolloAPI */; };
@@ -33,14 +39,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		323A81342E5456B10027C1C7 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		323A813C2E545A980027C1C7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		325977262DC93A2B001A075D /* syokumemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = syokumemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		325977372DC93A2C001A075D /* syokumemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = syokumemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		325977412DC93A2C001A075D /* syokumemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = syokumemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		323A82A12E54834D0027C1C7 /* Exceptions for "syokumemo" folder in "syokumemo" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 325977252DC93A2B001A075D /* syokumemo */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		325977282DC93A2B001A075D /* syokumemo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				323A82A12E54834D0027C1C7 /* Exceptions for "syokumemo" folder in "syokumemo" target */,
+			);
 			path = syokumemo;
 			sourceTree = "<group>";
 		};
@@ -90,6 +111,8 @@
 		3259771D2DC93A2B001A075D = {
 			isa = PBXGroup;
 			children = (
+				323A813C2E545A980027C1C7 /* .gitignore */,
+				323A81342E5456B10027C1C7 /* Config.xcconfig */,
 				325977282DC93A2B001A075D /* syokumemo */,
 				3259773A2DC93A2C001A075D /* syokumemoTests */,
 				325977442DC93A2C001A075D /* syokumemoUITests */,
@@ -190,7 +213,7 @@
 		3259771E2DC93A2B001A075D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
@@ -237,6 +260,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				323A81352E5456B10027C1C7 /* Config.xcconfig in Resources */,
+				323A813E2E545AA00027C1C7 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,6 +269,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				323A813F2E545AA00027C1C7 /* .gitignore in Resources */,
+				323A81362E5456B10027C1C7 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +278,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				323A813D2E545AA00027C1C7 /* .gitignore in Resources */,
+				323A81372E5456B10027C1C7 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +439,7 @@
 		};
 		3259774C2DC93A2C001A075D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 323A81342E5456B10027C1C7 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -420,6 +450,7 @@
 				DEVELOPMENT_TEAM = C4KB8448J2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = syokumemo/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -448,6 +479,7 @@
 		};
 		3259774D2DC93A2C001A075D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 323A81342E5456B10027C1C7 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -458,6 +490,7 @@
 				DEVELOPMENT_TEAM = C4KB8448J2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = syokumemo/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -580,7 +613,7 @@
 				3259774A2DC93A2C001A075D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		3259774B2DC93A2C001A075D /* Build configuration list for PBXNativeTarget "syokumemo" */ = {
 			isa = XCConfigurationList;
@@ -589,7 +622,7 @@
 				3259774D2DC93A2C001A075D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		3259774E2DC93A2C001A075D /* Build configuration list for PBXNativeTarget "syokumemoTests" */ = {
 			isa = XCConfigurationList;
@@ -598,7 +631,7 @@
 				325977502DC93A2C001A075D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		325977512DC93A2C001A075D /* Build configuration list for PBXNativeTarget "syokumemoUITests" */ = {
 			isa = XCConfigurationList;
@@ -607,7 +640,7 @@
 				325977532DC93A2C001A075D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 

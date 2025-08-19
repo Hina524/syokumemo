@@ -23,68 +23,55 @@ struct GraphPage: View {
             } else {
                 List(viewModel.ingredients, id: \.id) { ingredient in
                     Section(
-                        header: Text(ingredient.name)
-                            .font(.headline)
                     ) {
-                        Chart {
-                            ForEach(
-                                ingredient.purchaseHistory
-                                    .compactMap { history -> LineData? in
-                                        guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
-                                        return LineData(id: history.id, date: date, price: history.price)
-                                    }
-                                    .sorted { $0.date < $1.date }
-                            ) { data in
-                                LineMark(
-                                    x: .value("日付", data.date),
-                                    y: .value("価格", data.price)
-                                )
-                                .foregroundStyle(.green)
-                                .symbol(Circle())
-                                if let rawSelectedDate {
-                                    // 選択した時にRuleMarkを追加
-                                    RuleMark(
-                                        x: .value("Selected", rawSelectedDate, unit: .month)
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(ingredient.name)
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                                Text("説明")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                            Chart {
+                                ForEach(
+                                    ingredient.purchaseHistory
+                                        .compactMap { history -> LineData? in
+                                            guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
+                                            return LineData(id: history.id, date: date, price: history.price)
+                                        }
+                                        .sorted { $0.date < $1.date }
+                                ) { data in
+                                    LineMark(
+                                        x: .value("日付", data.date),
+                                        y: .value("価格", data.price)
                                     )
-                                    .foregroundStyle(.gray.opacity(0.3))
-                                    .offset(yStart: -10)
-                                    .zIndex(-1)// RuleMarkがLineMarkの後ろに来るように。defaultは0
-                                    .annotation( // 注釈の作成
-                                        position: .top, //
-                                        spacing: 0,
-                                        overflowResolution: .init(
-                                            x: .fit(to: .chart), // X軸では注釈がグラフの端の境界を超えないようにfitさせる
-                                            y: .disabled // Y軸では注釈がグラフのすぐ上に来るようにするようにオーバーフロー解決を無効にする
-                                        )
-                                    ) {
-                                        Text(rawSelectedDate, format: Date.FormatStyle(date: .numeric, time: .none))
-                                            .padding()
-                                            .background(Color.cyan)
-                                    }
+                                    .foregroundStyle(.green)
+                                    .lineStyle(StrokeStyle(lineWidth: 2.5)) // 線を少し太く
                                 }
                             }
-                        }
-                        .frame(height: 200)
-                        .padding(.top, 65)
-                        .chartXSelection(value: $rawSelectedDate) // タップした位置のX軸上の値を取得
-                        //  .chartScrollableAxes(.horizontal)
-                                                .chartXAxis {
-                                                    AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                                                        if let dateValue = value.as(Date.self) {
-                                                            AxisValueLabel {
-                                                                Text(dateValue.formattedJapaneseMonth())
-                                                            }
-                                                        }
-                            }
+                            
+                            // ★ここを追加：X軸とY軸を非表示にするモディファイア★
+                            .chartXAxis(.hidden) // X軸を非表示
+                            .chartYAxis(.hidden) // Y軸を非表示
+                            
+                            
+                            
+                            // ★ミニチャートのサイズを固定する場合、frameモディファイアも追加★
+                            .frame(width: 90, height: 30) // 必要に応じてサイズを調整
+                            
                         }
                     }
-                  //  .frame(height: 400)
+//                    .listRowBackground(Color.green.opacity(0.15))
                 }
+                
+                .listStyle(.plain)
             }
         }
-        .onAppear {
-            viewModel.fetchGetPriceTrend()
-        }
+//        .onAppear {
+//            viewModel.fetchGetPriceTrend()
+//        }
     }
 }
 

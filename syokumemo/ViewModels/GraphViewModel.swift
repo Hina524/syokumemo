@@ -25,33 +25,25 @@ class GraphViewModel: ObservableObject {
     private var watcher: GraphQLQueryWatcher<GetIngredientsAndParchaseHistoryQuery>?
     
     init() {
+        isLoading = true
+        
         watcher = Network.shared.apollo.watch(
             query: GetIngredientsAndParchaseHistoryQuery(),
             cachePolicy: .returnCacheDataAndFetch
         ) { [weak self] result in
-            switch result {
-            case .success(let graphQLResult):
-                // キャッシュ or ネットワークから返ってきた最新の items に差し替え
-                self?.ingredients = graphQLResult.data?.ingredients ?? []
-            case .failure(let error):
-                print("Query watch error:", error)
-            }
-        }
-    }
-    func fetchGetPriceTrend() {
-        isLoading = true
-        
-        Network.shared.apollo.fetch(query: GetIngredientsAndParchaseHistoryQuery()) { [weak self] result in
+            
+            
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
+                    // キャッシュ or ネットワークから返ってきた最新の items に差し替え
                     self?.ingredients = graphQLResult.data?.ingredients ?? []
                 case .failure(let error):
+                    print("Query watch error:", error)
                     self?.errorMessage = "データ取得に失敗しました: \(error.localizedDescription)"
                 }
             }
         }
     }
 }
-

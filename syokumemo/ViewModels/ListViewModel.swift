@@ -13,6 +13,7 @@ class ListViewModel: ObservableObject {
     @Published var inventories: [GetInventoriesQuery.Data.Inventory] = []
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
+    @Published var isShowSheet = false
     private var watcher: GraphQLQueryWatcher<GetInventoriesQuery>?
     
     init(sort: InventorySort? = .expiryAsc ) {
