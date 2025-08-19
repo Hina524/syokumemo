@@ -12,7 +12,7 @@ class Network {
     static let shared = Network()
 
     private(set) lazy var apollo: ApolloClient = {
-        let url = URL(string: "http://localhost:8080/query")!
+        let url = URL(string: Bundle.main.infoDictionary?["ENDPOINT_URL"] as! String)!
         return ApolloClient(url: url)
     }()
 }

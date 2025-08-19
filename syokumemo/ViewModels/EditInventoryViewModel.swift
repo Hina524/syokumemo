@@ -25,6 +25,7 @@ class EditInventoryViewModel: ObservableObject {
     @Published var form = EditFormData()
     @Published var isSubmitting = false
     @Published var isMutationError: Bool = false
+   
     
     var inventoryId: String = ""
     
