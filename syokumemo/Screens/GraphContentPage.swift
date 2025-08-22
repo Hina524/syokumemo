@@ -106,32 +106,35 @@ struct GraphContentPage: View {
                                     x: .value("Selected", selectedData.date)
                                 )
                                 .foregroundStyle(.gray.opacity(0.6))
+                                .offset(yStart: -10)
+                                .zIndex(-1)
                                 .lineStyle(StrokeStyle(lineWidth: 2))
                                 .annotation(
                                     position: .top,
-                                    spacing: 15,
+                                    spacing: 10,
                                     overflowResolution: .init(
                                         x: .fit(to: .chart),
-                                        y: .disabled
+                                        y: .fit(to: .chart)
                                     )
                                 ) {
                                     VStack(spacing: 2) {
-                                        Text(String(format: "%.2f円", selectedData.price))
+                                        Text(String(format: "%.0f円", selectedData.price))
                                             .font(.headline)
                                             .fontWeight(.bold)
+                                            .foregroundColor(.black)
                                         Text(selectedData.date, format: Date.FormatStyle(date: .numeric, time: .none))
                                             .font(.caption)
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(.black)
                                     }
-                                    .padding()
+                                    .padding(8)
                                     .background(Color.white)
                                     .cornerRadius(8)
-                                    .shadow(radius: 4)
+                                    .shadow(color: .black.opacity(0.3), radius: 4)
                                 }
                             }
                         }
-                        .frame(height: 200)
-                        .padding(.top, 65)
+                        .frame(height: 300)
+                        .padding(.top, 20)
                         .chartXSelection(value: $rawSelectedDate)
                         .chartScrollableAxes(.horizontal)
                         .chartXVisibleDomain(length: viewModel.visibleDomainLength)
