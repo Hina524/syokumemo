@@ -106,15 +106,15 @@ struct GraphContentPage: View {
                                     x: .value("Selected", selectedData.date)
                                 )
                                 .foregroundStyle(.gray.opacity(0.6))
+                                .lineStyle(StrokeStyle(lineWidth: 2))
                                 .offset(yStart: -10)
                                 .zIndex(-1)
-                                .lineStyle(StrokeStyle(lineWidth: 2))
                                 .annotation(
                                     position: .top,
-                                    spacing: 10,
+                                    spacing: 0,
                                     overflowResolution: .init(
                                         x: .fit(to: .chart),
-                                        y: .fit(to: .chart)
+                                        y: .disabled
                                     )
                                 ) {
                                     VStack(spacing: 2) {
