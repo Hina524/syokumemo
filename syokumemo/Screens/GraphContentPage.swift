@@ -127,7 +127,12 @@ struct GraphContentPage: View {
                             AxisMarks(values: .automatic(desiredCount: 5)) { value in
                                 if let dateValue = value.as(Date.self) {
                                     AxisValueLabel {
-                                        Text(dateValue.formattedJapaneseMonth())
+                                        switch viewModel.selectedPeriod {
+                                        case .week, .month:
+                                            Text(dateValue.formattedJapaneseDay())
+                                        case .sixMonths, .year:
+                                            Text(dateValue.formattedJapaneseMonth())
+                                        }
                                     }
                                 }
                             }
