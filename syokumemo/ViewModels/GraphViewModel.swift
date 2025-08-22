@@ -29,6 +29,9 @@ class GraphViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var lineData: [LineData] = []
     @Published var selectedPeriod: TimePeriod = .month
+    @Published var visibleDomain: ClosedRange<Date>?
+    @Published var isDataExplorationMode = false
+    @Published var selectedDataPoint: LineData?
     
     private var watcher: GraphQLQueryWatcher<GetIngredientsAndParchaseHistoryQuery>?
     
@@ -55,8 +58,34 @@ class GraphViewModel: ObservableObject {
         }
     }
     
-    func selectPeriod(_ period: TimePeriod) {
+    func selectPeriod(_ period: TimePeriod, for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
         selectedPeriod = period
+        isDataExplorationMode = false // 期間選択時はデータ閲覧モードを解除
+        selectedDataPoint = nil
+        updateVisibleDomain(for: ingredient)
+    }
+    
+    func updateVisibleDomain(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
+        let calendar = Calendar.current
+        
+        // データの最新日付を取得
+        let latestDate = ingredient.purchaseHistory
+            .compactMap { DateFormatter.apiFormat.date(from: $0.date) }
+            .max() ?? Date()
+        
+        let startDate: Date
+        switch selectedPeriod {
+        case .week:
+            startDate = calendar.date(byAdding: .weekOfYear, value: -1, to: latestDate) ?? latestDate
+        case .month:
+            startDate = calendar.date(byAdding: .month, value: -1, to: latestDate) ?? latestDate
+        case .sixMonths:
+            startDate = calendar.date(byAdding: .month, value: -6, to: latestDate) ?? latestDate
+        case .year:
+            startDate = calendar.date(byAdding: .year, value: -1, to: latestDate) ?? latestDate
+        }
+        
+        visibleDomain = startDate...latestDate
     }
     
     func filteredPurchaseHistory(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient.PurchaseHistory] {
@@ -103,5 +132,37 @@ class GraphViewModel: ObservableObject {
         let averagePrice = totalPrice / Double(filteredHistory.count)
         
         return String(format: "%.2f", averagePrice) + "円"
+    }
+    
+    var visibleDomainLength: TimeInterval {
+        switch selectedPeriod {
+        case .week: return 7 * 24 * 60 * 60
+        case .month: return 30 * 24 * 60 * 60  
+        case .sixMonths: return 180 * 24 * 60 * 60
+        case .year: return 365 * 24 * 60 * 60
+        }
+    }
+    
+    func enterDataExplorationMode(with dataPoint: LineData) {
+        isDataExplorationMode = true
+        selectedDataPoint = dataPoint
+    }
+    
+    func exitDataExplorationMode() {
+        isDataExplorationMode = false
+        selectedDataPoint = nil
+    }
+    
+    func findNearestDataPoint(to date: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> LineData? {
+        let dataPoints = ingredient.purchaseHistory.compactMap { history -> LineData? in
+            guard let historyDate = DateFormatter.apiFormat.date(from: history.date) else { return nil }
+            return LineData(id: history.id, date: historyDate, price: history.price)
+        }
+        
+        return dataPoints.min { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }
+    }
+    
+    func getPriceForSelectedDate(_ selectedDate: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> Double? {
+        return findNearestDataPoint(to: selectedDate, in: ingredient)?.price
     }
 }

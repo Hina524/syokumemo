@@ -50,7 +50,7 @@ struct GraphContentPage: View {
                 HStack {
                     ForEach(TimePeriod.allCases, id: \.self) { period in
                         Button(action: {
-                            viewModel.selectPeriod(period)
+                            viewModel.selectPeriod(period, for: ingredient)
                         }) {
                             Text(period.rawValue)
                                 .padding(.horizontal, 12)
@@ -66,6 +66,7 @@ struct GraphContentPage: View {
                 .padding(.horizontal)
                 
                 VStack(alignment: .leading, spacing: 8) {
+                    // サマリー表示モード（常に表示）
                     VStack(alignment: .leading, spacing: 4) {
                         Text("平均")
                             .font(.caption)
@@ -84,7 +85,7 @@ struct GraphContentPage: View {
                     ) {
                         Chart {
                             ForEach(
-                                viewModel.filteredPurchaseHistory(for: ingredient)
+                                ingredient.purchaseHistory
                                     .compactMap { history -> LineData? in
                                         guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
                                         return LineData(id: history.id, date: date, price: history.price)
@@ -103,19 +104,35 @@ struct GraphContentPage: View {
                                         x: .value("Selected", rawSelectedDate, unit: .month)
                                     )
                                     .foregroundStyle(.gray.opacity(0.3))
-                                    .offset(yStart: -10)
-                                    .zIndex(-1)// RuleMarkがLineMarkの後ろに来るように。defaultは0
-                                    .annotation( // 注釈の作成
-                                        position: .top, //
-                                        spacing: 0,
+                                    .offset(yStart: -50)
+                                    .zIndex(-1)
+                                    .annotation(
+                                        position: .top,
+                                        spacing: 20,
                                         overflowResolution: .init(
-                                            x: .fit(to: .chart), // X軸では注釈がグラフの端の境界を超えないようにfitさせる
-                                            y: .disabled // Y軸では注釈がグラフのすぐ上に来るようにするようにオーバーフロー解決を無効にする
+                                            x: .fit(to: .chart),
+                                            y: .disabled
                                         )
                                     ) {
-                                        Text(rawSelectedDate, format: Date.FormatStyle(date: .numeric, time: .none))
-                                            .padding()
-                                            .background(Color.cyan)
+                                        VStack(spacing: 2) {
+                                            if let price = viewModel.getPriceForSelectedDate(rawSelectedDate, in: ingredient) {
+                                                Text(String(format: "%.2f円", price))
+                                                    .font(.headline)
+                                                    .fontWeight(.bold)
+                                            } else {
+                                                Text("データなし")
+                                                    .font(.headline)
+                                                    .fontWeight(.bold)
+                                            }
+                                            Text(rawSelectedDate, format: Date.FormatStyle(date: .numeric, time: .none))
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding()
+                                        .background(Color.white)
+                                        .cornerRadius(8)
+                                        .shadow(radius: 4)
+                                        .zIndex(1)
                                     }
                                 }
                             }
@@ -123,6 +140,8 @@ struct GraphContentPage: View {
                         .frame(height: 200)
                         .padding(.top, 65)
                         .chartXSelection(value: $rawSelectedDate)
+                        .chartScrollableAxes(.horizontal)
+                        .chartXVisibleDomain(length: viewModel.visibleDomainLength)
                         .chartXAxis {
                             AxisMarks(values: .automatic(desiredCount: 5)) { value in
                                 if let dateValue = value.as(Date.self) {
