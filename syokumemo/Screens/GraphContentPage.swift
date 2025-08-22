@@ -66,10 +66,19 @@ struct GraphContentPage: View {
                 .padding(.horizontal)
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(viewModel.getDisplayDateRange(for: ingredient))
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .padding(.horizontal)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("平均")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Text(viewModel.getAveragePrice(for: ingredient))
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                        Text(viewModel.getDisplayDateRange(for: ingredient))
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal)
                     
                     Section(
                     ) {

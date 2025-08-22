@@ -94,4 +94,14 @@ class GraphViewModel: ObservableObject {
         
         return "\(DateFormatter.displayFormat.string(from: minDate))〜\(DateFormatter.displayFormat.string(from: maxDate))"
     }
+    
+    func getAveragePrice(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> String {
+        let filteredHistory = filteredPurchaseHistory(for: ingredient)
+        guard !filteredHistory.isEmpty else { return "データなし" }
+        
+        let totalPrice = filteredHistory.reduce(0.0) { $0 + $1.price }
+        let averagePrice = totalPrice / Double(filteredHistory.count)
+        
+        return String(format: "%.2f", averagePrice) + "円"
+    }
 }
