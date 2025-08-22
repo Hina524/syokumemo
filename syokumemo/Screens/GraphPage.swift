@@ -9,9 +9,12 @@ import SwiftUI
 import ShokumemoAPI
 import Charts
 
+typealias GraphIngredient = GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
+
 struct GraphPage: View {
     @StateObject private var viewModel = GraphViewModel()
     @State private var rawSelectedDate: Date?
+    @State private var path: [GraphIngredient] = []
     
     var body: some View {
         VStack {
@@ -21,20 +24,22 @@ struct GraphPage: View {
                 Text(error)
                     .foregroundColor(.red)
             } else {
-                List(viewModel.ingredients, id: \.id) { ingredient in
-                    Section(
-                    ) {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(ingredient.name)
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                Text("説明")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Chart {
+                NavigationStack(path: $path) {
+                    List(viewModel.ingredients, id: \.id) { ingredient in
+                        NavigationLink(value: ingredient) {
+                            Section(
+                            ) {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(ingredient.name)
+                                            .font(.headline)
+                                            .foregroundColor(.black)
+                                        Text("説明")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                    Spacer()
+                                    Chart {
                                 ForEach(
                                     ingredient.purchaseHistory
                                         .compactMap { history -> LineData? in
@@ -61,11 +66,15 @@ struct GraphPage: View {
                             // ★ミニチャートのサイズを固定する場合、frameモディファイアも追加★
                             .frame(width: 90, height: 30) // 必要に応じてサイズを調整
                             
+                                }
+                            }
+//                    .listRowBackground(Color.green.opacity(0.15))
                         }
                     }
-//                    .listRowBackground(Color.green.opacity(0.15))
+                    .navigationDestination(for: GraphIngredient.self) { ingredient in
+                        GraphContentPage(ingredient: ingredient)
+                    }
                 }
-                
                 .listStyle(.plain)
             }
         }

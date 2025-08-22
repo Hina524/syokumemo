@@ -13,6 +13,7 @@ import Charts
 struct GraphContentPage: View {
     @StateObject private var viewModel = GraphViewModel()
     @State private var rawSelectedDate: Date?
+    let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
     
     var body: some View {
         VStack {
@@ -22,14 +23,13 @@ struct GraphContentPage: View {
                 Text(error)
                     .foregroundColor(.red)
             } else {
-                List(viewModel.ingredients, id: \.id) { ingredient in
-                    Section(
-                        header: Text(ingredient.name)
-                            .font(.headline)
-                    ) {
-                        Chart {
-                            ForEach(
-                                ingredient.purchaseHistory
+                Section(
+                    header: Text(ingredient.name)
+                        .font(.headline)
+                ) {
+                    Chart {
+                        ForEach(
+                            ingredient.purchaseHistory
                                     .compactMap { history -> LineData? in
                                         guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
                                         return LineData(id: history.id, date: date, price: history.price)
@@ -67,20 +67,19 @@ struct GraphContentPage: View {
                         }
                         .frame(height: 200)
                         .padding(.top, 65)
-                        .chartXSelection(value: $rawSelectedDate) // タップした位置のX軸上の値を取得
-                        //  .chartScrollableAxes(.horizontal)
-                                                .chartXAxis {
-                                                    AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                                                        if let dateValue = value.as(Date.self) {
-                                                            AxisValueLabel {
-                                                                Text(dateValue.formattedJapaneseMonth())
-                                                            }
-                                                        }
+                        .chartXSelection(value: $rawSelectedDate)
+                        .chartXAxis {
+                            AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                                if let dateValue = value.as(Date.self) {
+                                    AxisValueLabel {
+                                        Text(dateValue.formattedJapaneseMonth())
+                                    }
+                                }
                             }
                         }
-                    }
-                  //  .frame(height: 400)
                 }
+                .navigationTitle(ingredient.name)
+                .navigationBarTitleDisplayMode(.large)
             }
         }
 //        .onAppear {
@@ -89,6 +88,6 @@ struct GraphContentPage: View {
     }
 }
 
-#Preview {
-    GraphContentPage()
-}
+//#Preview {
+//    GraphContentPage()
+//}
