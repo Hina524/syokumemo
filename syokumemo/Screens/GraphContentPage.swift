@@ -98,42 +98,35 @@ struct GraphContentPage: View {
                                 )
                                 .foregroundStyle(.green)
                                 .symbol(Circle())
-                                if let rawSelectedDate {
-                                    // 選択した時にRuleMarkを追加
-                                    RuleMark(
-                                        x: .value("Selected", rawSelectedDate, unit: .month)
+                            }
+                            
+                            if let selectedData = viewModel.getSelectedDataPoint(rawSelectedDate, in: ingredient) {
+                                // 選択されたデータポイントの真上に縦線を表示
+                                RuleMark(
+                                    x: .value("Selected", selectedData.date)
+                                )
+                                .foregroundStyle(.gray.opacity(0.6))
+                                .lineStyle(StrokeStyle(lineWidth: 2))
+                                .annotation(
+                                    position: .top,
+                                    spacing: 15,
+                                    overflowResolution: .init(
+                                        x: .fit(to: .chart),
+                                        y: .disabled
                                     )
-                                    .foregroundStyle(.gray.opacity(0.3))
-                                    .offset(yStart: -50)
-                                    .zIndex(-1)
-                                    .annotation(
-                                        position: .top,
-                                        spacing: 20,
-                                        overflowResolution: .init(
-                                            x: .fit(to: .chart),
-                                            y: .disabled
-                                        )
-                                    ) {
-                                        VStack(spacing: 2) {
-                                            if let price = viewModel.getPriceForSelectedDate(rawSelectedDate, in: ingredient) {
-                                                Text(String(format: "%.2f円", price))
-                                                    .font(.headline)
-                                                    .fontWeight(.bold)
-                                            } else {
-                                                Text("データなし")
-                                                    .font(.headline)
-                                                    .fontWeight(.bold)
-                                            }
-                                            Text(rawSelectedDate, format: Date.FormatStyle(date: .numeric, time: .none))
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
-                                        .padding()
-                                        .background(Color.white)
-                                        .cornerRadius(8)
-                                        .shadow(radius: 4)
-                                        .zIndex(1)
+                                ) {
+                                    VStack(spacing: 2) {
+                                        Text(String(format: "%.2f円", selectedData.price))
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                        Text(selectedData.date, format: Date.FormatStyle(date: .numeric, time: .none))
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
                                     }
+                                    .padding()
+                                    .background(Color.white)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 4)
                                 }
                             }
                         }

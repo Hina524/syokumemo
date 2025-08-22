@@ -165,4 +165,9 @@ class GraphViewModel: ObservableObject {
     func getPriceForSelectedDate(_ selectedDate: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> Double? {
         return findNearestDataPoint(to: selectedDate, in: ingredient)?.price
     }
+    
+    func getSelectedDataPoint(_ rawSelectedDate: Date?, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> LineData? {
+        guard let rawDate = rawSelectedDate else { return nil }
+        return findNearestDataPoint(to: rawDate, in: ingredient)
+    }
 }
