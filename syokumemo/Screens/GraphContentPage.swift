@@ -49,6 +49,13 @@ struct GraphContentPage: View {
         return closest?.date
     }
     
+    var maxPrice: Double {
+        let historyData = ingredient.purchaseHistory.compactMap { history -> Double? in
+            return history.price
+        }
+        return historyData.max() ?? 0
+    }
+    
     var body: some View {
         VStack {
             VStack {
@@ -105,7 +112,7 @@ struct GraphContentPage: View {
                     
                     // MARK: - グラフ
                     
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack/*(alignment: .leading, spacing: 8) */{
                         // サマリー表示モード（常に表示）
                         //                        VStack(alignment: .leading, spacing: 4) {
                         //                            Text("平均")
@@ -134,7 +141,7 @@ struct GraphContentPage: View {
                                     x: .value("日付", data.date),
                                     y: .value("価格", data.price)
                                 )
-                                .foregroundStyle(.green)
+//                               .foregroundStyle(.green)
                                 .symbol(Circle())
                             }
                             if let selectedData = viewModel.getSelectedDataPoint(rawSelectedDate, in: ingredient) {
@@ -143,11 +150,11 @@ struct GraphContentPage: View {
                                     x: .value("Selected", selectedData.date)
                                 )
                                 .foregroundStyle(.gray.opacity(0.3))
-                                //                                    .lineStyle(StrokeStyle(lineWidth: 2))
                                 .offset(yStart: -10)
                                 .zIndex(-1)
                                 .annotation(
-                                    position: .top,
+                                    position: .top
+                                    ,
                                     spacing: 0,
                                     overflowResolution: .init(
                                         x: .fit(to: .chart),
@@ -171,22 +178,23 @@ struct GraphContentPage: View {
                         }
                         
                         .chartXSelection(value: $rawSelectedDate)
-                        .chartScrollableAxes(.horizontal)
-                        .chartXVisibleDomain(length: viewModel.visibleDomainLength)
-                        .chartXAxis {
-                            AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                                if let dateValue = value.as(Date.self) {
-                                    AxisValueLabel {
-                                        switch viewModel.selectedPeriod {
-                                        case .week, .month:
-                                            Text(dateValue.formattedJapaneseDay())
-                                        case .sixMonths, .year:
-                                            Text(dateValue.formattedJapaneseMonth())
-                                        }
-                                    }
-                                }
-                            }
-                        }
+//                        .chartScrollableAxes(.horizontal)
+//                        .chartXVisibleDomain(length: viewModel.visibleDomainLength)
+//                        .chartXAxis {
+//                            AxisMarks(values: .automatic(desiredCount: 5)) { value in
+//                                if let dateValue = value.as(Date.self) {
+//                                    AxisValueLabel {
+//                                        switch viewModel.selectedPeriod {
+//                                        case .week, .month:
+//                                            Text(dateValue.formattedJapaneseDay())
+//                                        case .sixMonths, .year:
+//                                            Text(dateValue.formattedJapaneseMonth())
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        .chartYScale(domain: 0 ... (maxPrice + 100))
                         .frame(height: 300)
                         .padding()
                     }
@@ -194,13 +202,23 @@ struct GraphContentPage: View {
                     // MARK: - 移植先グラフ
                     
                     VStack {
-                        Chart(data, id: \.date) {
-                            LineMark(
-                                x: .value("Date", $0.date, unit: .month),
-                                y: .value("Profit", $0.profit)
-                            )
-                            .interpolationMethod(.catmullRom)
-                            .symbol(by: .value("departmentName", "A"))
+                        Chart {
+                            ForEach(
+                                ingredient.purchaseHistory
+                                    .compactMap { history -> LineData? in
+                                        guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
+                                        return LineData(id: history.id, date: date, price: history.price)
+                                    }
+                                    .sorted { $0.date < $1.date }
+                            ) { data in
+                                LineMark(
+                                    x: .value("日付", data.date),
+                                    y: .value("価格", data.price)
+                                )
+//                               .foregroundStyle(.green)
+                                .symbol(Circle())
+                            }
+//                            .symbol(by: .value("departmentName", "A"))
                             if let selectedDate {
                                 // 選択した時にRuleMarkを追加
                                 RuleMark(
