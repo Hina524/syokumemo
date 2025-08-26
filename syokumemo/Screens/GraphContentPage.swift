@@ -61,31 +61,6 @@ struct ChartAnnotation: View {
     }
 }
 
-// MARK: - TimePeriodSelector Component
-struct TimePeriodSelector: View {
-    let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
-    let viewModel: GraphViewModel
-    
-    var body: some View {
-        HStack {
-            ForEach(TimePeriod.allCases, id: \.self) { period in
-                Button(action: {
-                    viewModel.selectPeriod(period, for: ingredient)
-                }) {
-                    Text(period.rawValue)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            viewModel.selectedPeriod == period ? Color.gray : Color.clear
-                        )
-                        .foregroundColor(viewModel.selectedPeriod == period ? .white : .black)
-                        .cornerRadius(16)
-                }
-            }
-        }
-        .padding(.horizontal)
-    }
-}
 
 // MARK: - PriceSummary Component
 struct PriceSummary: View {
@@ -109,77 +84,6 @@ struct PriceSummary: View {
     }
 }
 
-// MARK: - PriceChart Component
-struct PriceChart: View {
-    let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
-    let viewModel: GraphViewModel
-    @Binding var rawSelectedDate: Date?
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            PriceSummary(ingredient: ingredient, viewModel: viewModel)
-            
-            Chart {
-                ForEach(
-                    ingredient.purchaseHistory
-                        .compactMap { history -> LineData? in
-                            guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
-                            return LineData(id: history.id, date: date, price: history.price)
-                        }
-                        .sorted { $0.date < $1.date }
-                ) { data in
-                    LineMark(
-                        x: .value("日付", data.date),
-                        y: .value("価格", data.price)
-                    )
-                    //                               .foregroundStyle(.green)
-                    .symbol(Circle())
-                }
-                if let selectedData = viewModel.getSelectedDataPoint(rawSelectedDate, in: ingredient) {
-                    // 選択されたデータポイントの真上に縦線を表示
-                    RuleMark(
-                        x: .value("Selected", selectedData.date)
-                    )
-                    .foregroundStyle(.gray.opacity(0.3))
-                    .offset(yStart: -10)
-                    .zIndex(-1)
-                    .annotation(
-                        position: .top
-                        ,
-                        spacing: 0,
-                        overflowResolution: .init(
-                            x: .fit(to: .chart),
-                            y: .disabled
-                        )
-                    ) {
-                        ChartAnnotation(selectedData: selectedData)
-                    }
-                }
-            }
-            
-            .chartXSelection(value: $rawSelectedDate)
-            //                        .chartScrollableAxes(.horizontal)
-            //                        .chartXVisibleDomain(length: viewModel.visibleDomainLength)
-            //                        .chartXAxis {
-            //                            AxisMarks(values: .automatic(desiredCount: 5)) { value in
-            //                                if let dateValue = value.as(Date.self) {
-            //                                    AxisValueLabel {
-            //                                        switch viewModel.selectedPeriod {
-            //                                        case .week, .month:
-            //                                            Text(dateValue.formattedJapaneseDay())
-            //                                        case .sixMonths, .year:
-            //                                            Text(dateValue.formattedJapaneseMonth())
-            //                                        }
-            //                                    }
-            //                                }
-            //                            }
-            //                        }
-            //                        .chartYScale(domain: 0 ... (maxPrice + 100))
-            .frame(height: 300)
-            .padding()
-        }
-    }
-}
 
 // MARK: - MAIN
 struct GraphContentPage: View {
@@ -188,12 +92,6 @@ struct GraphContentPage: View {
     let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
     @Environment(\.dismiss) private var dismiss
     
-    var maxPrice: Double {
-        let historyData = ingredient.purchaseHistory.compactMap { history -> Double? in
-            return history.price
-        }
-        return historyData.max() ?? 0
-    }
     
     var body: some View {
         VStack {
@@ -208,15 +106,68 @@ struct GraphContentPage: View {
                     Text(error)
                         .foregroundColor(.red)
                 } else {
-                    TimePeriodSelector(ingredient: ingredient, viewModel: viewModel)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("表示期間")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
+                        
+                        Picker("期間選択", selection: $viewModel.selectedPeriod) {
+                            ForEach(TimePeriod.allCases, id: \.self) { period in
+                                Text(period.rawValue).tag(period)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding(.horizontal)
+                        .onChange(of: viewModel.selectedPeriod) { _, newValue in
+                            viewModel.selectPeriod(newValue, for: ingredient)
+                        }
+                    }
                     
                     // MARK: - グラフ
                     
-                    PriceChart(
-                        ingredient: ingredient,
-                        viewModel: viewModel,
-                        rawSelectedDate: $rawSelectedDate
-                    )
+                    VStack(alignment: .leading, spacing: 8) {
+                        PriceSummary(ingredient: ingredient, viewModel: viewModel)
+                        
+                        Chart {
+                            ForEach(
+                                viewModel.filteredPurchaseHistory(for: ingredient)
+                                    .compactMap { history -> LineData? in
+                                        guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
+                                        return LineData(id: history.id, date: date, price: history.price)
+                                    }
+                                    .sorted { $0.date < $1.date }
+                            ) { data in
+                                LineMark(
+                                    x: .value("日付", data.date),
+                                    y: .value("価格", data.price)
+                                )
+                                .symbol(Circle())
+                            }
+                            if let selectedData = viewModel.getSelectedDataPoint(rawSelectedDate, in: ingredient) {
+                                RuleMark(
+                                    x: .value("Selected", selectedData.date)
+                                )
+                                .foregroundStyle(.gray.opacity(0.3))
+                                .offset(yStart: -10)
+                                .zIndex(-1)
+                                .annotation(
+                                    position: .top,
+                                    spacing: 0,
+                                    overflowResolution: .init(
+                                        x: .fit(to: .chart),
+                                        y: .disabled
+                                    )
+                                ) {
+                                    ChartAnnotation(selectedData: selectedData)
+                                }
+                            }
+                        }
+                        .id("\(viewModel.selectedPeriod.rawValue)-\(ingredient.id)")
+                        .chartXSelection(value: $rawSelectedDate)
+                        .frame(height: 300)
+                        .padding()
+                    }
                 }
             }
             Spacer()
