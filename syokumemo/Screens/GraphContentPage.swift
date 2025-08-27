@@ -48,41 +48,23 @@ struct ChartAnnotation: View {
     var body: some View {
         VStack(spacing: 2) {
             Text(String(format: "%.0f円", selectedData.price))
-                .font(.headline)
+                .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.black)
             Text(selectedData.date, format: Date.FormatStyle(date: .numeric, time: .none))
                 .font(.caption)
-                .foregroundColor(.black)
+                .foregroundColor(.gray)
         }
         .padding(8)
         .background(Color.white)
         .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+        )
     }
 }
 
-
-// MARK: - PriceSummary Component
-struct PriceSummary: View {
-    let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
-    let viewModel: GraphViewModel
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("平均")
-                .font(.caption)
-                .foregroundColor(.gray)
-            Text(viewModel.getAveragePrice(for: ingredient))
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
-            Text(viewModel.getDisplayDateRange(for: ingredient))
-                .font(.caption)
-                .foregroundColor(.gray)
-        }
-        .padding(.horizontal)
-    }
-}
 
 
 // MARK: - MAIN
@@ -127,7 +109,19 @@ struct GraphContentPage: View {
                     // MARK: - グラフ
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        PriceSummary(ingredient: ingredient, viewModel: viewModel)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("平均")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            Text(viewModel.getAveragePrice(for: ingredient))
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                            Text(viewModel.getDisplayDateRange(for: ingredient))
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.horizontal)
                         
                         Chart {
                             ForEach(
