@@ -159,6 +159,14 @@ struct GraphContentPage: View {
                         }
                         .id("\(viewModel.selectedPeriod.rawValue)-\(ingredient.id)")
                         .chartXSelection(value: $rawSelectedDate)
+                        .chartYScale(domain: viewModel.getYAxisRange(for: ingredient))
+                        .chartPlotStyle { plotArea in
+                            plotArea
+                                .overlay(
+                                    Rectangle()
+                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                )
+                        }
                         .frame(height: 300)
                         .padding()
                     }

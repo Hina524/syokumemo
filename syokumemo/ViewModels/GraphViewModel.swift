@@ -170,4 +170,17 @@ class GraphViewModel: ObservableObject {
         guard let rawDate = rawSelectedDate else { return nil }
         return findNearestDataPoint(to: rawDate, in: ingredient)
     }
+    
+    func getYAxisRange(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> ClosedRange<Double> {
+        let filteredData = filteredPurchaseHistory(for: ingredient)
+        let prices = filteredData.map { $0.price }
+        guard !prices.isEmpty else { return 0...100 }
+        
+        let minPrice = prices.min() ?? 0
+        let maxPrice = prices.max() ?? 100
+        let range = maxPrice - minPrice
+        let padding = max(range * 0.1, 10) // 10%の余白、最小10円
+        
+        return (minPrice - padding)...(maxPrice + padding)
+    }
 }
