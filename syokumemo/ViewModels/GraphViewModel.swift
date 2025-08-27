@@ -131,7 +131,7 @@ class GraphViewModel: ObservableObject {
         let totalPrice = filteredHistory.reduce(0.0) { $0 + $1.price }
         let averagePrice = totalPrice / Double(filteredHistory.count)
         
-        return String(format: "%.2f", averagePrice) + "円"
+        return String(format: "%.2f", averagePrice)
     }
     
     var visibleDomainLength: TimeInterval {

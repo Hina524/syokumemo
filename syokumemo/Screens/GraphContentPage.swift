@@ -89,11 +89,6 @@ struct GraphContentPage: View {
                         .foregroundColor(.red)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("表示期間")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
-                        
                         Picker("期間選択", selection: $viewModel.selectedPeriod) {
                             ForEach(TimePeriod.allCases, id: \.self) { period in
                                 Text(period.rawValue).tag(period)
@@ -113,10 +108,15 @@ struct GraphContentPage: View {
                             Text("平均")
                                 .font(.caption)
                                 .foregroundColor(.gray)
-                            Text(viewModel.getAveragePrice(for: ingredient))
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.black)
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(viewModel.getAveragePrice(for: ingredient))
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.black)
+                                Text("円")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
                             Text(viewModel.getDisplayDateRange(for: ingredient))
                                 .font(.caption)
                                 .foregroundColor(.gray)
@@ -168,7 +168,7 @@ struct GraphContentPage: View {
                                 )
                         }
                         .frame(height: 300)
-                        .padding()
+                        .padding(.horizontal)
                     }
                 }
             }
