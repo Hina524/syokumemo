@@ -160,6 +160,18 @@ struct GraphContentPage: View {
                         .id("\(viewModel.selectedPeriod.rawValue)-\(ingredient.id)")
                         .chartXSelection(value: $rawSelectedDate)
                         .chartYScale(domain: viewModel.getYAxisRange(for: ingredient))
+                        .chartXAxis {
+                            AxisMarks(values: .stride(by: viewModel.getXAxisStride(), count: viewModel.getXAxisStrideCount())) { value in
+                                AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [2, 2]))
+                                    .foregroundStyle(.gray.opacity(0.3))
+                                if let date = value.as(Date.self) {
+                                    AxisValueLabel {
+                                        Text(viewModel.getXAxisLabel(for: date))
+                                            .font(.caption)
+                                    }
+                                }
+                            }
+                        }
                         .chartPlotStyle { plotArea in
                             plotArea
                                 .overlay(

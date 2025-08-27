@@ -183,4 +183,41 @@ class GraphViewModel: ObservableObject {
         
         return (minPrice - padding)...(maxPrice + padding)
     }
+    
+    func getXAxisLabel(for date: Date) -> String {
+        let calendar = Calendar.current
+        switch selectedPeriod {
+        case .year, .sixMonths:
+            return "\(calendar.component(.month, from: date))月"
+        case .month:
+            return "\(calendar.component(.day, from: date))日"
+        case .week:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "ja_JP")
+            formatter.dateFormat = "E"  // 月、火、水...
+            return formatter.string(from: date)
+        }
+    }
+    
+    func getXAxisStride() -> Calendar.Component {
+        switch selectedPeriod {
+        case .year, .sixMonths:
+            return .month
+        case .month:
+            return .day
+        case .week:
+            return .day
+        }
+    }
+    
+    func getXAxisStrideCount() -> Int {
+        switch selectedPeriod {
+        case .year, .sixMonths:
+            return 1  // 月ごと
+        case .month:
+            return 7  // 7日ごと
+        case .week:
+            return 1  // 日ごと（曜日ごと）
+        }
+    }
 }
