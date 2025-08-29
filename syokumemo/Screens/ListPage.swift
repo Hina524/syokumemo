@@ -23,22 +23,30 @@ struct ListPage: View {
                     .foregroundColor(.red)
             } else {
                 NavigationStack(path: $path) {
-                    List(viewModel.inventories, id: \.id) { inventory in
-                        NavigationLink(value: inventory) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                
-                                Text(inventory.ingredient.name)
-                                    .font(.headline)
-                                
-                                Text("量: \(inventory.quantity.numerator)/\(inventory.quantity.denominator) \(inventory.unit)")
-                                    .font(.subheadline)
-                                
-                                Text("賞味期限: \(inventory.expiryDate)")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                
+                    List {
+                        ForEach(viewModel.inventories, id: \.id) { inventory in
+                            NavigationLink(value: inventory) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    
+                                    Text(inventory.ingredient.name)
+                                        .font(.headline)
+                                    
+                                    Text("量: \(inventory.quantity.numerator)/\(inventory.quantity.denominator) \(inventory.unit)")
+                                        .font(.subheadline)
+                                    
+                                    Text("賞味期限: \(inventory.expiryDate)")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    
+                                }
+                                .padding(.vertical, 4)
                             }
-                            .padding(.vertical, 4)
+                        }
+                        .onDelete { indexSet in
+                            for index in indexSet {
+                                let inventory = viewModel.inventories[index]
+                                viewModel.deleteInventory(id: inventory.id)
+                            }
                         }
                     }
                     .navigationDestination(for: Inventory.self) { inventory in
@@ -48,8 +56,6 @@ struct ListPage: View {
                         )
                     }
                 }
-                
-//                    .sheet(isPresented: viewModel.isShowSheet, content: <#T##() -> View#>)
             }
         }
         .onAppear {
