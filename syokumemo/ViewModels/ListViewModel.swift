@@ -53,4 +53,22 @@ class ListViewModel: ObservableObject {
             }
         }
     }
+    
+    func deleteInventory(id: String) {
+        Network.shared.apollo.perform(mutation: DeleteInventoryMutation(id: id)) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    if graphQLResult.data?.deleteInventory == true {
+                        // 削除成功時はwatcherが自動でデータを更新
+                        print("✅ Inventory deleted successfully")
+                    } else {
+                        self?.errorMessage = "削除に失敗しました"
+                    }
+                case .failure(let error):
+                    self?.errorMessage = "削除エラー: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
 }
