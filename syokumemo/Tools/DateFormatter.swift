@@ -29,4 +29,11 @@ extension Date {
         formatter.dateFormat = "M月"
         return formatter.string(from: self)
     }
+    
+    func formattedJapaneseDay() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ja_JP")
+        formatter.dateFormat = "M/d"
+        return formatter.string(from: self)
+    }
 }
