@@ -8,7 +8,6 @@
 import Foundation
 
 struct FractionFormatter {
-    /// 分数を適切にフォーマットします
     /// 分母が1の場合は分子のみの整数表示、それ以外は分数表示
     static func format(numerator: Int, denominator: Int) -> String {
         if denominator == 1 {
