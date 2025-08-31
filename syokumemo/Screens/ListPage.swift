@@ -31,8 +31,7 @@ struct ListPage: View {
                                     Text(inventory.ingredient.name)
                                         .font(.headline)
                                     
-                                    Text("量: \(inventory.quantity.numerator)/\(inventory.quantity.denominator) \(inventory.unit)")
-                                        .font(.subheadline)
+                                    Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
                                     
                                     Text("賞味期限: \(inventory.expiryDate)")
                                         .font(.caption)

@@ -1,3 +1,4 @@
 Config.xcconfig
 build/
 syokumemo/CLAUDE/
+.swiftpm
