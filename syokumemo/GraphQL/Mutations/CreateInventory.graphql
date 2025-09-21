@@ -13,7 +13,5 @@ mutation CreateInventory($input: NewInventory!) {
 		expiryDate
 		frozen
 		expired
-		soonExpiry
-		soonDays
 	}
 }

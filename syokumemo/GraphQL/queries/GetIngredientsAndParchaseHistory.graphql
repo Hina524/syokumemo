@@ -5,7 +5,10 @@ query GetIngredientsAndParchaseHistory {
 		purchaseHistory {
 			id
 			date
-			location
+			location {
+				id
+				name
+			}
 			price
 		}
 	}

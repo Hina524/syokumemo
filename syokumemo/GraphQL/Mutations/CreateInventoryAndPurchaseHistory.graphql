@@ -13,8 +13,6 @@ mutation CreateInventoryAndPurchaseHistory($input1: NewInventory!, $input2: NewP
 		expiryDate
 		frozen
 		expired
-		soonExpiry
-		soonDays
 	}
   addPurchaseHistory(input: $input2) {
 		id
@@ -27,7 +25,10 @@ mutation CreateInventoryAndPurchaseHistory($input1: NewInventory!, $input2: NewP
 			}
 		}
 		date
-		location
+		location {
+			id
+			name
+		}
 		price
 	}
 }

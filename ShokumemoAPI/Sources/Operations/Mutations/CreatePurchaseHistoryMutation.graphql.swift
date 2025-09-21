@@ -7,7 +7,7 @@ public class CreatePurchaseHistoryMutation: GraphQLMutation {
   public static let operationName: String = "CreatePurchaseHistory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"mutation CreatePurchaseHistory($input: NewPurchaseHistory!) { addPurchaseHistory(input: $input) { __typename id ingredient { __typename id name category { __typename id name } } date location price } }"#
+      #"mutation CreatePurchaseHistory($input: NewPurchaseHistory!) { addPurchaseHistory(input: $input) { __typename id ingredient { __typename id name category { __typename id name } } date location { __typename id name } price } }"#
     ))
 
   public var input: NewPurchaseHistory
@@ -42,15 +42,15 @@ public class CreatePurchaseHistoryMutation: GraphQLMutation {
         .field("id", ShokumemoAPI.ID.self),
         .field("ingredient", Ingredient.self),
         .field("date", String.self),
-        .field("location", String.self),
-        .field("price", Double.self),
+        .field("location", Location.self),
+        .field("price", Int.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var ingredient: Ingredient { __data["ingredient"] }
       public var date: String { __data["date"] }
-      public var location: String { __data["location"] }
-      public var price: Double { __data["price"] }
+      public var location: Location { __data["location"] }
+      public var price: Int { __data["price"] }
 
       /// AddPurchaseHistory.Ingredient
       ///
@@ -88,6 +88,24 @@ public class CreatePurchaseHistoryMutation: GraphQLMutation {
           public var id: ShokumemoAPI.ID { __data["id"] }
           public var name: String { __data["name"] }
         }
+      }
+
+      /// AddPurchaseHistory.Location
+      ///
+      /// Parent Type: `Location`
+      public struct Location: ShokumemoAPI.SelectionSet {
+        public let __data: DataDict
+        public init(_dataDict: DataDict) { __data = _dataDict }
+
+        public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Location }
+        public static var __selections: [ApolloAPI.Selection] { [
+          .field("__typename", String.self),
+          .field("id", ShokumemoAPI.ID.self),
+          .field("name", String.self),
+        ] }
+
+        public var id: ShokumemoAPI.ID { __data["id"] }
+        public var name: String { __data["name"] }
       }
     }
   }

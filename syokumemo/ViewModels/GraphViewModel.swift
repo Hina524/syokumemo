@@ -13,7 +13,7 @@ import ShokumemoAPI
 struct LineData: Identifiable {
     var id: String
     var date: Date
-    var price: Double
+    var price: Int
 }
 
 enum TimePeriod: String, CaseIterable {
@@ -128,8 +128,8 @@ class GraphViewModel: ObservableObject {
         let filteredHistory = filteredPurchaseHistory(for: ingredient)
         guard !filteredHistory.isEmpty else { return "データなし" }
         
-        let totalPrice = filteredHistory.reduce(0.0) { $0 + $1.price }
-        let averagePrice = totalPrice / Double(filteredHistory.count)
+        let totalPrice = filteredHistory.reduce(0) { $0 + $1.price }
+        let averagePrice = Double(totalPrice) / Double(filteredHistory.count)
         
         return String(format: "%.2f", averagePrice)
     }
@@ -162,7 +162,7 @@ class GraphViewModel: ObservableObject {
         return dataPoints.min { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }
     }
     
-    func getPriceForSelectedDate(_ selectedDate: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> Double? {
+    func getPriceForSelectedDate(_ selectedDate: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> Int? {
         return findNearestDataPoint(to: selectedDate, in: ingredient)?.price
     }
     
@@ -176,10 +176,10 @@ class GraphViewModel: ObservableObject {
         let prices = filteredData.map { $0.price }
         guard !prices.isEmpty else { return 0...100 }
         
-        let minPrice = prices.min() ?? 0
-        let maxPrice = prices.max() ?? 100
+        let minPrice = Double(prices.min() ?? 0)
+        let maxPrice = Double(prices.max() ?? 100)
         let range = maxPrice - minPrice
-        let padding = max(range * 0.1, 10) // 10%の余白、最小10円
+        let padding = max(range * 0.1, 10.0) // 10%の余白、最小10円
         
         return (minPrice - padding)...(maxPrice + padding)
     }
