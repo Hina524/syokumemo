@@ -7,7 +7,7 @@ public class GetIngredientsAndParchaseHistoryQuery: GraphQLQuery {
   public static let operationName: String = "GetIngredientsAndParchaseHistory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetIngredientsAndParchaseHistory { ingredients { __typename id name purchaseHistory { __typename id date location price } } }"#
+      #"query GetIngredientsAndParchaseHistory { ingredients { __typename id name purchaseHistory { __typename id date location { __typename id name } price } } }"#
     ))
 
   public init() {}
@@ -54,14 +54,32 @@ public class GetIngredientsAndParchaseHistoryQuery: GraphQLQuery {
           .field("__typename", String.self),
           .field("id", ShokumemoAPI.ID.self),
           .field("date", String.self),
-          .field("location", String.self),
-          .field("price", Double.self),
+          .field("location", Location.self),
+          .field("price", Int.self),
         ] }
 
         public var id: ShokumemoAPI.ID { __data["id"] }
         public var date: String { __data["date"] }
-        public var location: String { __data["location"] }
-        public var price: Double { __data["price"] }
+        public var location: Location { __data["location"] }
+        public var price: Int { __data["price"] }
+
+        /// Ingredient.PurchaseHistory.Location
+        ///
+        /// Parent Type: `Location`
+        public struct Location: ShokumemoAPI.SelectionSet {
+          public let __data: DataDict
+          public init(_dataDict: DataDict) { __data = _dataDict }
+
+          public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Location }
+          public static var __selections: [ApolloAPI.Selection] { [
+            .field("__typename", String.self),
+            .field("id", ShokumemoAPI.ID.self),
+            .field("name", String.self),
+          ] }
+
+          public var id: ShokumemoAPI.ID { __data["id"] }
+          public var name: String { __data["name"] }
+        }
       }
     }
   }

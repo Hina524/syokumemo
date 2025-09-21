@@ -13,7 +13,7 @@ struct InputPurchaseHistoryFormData {
     // addPurchaseHistory
     var date: Date = Date()
     var location: String = ""
-    var price: Double = 0.0
+    var price: Int = 0
     
     // GetCategoriesAndIngredients
     var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
@@ -61,7 +61,7 @@ class InputPurchaseHistoryViewModel: ObservableObject {
             quantity: fractionInput,
             unit: unit,
             date: .init(stringLiteral: DateFormatter.apiFormat.string(from: form.date)),
-            location: form.location,
+            locationId: form.location,
             price: form.price
         )
         

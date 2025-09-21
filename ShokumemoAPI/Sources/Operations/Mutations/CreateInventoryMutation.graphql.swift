@@ -7,7 +7,7 @@ public class CreateInventoryMutation: GraphQLMutation {
   public static let operationName: String = "CreateInventory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"mutation CreateInventory($input: NewInventory!) { addInventory(input: $input) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen expired soonExpiry soonDays } }"#
+      #"mutation CreateInventory($input: NewInventory!) { addInventory(input: $input) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen expired } }"#
     ))
 
   public var input: NewInventory
@@ -46,8 +46,6 @@ public class CreateInventoryMutation: GraphQLMutation {
         .field("expiryDate", String.self),
         .field("frozen", Bool.self),
         .field("expired", Bool.self),
-        .field("soonExpiry", Bool.self),
-        .field("soonDays", Int?.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
@@ -57,8 +55,6 @@ public class CreateInventoryMutation: GraphQLMutation {
       public var expiryDate: String { __data["expiryDate"] }
       public var frozen: Bool { __data["frozen"] }
       public var expired: Bool { __data["expired"] }
-      public var soonExpiry: Bool { __data["soonExpiry"] }
-      public var soonDays: Int? { __data["soonDays"] }
 
       /// AddInventory.Ingredient
       ///

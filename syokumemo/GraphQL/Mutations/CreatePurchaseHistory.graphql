@@ -10,7 +10,10 @@ mutation CreatePurchaseHistory($input: NewPurchaseHistory!) {
 			}
 		}
 		date
-		location
+		location {
+			id
+			name
+		}
 		price
 	}
 }

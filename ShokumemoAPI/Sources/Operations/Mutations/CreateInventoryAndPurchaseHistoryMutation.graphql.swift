@@ -7,7 +7,7 @@ public class CreateInventoryAndPurchaseHistoryMutation: GraphQLMutation {
   public static let operationName: String = "CreateInventoryAndPurchaseHistory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"mutation CreateInventoryAndPurchaseHistory($input1: NewInventory!, $input2: NewPurchaseHistory!) { addInventory(input: $input1) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen expired soonExpiry soonDays } addPurchaseHistory(input: $input2) { __typename id ingredient { __typename id name category { __typename id name } } date location price } }"#
+      #"mutation CreateInventoryAndPurchaseHistory($input1: NewInventory!, $input2: NewPurchaseHistory!) { addInventory(input: $input1) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen expired } addPurchaseHistory(input: $input2) { __typename id ingredient { __typename id name category { __typename id name } } date location { __typename id name } price } }"#
     ))
 
   public var input1: NewInventory
@@ -56,8 +56,6 @@ public class CreateInventoryAndPurchaseHistoryMutation: GraphQLMutation {
         .field("expiryDate", String.self),
         .field("frozen", Bool.self),
         .field("expired", Bool.self),
-        .field("soonExpiry", Bool.self),
-        .field("soonDays", Int?.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
@@ -67,8 +65,6 @@ public class CreateInventoryAndPurchaseHistoryMutation: GraphQLMutation {
       public var expiryDate: String { __data["expiryDate"] }
       public var frozen: Bool { __data["frozen"] }
       public var expired: Bool { __data["expired"] }
-      public var soonExpiry: Bool { __data["soonExpiry"] }
-      public var soonDays: Int? { __data["soonDays"] }
 
       /// AddInventory.Ingredient
       ///
@@ -120,15 +116,15 @@ public class CreateInventoryAndPurchaseHistoryMutation: GraphQLMutation {
         .field("id", ShokumemoAPI.ID.self),
         .field("ingredient", Ingredient.self),
         .field("date", String.self),
-        .field("location", String.self),
-        .field("price", Double.self),
+        .field("location", Location.self),
+        .field("price", Int.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var ingredient: Ingredient { __data["ingredient"] }
       public var date: String { __data["date"] }
-      public var location: String { __data["location"] }
-      public var price: Double { __data["price"] }
+      public var location: Location { __data["location"] }
+      public var price: Int { __data["price"] }
 
       /// AddPurchaseHistory.Ingredient
       ///
@@ -166,6 +162,24 @@ public class CreateInventoryAndPurchaseHistoryMutation: GraphQLMutation {
           public var id: ShokumemoAPI.ID { __data["id"] }
           public var name: String { __data["name"] }
         }
+      }
+
+      /// AddPurchaseHistory.Location
+      ///
+      /// Parent Type: `Location`
+      public struct Location: ShokumemoAPI.SelectionSet {
+        public let __data: DataDict
+        public init(_dataDict: DataDict) { __data = _dataDict }
+
+        public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Location }
+        public static var __selections: [ApolloAPI.Selection] { [
+          .field("__typename", String.self),
+          .field("id", ShokumemoAPI.ID.self),
+          .field("name", String.self),
+        ] }
+
+        public var id: ShokumemoAPI.ID { __data["id"] }
+        public var name: String { __data["name"] }
       }
     }
   }

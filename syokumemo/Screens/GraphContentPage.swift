@@ -47,7 +47,7 @@ struct ChartAnnotation: View {
     
     var body: some View {
         VStack(spacing: 2) {
-            Text(String(format: "%.0f円", selectedData.price))
+            Text("\(selectedData.price)円")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.black)

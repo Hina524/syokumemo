@@ -1,46 +1,3 @@
-"""
-Directs the executor to defer this fragment when the `if` argument is true or undefined.
-"""
-directive @defer(
-  """Deferred when true or undefined."""
-  if: Boolean = true
-
-  """Unique name"""
-  label: String
-) on FRAGMENT_SPREAD | INLINE_FRAGMENT
-
-"""
-A directive used by the Apollo iOS client to annotate operations or fragments that should be used exclusively for generating local cache mutations instead of as standard operations.
-"""
-directive @apollo_client_ios_localCacheMutation on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
-
-"""
-A directive used by the Apollo iOS code generation engine to generate custom import statements in operation or fragment definition files. An import statement to import a module with the name provided in the `module` argument will be added to the generated definition file.
-"""
-directive @import(
-  """The name of the module to import."""
-  module: String!
-) repeatable on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
-
-"""Attach extra information to a given type."""
-directive @typePolicy(
-  """
-  A selection set containing fields used to compute the cache key of an object. Referenced fields must have non-nullable scalar types. Order is important.
-  """
-  keyFields: String!
-) on OBJECT | INTERFACE
-
-type Category {
-  id: ID!
-  name: String!
-  ingredients: [Ingredient!]!
-}
-
-type CountByDate {
-  date: String!
-  count: Int!
-}
-
 scalar Date
 
 type Fraction {
@@ -48,9 +5,16 @@ type Fraction {
   denominator: Int!
 }
 
-input FractionInput {
-  numerator: Int!
-  denominator: Int!
+type Location {
+  id: ID!
+  name: String!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  colorCode: String!
+  ingredients: [Ingredient!]!
 }
 
 type Ingredient {
@@ -61,13 +25,6 @@ type Ingredient {
   purchaseHistory: [PurchaseHistory!]!
 }
 
-type IngredientSuggestion {
-  name: String!
-  confidence: Float!
-  categoryID: ID!
-  categoryName: String!
-}
-
 type Inventory {
   id: ID!
   ingredient: Ingredient!
@@ -76,41 +33,38 @@ type Inventory {
   expiryDate: String!
   frozen: Boolean!
   expired: Boolean!
-  soonExpiry: Boolean!
-  soonDays: Int
 }
 
-input InventoryFilter {
-  expired: Boolean
-  soonExpiry: Boolean
-  soonDays: Int
-  frozen: Boolean
+type PurchaseHistory {
+  id: ID!
+  ingredient: Ingredient!
+  date: String!
+  location: Location!
+  price: Int!
 }
 
-enum InventorySort {
-  EXPIRY_ASC
-  EXPIRY_DESC
-  PRICE_ASC
-  PRICE_DESC
+
+input FractionInput {
+  numerator: Int!
+  denominator: Int!
 }
 
-type Mutation {
-  createCategory(input: NewCategory!): Category!
-  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-  addIngredient(input: NewIngredient!): Ingredient!
-  addInventory(input: NewInventory!): Inventory!
-  updateInventory(id: ID!, input: UpdateInventory!): Inventory!
-  freezeInventory(id: ID!): Inventory!
-  deleteInventory(id: ID!): Boolean!
-  addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory!
-  updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory!
-  deleteCategory(id: ID!): Boolean!
-  deleteIngredient(id: ID!): Boolean!
-  updateQuantity(id: ID!, input: UpdateQuantity!): Inventory!
+input UpdateCategoryInput {
+  name: String!
+  colorCode: String
+}
+
+input NewLocation {
+  name: String!
+}
+
+input UpdateLocationInput {
+  name: String!
 }
 
 input NewCategory {
   name: String!
+  colorCode: String
 }
 
 input NewIngredient {
@@ -126,45 +80,6 @@ input NewInventory {
   frozen: Boolean!
 }
 
-input NewPurchaseHistory {
-  ingredientId: ID!
-  quantity: FractionInput!
-  unit: String!
-  date: String!
-  location: String!
-  price: Float!
-}
-
-type PricePoint {
-  date: String!
-  price: Float!
-  location: String!
-}
-
-type PurchaseHistory {
-  id: ID!
-  ingredient: Ingredient!
-  date: String!
-  location: String!
-  price: Float!
-}
-
-type Query {
-  categories: [Category!]!
-  category(id: ID!): Category
-  ingredients(categoryId: ID, q: String): [Ingredient!]!
-  inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]!
-  priceTrend(ingredientId: ID!): [PricePoint!]!
-  expenseSummary(month: String!): Float!
-  countByDate(start: String!, end: String!): [CountByDate!]!
-  recognizeIngredients(image: Upload!): [IngredientSuggestion!]!
-  purchaseHistory(ingredientId: ID): [PurchaseHistory!]!
-}
-
-input UpdateCategoryInput {
-  name: String!
-}
-
 input UpdateInventory {
   quantity: FractionInput
   unit: String
@@ -172,12 +87,30 @@ input UpdateInventory {
   frozen: Boolean
 }
 
+input InventoryFilter {
+  ingredientId: ID
+}
+
+enum InventorySort {
+  EXPIRY_ASC
+  EXPIRY_DESC
+}
+
+input NewPurchaseHistory {
+  ingredientId: ID!
+  quantity: FractionInput!
+  unit: String!
+  date: String!
+  locationId: ID!
+  price: Int!
+}
+
 input UpdatePurchaseHistory {
   quantity: FractionInput
   unit: String
   date: String
-  location: String
-  price: Float
+  locationId: ID
+  price: Int
 }
 
 input UpdateQuantity {
@@ -185,4 +118,31 @@ input UpdateQuantity {
   denominator: Int!
 }
 
-scalar Upload
+type Query {
+  locations: [Location!]!
+  location(id: ID!): Location
+  categories: [Category!]!
+  category(id: ID!): Category
+  ingredients(categoryId: ID, q: String): [Ingredient!]!
+  inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]!
+  purchaseHistory(ingredientId: ID): [PurchaseHistory!]!
+}
+
+type Mutation {
+  createLocation(input: NewLocation!): Location!
+  updateLocation(id: ID!, input: UpdateLocationInput!): Location!
+  deleteLocation(id: ID!): Boolean!
+  createCategory(input: NewCategory!): Category!
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  deleteCategory(id: ID!): Boolean!
+  addIngredient(input: NewIngredient!): Ingredient!
+  deleteIngredient(id: ID!): Boolean!
+  addInventory(input: NewInventory!): Inventory!
+  updateInventory(id: ID!, input: UpdateInventory!): Inventory!
+  freezeInventory(id: ID!): Inventory!
+  deleteInventory(id: ID!): Boolean!
+  updateQuantity(id: ID!, input: UpdateQuantity!): Inventory!
+  addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory!
+  updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory!
+  deletePurchaseHistory(id: ID!): Boolean!
+}

@@ -15,15 +15,15 @@ public struct NewPurchaseHistory: InputObject {
     quantity: FractionInput,
     unit: String,
     date: String,
-    location: String,
-    price: Double
+    locationId: ID,
+    price: Int
   ) {
     __data = InputDict([
       "ingredientId": ingredientId,
       "quantity": quantity,
       "unit": unit,
       "date": date,
-      "location": location,
+      "locationId": locationId,
       "price": price
     ])
   }
@@ -48,12 +48,12 @@ public struct NewPurchaseHistory: InputObject {
     set { __data["date"] = newValue }
   }
 
-  public var location: String {
-    get { __data["location"] }
-    set { __data["location"] = newValue }
+  public var locationId: ID {
+    get { __data["locationId"] }
+    set { __data["locationId"] = newValue }
   }
 
-  public var price: Double {
+  public var price: Int {
     get { __data["price"] }
     set { __data["price"] = newValue }
   }
