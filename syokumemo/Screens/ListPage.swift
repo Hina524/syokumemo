@@ -24,27 +24,75 @@ struct ListPage: View {
             } else {
                 NavigationStack(path: $path) {
                     List {
-                        ForEach(viewModel.inventories, id: \.id) { inventory in
-                            NavigationLink(value: inventory) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    
-                                    Text(inventory.ingredient.name)
-                                        .font(.headline)
-                                    
-                                    Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
-                                    
-                                    Text("賞味期限: \(inventory.expiryDate)")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    
+                        Section(header: Text("賞味期限切れ").font(.headline).foregroundColor(.primary)) {
+                            if viewModel.expiredInventories.isEmpty {
+                                Text("該当なし")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            } else {
+                                ForEach(viewModel.expiredInventories, id: \.id) { inventory in
+                                    NavigationLink(value: inventory) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(inventory.ingredient.name)
+                                                .font(.headline)
+                                            
+                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                            
+                                            Text("賞味期限: \(inventory.expiryDate)")
+                                                .font(.caption)
+                                                .foregroundColor(.red)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
                                 }
-                                .padding(.vertical, 4)
                             }
                         }
-                        .onDelete { indexSet in
-                            for index in indexSet {
-                                let inventory = viewModel.inventories[index]
-                                viewModel.deleteInventory(id: inventory.id)
+                        
+                        Section(header: Text("今日中").font(.headline).foregroundColor(.primary)) {
+                            if viewModel.todayInventories.isEmpty {
+                                Text("該当なし")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            } else {
+                                ForEach(viewModel.todayInventories, id: \.id) { inventory in
+                                    NavigationLink(value: inventory) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(inventory.ingredient.name)
+                                                .font(.headline)
+                                            
+                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                            
+                                            Text("賞味期限: \(inventory.expiryDate)")
+                                                .font(.caption)
+                                                .foregroundColor(.orange)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Section(header: Text("それ以降").font(.headline).foregroundColor(.primary)) {
+                            if viewModel.futureInventories.isEmpty {
+                                Text("該当なし")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            } else {
+                                ForEach(viewModel.futureInventories, id: \.id) { inventory in
+                                    NavigationLink(value: inventory) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(inventory.ingredient.name)
+                                                .font(.headline)
+                                            
+                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                            
+                                            Text("賞味期限: \(inventory.expiryDate)")
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                }
                             }
                         }
                     }
