@@ -36,4 +36,19 @@ extension Date {
         formatter.dateFormat = "M/d"
         return formatter.string(from: self)
     }
+    
+    static func isExpired(_ dateString: String) -> Bool {
+        guard let date = DateFormatter.apiFormat.date(from: dateString) else { return false }
+        return date < Calendar.current.startOfDay(for: Date())
+    }
+    
+    static func isToday(_ dateString: String) -> Bool {
+        guard let date = DateFormatter.apiFormat.date(from: dateString) else { return false }
+        return Calendar.current.isDate(date, inSameDayAs: Date())
+    }
+    
+    static func isFuture(_ dateString: String) -> Bool {
+        guard let date = DateFormatter.apiFormat.date(from: dateString) else { return false }
+        return date > Calendar.current.startOfDay(for: Date()) && !Calendar.current.isDate(date, inSameDayAs: Date())
+    }
 }

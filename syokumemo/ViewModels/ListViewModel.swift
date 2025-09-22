@@ -16,6 +16,18 @@ class ListViewModel: ObservableObject {
     @Published var isShowSheet = false
     private var watcher: GraphQLQueryWatcher<GetInventoriesQuery>?
     
+    var expiredInventories: [GetInventoriesQuery.Data.Inventory] {
+        return inventories.filter { Date.isExpired($0.expiryDate) }
+    }
+    
+    var todayInventories: [GetInventoriesQuery.Data.Inventory] {
+        return inventories.filter { Date.isToday($0.expiryDate) }
+    }
+    
+    var futureInventories: [GetInventoriesQuery.Data.Inventory] {
+        return inventories.filter { Date.isFuture($0.expiryDate) }
+    }
+    
     init(sort: InventorySort? = .expiryAsc ) {
         
         let gqlSort: GraphQLNullable<GraphQLEnum<InventorySort>> =
