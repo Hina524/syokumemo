@@ -1,5 +1,35 @@
 scalar Date
 
+directive @auth on FIELD_DEFINITION
+
+type User {
+  id: ID!
+  firebaseUid: String!
+  appleId: String
+  email: String
+  name: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+input UpdateUserProfileInput {
+  name: String
+}
+
+enum AuthErrorCode {
+  UNAUTHORIZED
+  INVALID_TOKEN
+  TOKEN_EXPIRED
+  USER_NOT_FOUND
+  RATE_LIMIT_EXCEEDED
+}
+
+type AuthError {
+  message: String!
+  code: AuthErrorCode!
+  path: [String!]
+}
+
 type Fraction {
   numerator: Int!
   denominator: Int!
@@ -119,30 +149,32 @@ input UpdateQuantity {
 }
 
 type Query {
-  locations: [Location!]!
-  location(id: ID!): Location
-  categories: [Category!]!
-  category(id: ID!): Category
-  ingredients(categoryId: ID, q: String): [Ingredient!]!
-  inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]!
-  purchaseHistory(ingredientId: ID): [PurchaseHistory!]!
+  me: User @auth
+  locations: [Location!]! @auth
+  location(id: ID!): Location @auth
+  categories: [Category!]! @auth
+  category(id: ID!): Category @auth
+  ingredients(categoryId: ID, q: String): [Ingredient!]! @auth
+  inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]! @auth
+  purchaseHistory(ingredientId: ID): [PurchaseHistory!]! @auth
 }
 
 type Mutation {
-  createLocation(input: NewLocation!): Location!
-  updateLocation(id: ID!, input: UpdateLocationInput!): Location!
-  deleteLocation(id: ID!): Boolean!
-  createCategory(input: NewCategory!): Category!
-  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-  deleteCategory(id: ID!): Boolean!
-  addIngredient(input: NewIngredient!): Ingredient!
-  deleteIngredient(id: ID!): Boolean!
-  addInventory(input: NewInventory!): Inventory!
-  updateInventory(id: ID!, input: UpdateInventory!): Inventory!
-  freezeInventory(id: ID!): Inventory!
-  deleteInventory(id: ID!): Boolean!
-  updateQuantity(id: ID!, input: UpdateQuantity!): Inventory!
-  addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory!
-  updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory!
-  deletePurchaseHistory(id: ID!): Boolean!
+  updateUserProfile(input: UpdateUserProfileInput!): User! @auth
+  createLocation(input: NewLocation!): Location! @auth
+  updateLocation(id: ID!, input: UpdateLocationInput!): Location! @auth
+  deleteLocation(id: ID!): Boolean! @auth
+  createCategory(input: NewCategory!): Category! @auth
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category! @auth
+  deleteCategory(id: ID!): Boolean! @auth
+  addIngredient(input: NewIngredient!): Ingredient! @auth
+  deleteIngredient(id: ID!): Boolean! @auth
+  addInventory(input: NewInventory!): Inventory! @auth
+  updateInventory(id: ID!, input: UpdateInventory!): Inventory! @auth
+  freezeInventory(id: ID!): Inventory! @auth
+  deleteInventory(id: ID!): Boolean! @auth
+  updateQuantity(id: ID!, input: UpdateQuantity!): Inventory! @auth
+  addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory! @auth
+  updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory! @auth
+  deletePurchaseHistory(id: ID!): Boolean! @auth
 }
