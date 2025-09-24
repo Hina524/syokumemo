@@ -14,4 +14,5 @@ struct InventoryDataForPurchaseHistory: Hashable { // Hashableに準拠させる
     let numerator: Int
     let denominator: Int?
     let unit: String
+    let purchaseUnitId: String
 }

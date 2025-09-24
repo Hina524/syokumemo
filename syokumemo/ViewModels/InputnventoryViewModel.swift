@@ -17,6 +17,7 @@ struct InputInventoryFormData {
     var numerator: Int = 1            // Int (UIとの整合性注意)
     var denominator: Int? = .none     // Int? (UIとの整合性注意)
     var unit: String = "個"
+    var purchaseUnitId: String = ""
     
     // addInventory
     var expiryDate: Date = Date()
@@ -112,7 +113,8 @@ class InputInventoryViewModel: ObservableObject {
             categoryId: self.form.categoryId,       // selectedCategoryIdから取得
             numerator: self.form.numerator,
             denominator: self.form.denominator,
-            unit: self.form.unit
+            unit: self.form.unit,
+            purchaseUnitId: self.form.purchaseUnitId
         )
         return inventoryData
     }

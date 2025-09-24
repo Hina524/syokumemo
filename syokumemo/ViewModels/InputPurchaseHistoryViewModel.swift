@@ -37,12 +37,14 @@ class InputPurchaseHistoryViewModel: ObservableObject {
     var numerator: Int
     var denominator: Int?
     var unit: String
+    var purchaseUnitId: String
     
-    init(ingredientId: String, numerator: Int, denominator: Int? = nil, unit: String) {
+    init(ingredientId: String, numerator: Int, denominator: Int? = nil, unit: String, purchaseUnitId: String) {
         self.ingredientId = ingredientId
         self.numerator = numerator
         self.denominator = denominator
         self.unit = unit
+        self.purchaseUnitId = purchaseUnitId
     }
     
     func resetForm() {
@@ -57,11 +59,10 @@ class InputPurchaseHistoryViewModel: ObservableObject {
         )
         
         let input = NewPurchaseHistory(
-            ingredientId: ingredientId, // IDはGraphQLID型に変換
-            quantity: fractionInput,
-            unit: unit,
+            ingredientId: ingredientId,
             date: .init(stringLiteral: DateFormatter.apiFormat.string(from: form.date)),
             locationId: form.location,
+            purchaseUnitId: purchaseUnitId,
             price: form.price
         )
         

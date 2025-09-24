@@ -12,18 +12,16 @@ public struct NewPurchaseHistory: InputObject {
 
   public init(
     ingredientId: ID,
-    quantity: FractionInput,
-    unit: String,
     date: String,
     locationId: ID,
+    purchaseUnitId: ID,
     price: Int
   ) {
     __data = InputDict([
       "ingredientId": ingredientId,
-      "quantity": quantity,
-      "unit": unit,
       "date": date,
       "locationId": locationId,
+      "purchaseUnitId": purchaseUnitId,
       "price": price
     ])
   }
@@ -31,16 +29,6 @@ public struct NewPurchaseHistory: InputObject {
   public var ingredientId: ID {
     get { __data["ingredientId"] }
     set { __data["ingredientId"] = newValue }
-  }
-
-  public var quantity: FractionInput {
-    get { __data["quantity"] }
-    set { __data["quantity"] = newValue }
-  }
-
-  public var unit: String {
-    get { __data["unit"] }
-    set { __data["unit"] = newValue }
   }
 
   public var date: String {
@@ -51,6 +39,11 @@ public struct NewPurchaseHistory: InputObject {
   public var locationId: ID {
     get { __data["locationId"] }
     set { __data["locationId"] = newValue }
+  }
+
+  public var purchaseUnitId: ID {
+    get { __data["purchaseUnitId"] }
+    set { __data["purchaseUnitId"] = newValue }
   }
 
   public var price: Int {

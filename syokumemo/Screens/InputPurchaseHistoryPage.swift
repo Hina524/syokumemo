@@ -36,7 +36,8 @@ struct InputPurchaseHistoryPage: View {
             ingredientId: inventoryData.ingredientId,
             numerator: inventoryData.numerator,
             denominator: inventoryData.denominator ?? 1,
-            unit: inventoryData.unit
+            unit: inventoryData.unit,
+            purchaseUnitId: inventoryData.purchaseUnitId
         ))
     }
     
