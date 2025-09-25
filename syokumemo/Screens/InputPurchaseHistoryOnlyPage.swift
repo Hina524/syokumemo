@@ -30,26 +30,28 @@ struct InputPurchaseHistoryOnlyPage: View {
     
     var body: some View {
         VStack {
-            // 戻るボタンとタイトル
-            ZStack {
-                HStack {
-                    Button(action: {
-                        appState.inputMode = .selection
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("戻る")
-                                .font(.body)
+            // 戻るボタンとタイトル（カテゴリ選択時は非表示）
+            if path.isEmpty {
+                ZStack {
+                    HStack {
+                        Button(action: {
+                            appState.inputMode = .selection
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                Text("戻る")
+                                    .font(.body)
+                            }
+                            .foregroundColor(.black)
                         }
-                        .foregroundColor(.black)
+                        Spacer()
                     }
-                    Spacer()
+                    Text("購入履歴のみ入力")
+                        .font(.headline)
+                        .foregroundColor(.black)
                 }
-                Text("購入履歴のみ入力")
-                    .font(.headline)
-                    .foregroundColor(.black)
+                .padding()
             }
-            .padding()
             
             NavigationStack(path: $path) {
                 Form {
