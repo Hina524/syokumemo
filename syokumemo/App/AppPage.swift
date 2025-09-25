@@ -31,11 +31,11 @@ struct AppPage: View {
             case .selection:
                 InputDataPage()
             case .combined:
-                InputInventoryPage()
+                InputAllPage()
             case .inventoryOnly:
-                InputInventoryOnlyPage()
+                InputInventoryPage()
             case .purchaseHistoryOnly:
-                InputPurchaseHistoryOnlyPage()
+                InputPurchaseHistoryPage()
             }
         case .graph:
             GraphPage()

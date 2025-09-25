@@ -1,31 +1,12 @@
 //
-//  InputInvestoryPage.swift
+//  InputInventoryOnlyPage.swift
 //  syokumemo
 //
-//  Created by KONISHI Hina on 2025/05/06.
+//  Created by KONISHI Hina on 2025/09/24.
 //
 
 import SwiftUI
 import ShokumemoAPI
-
-typealias Category = GetCategoriesAndIngredientsQuery.Data.Category
-typealias Ingredient = GetCategoriesAndIngredientsQuery.Data.Category.Ingredient
-
-enum AppNavigationPath: Hashable {
-    case category([Category])
-    case ingredients(Category)
-    case purchaseHistoryPage(inventoryData: InventoryDataForPurchaseHistory)
-    case combinedInput
-    case inventoryOnly
-    case purchaseHistoryOnly
-}
-
-let numberFormatter: NumberFormatter = {
-    let formatter = NumberFormatter()
-    formatter.numberStyle = .none
-    formatter.zeroSymbol  = ""
-    return formatter
-}()
 
 struct InputInventoryPage: View {
     @EnvironmentObject var appState: AppState
@@ -66,7 +47,7 @@ struct InputInventoryPage: View {
                         }
                         Spacer()
                     }
-                    Text("在庫と購入履歴を同時に入力")
+                    Text("在庫のみ入力")
                         .font(.headline)
                         .foregroundColor(.black)
                 }
@@ -179,23 +160,21 @@ struct InputInventoryPage: View {
                     Section {
                         Button("追加") {
                             viewModel.addInventory()
-//                            isShowSheet.toggle()
                         }
                         .alert("追加失敗", isPresented: $viewModel.isMutationError) {
-                            // ダイアログ内で行うアクション処理...
                             Button("閉じる", role: .cancel) {
                                 viewModel.isMutationError = false
                             }
                         } message: {
-                            // アラートのメッセージ...
                             Text("入力を確認してください")
                         }
-                        .sheet(isPresented: $viewModel.isShowSheet) {
-                            let inventoryDataForSheet = viewModel.convertToInventoryDataForPurchaseHistory()
-                            HalfSheetDetails(path: $path, inventoryData: inventoryDataForSheet, resetFormFunc: viewModel.resetForm)
-                                .presentationDetents([
-                                    .height(150)
-                                ])
+                        .alert("追加完了", isPresented: $viewModel.isShowSheet) {
+                            Button("OK", role: .cancel) {
+                                viewModel.resetForm()
+                                appState.inputMode = .selection
+                            }
+                        } message: {
+                            Text("在庫が追加されました")
                         }
                     }
                     
@@ -205,11 +184,10 @@ struct InputInventoryPage: View {
                 }
                 .foregroundColor(.black)
                 .tint(.orange)
-                //                .gesture(self.gesture)
                 .onAppear {
                     viewModel.fetchCategoriesAndIngredients()
                 }
-                .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in // (4) 遷移先を設定
+                .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in
                     switch appNavigationPath {
                     case .category(let categories):
                         CategorySelectionPage(
@@ -217,14 +195,8 @@ struct InputInventoryPage: View {
                         )
                     case .ingredients(let category):
                         IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
-                    case .purchaseHistoryPage(let inventoryData):
-                        InputPurchaseHistoryPage(inventoryData: inventoryData)
-                    case .combinedInput:
-                        InputInventoryPage()
-                    case .inventoryOnly:
-                        Text("在庫のみ入力画面（未実装）")
-                    case .purchaseHistoryOnly:
-                        Text("購入履歴のみ入力画面（未実装）")
+                    default:
+                        EmptyView()
                     }
                 }
             }
@@ -233,53 +205,7 @@ struct InputInventoryPage: View {
     }
 }
 
-
-// MARK: HalfSheetDetails
-struct HalfSheetDetails: View {
-    @Binding var path: [AppNavigationPath] // (1) pathのBindingを受け取る
-    let inventoryData: InventoryDataForPurchaseHistory // (2) inventoryDataを受け取る
-    let resetFormFunc: () -> Void
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        VStack {
-            Text("追加が完了しました")
-            Text("購入履歴を入力しますか？")
-            HStack {
-                Spacer()
-                Button(action: {
-                    resetFormFunc()
-                    dismiss()
-                }, label: {
-                    Text("入力しない")
-                        .font(.headline)
-                        .frame(width: 140, height: 30, alignment: .center)
-                        .background(.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
-                })
-                Spacer()
-                Button(action: {
-                    path.append(.purchaseHistoryPage(inventoryData: self.inventoryData))
-                    resetFormFunc()
-                    dismiss()
-                }, label: {
-                    Text("入力する")
-                        .font(.headline)
-                        .frame(width: 140, height: 30, alignment: .center)
-                        .background(.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
-                        
-                })
-                Spacer()
-            }
-        }
-        .padding()
-    }
-}
-
 #Preview {
     InputInventoryPage()
+        .environmentObject(AppState())
 }
