@@ -27,7 +27,16 @@ struct AppPage: View {
         case .list:
             ListPage()
         case .input:
-            InputInventoryPage()
+            switch appState.inputMode {
+            case .selection:
+                InputDataPage()
+            case .combined:
+                InputInventoryPage()
+            case .inventoryOnly:
+                InputInventoryOnlyPage()
+            case .purchaseHistoryOnly:
+                InputPurchaseHistoryOnlyPage()
+            }
         case .graph:
             GraphPage()
         }
