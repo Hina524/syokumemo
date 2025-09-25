@@ -62,6 +62,12 @@ type Ingredient {
   purchaseUnits: [PurchaseUnit!]!
 }
 
+enum InventoryStatus {
+  ACTIVE
+  DISCARDED
+  CONSUMED
+}
+
 type Inventory {
   id: ID!
   ingredient: Ingredient!
@@ -70,6 +76,7 @@ type Inventory {
   expiryDate: String!
   frozen: Boolean!
   expired: Boolean!
+  status: InventoryStatus!
 }
 
 type PurchaseHistory {
@@ -136,6 +143,7 @@ input UpdateInventory {
 
 input InventoryFilter {
   ingredientId: ID
+  status: [InventoryStatus!]
 }
 
 enum InventorySort {
@@ -195,6 +203,8 @@ type Mutation {
   freezeInventory(id: ID!): Inventory! @auth
   deleteInventory(id: ID!): Boolean! @auth
   updateQuantity(id: ID!, input: UpdateQuantity!): Inventory! @auth
+  discardInventory(id: ID!): Inventory! @auth
+  consumeInventory(id: ID!): Inventory! @auth
   addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory! @auth
   updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory! @auth
   deletePurchaseHistory(id: ID!): Boolean! @auth
