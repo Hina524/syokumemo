@@ -175,12 +175,17 @@ struct InputAllPage: View {
                             .font(.headline)
                     }
                     
+                    
                     // MARK: 食材追加ボタン
                     Section {
-                        Button("追加") {
+                        Button("追加する") {
                             viewModel.addInventory()
 //                            isShowSheet.toggle()
                         }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
                         .alert("追加失敗", isPresented: $viewModel.isMutationError) {
                             // ダイアログ内で行うアクション処理...
                             Button("閉じる", role: .cancel) {
@@ -203,7 +208,6 @@ struct InputAllPage: View {
                         Text(viewModel.form.errorMessage ?? "エラーないよ")
                     }
                 }
-                .foregroundColor(.black)
                 .tint(.orange)
                 //                .gesture(self.gesture)
                 .onAppear {

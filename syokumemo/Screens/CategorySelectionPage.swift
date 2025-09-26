@@ -11,7 +11,7 @@ import ShokumemoAPI
 struct CategorySelectionPage: View {
     var categories: [Category]
     @Binding var path: [AppNavigationPath]
-    var viewModel: InputInventoryViewModel
+    @ObservedObject var viewModel: InputInventoryViewModel
     
     var body: some View {
         ZStack {
@@ -27,6 +27,12 @@ struct CategorySelectionPage: View {
                     .foregroundColor(.black)
                 }
                 Spacer()
+                Button(action: {
+                    viewModel.isCategoryEditMode.toggle()
+                }) {
+                    Text(viewModel.isCategoryEditMode ? "完了" : "編集")
+                        .foregroundColor(.black)
+                }
             }
             Text("カテゴリ選択")
         }
@@ -36,10 +42,19 @@ struct CategorySelectionPage: View {
         List {
             ForEach(categories, id: \.id) { category in
                 NavigationLink(value: AppNavigationPath.ingredients(category)) {
-                    Text(category.name)
+                    HStack {
+                        Circle()
+                            .fill(category.colorCode.isEmpty ? Color.gray : Color(hex: category.colorCode))
+                            .frame(width: 20, height: 20)
+                        Text(category.name)
+                        Spacer()
+                    }
                 }
+                .deleteDisabled(!viewModel.isCategoryEditMode)
             }
+            .onDelete(perform: viewModel.isCategoryEditMode ? deleteCategories : nil)
         }
+        .environment(\.editMode, viewModel.isCategoryEditMode ? .constant(.active) : .constant(.inactive))
         .navigationDestination(for: AppNavigationPath.self) { selectIngredient in
             if case AppNavigationPath.ingredients(let category) = selectIngredient { // Item.member から associated value を取得する
                 IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
@@ -47,6 +62,13 @@ struct CategorySelectionPage: View {
         }
         
         .navigationBarBackButtonHidden(true)
+    }
+    
+    private func deleteCategories(at offsets: IndexSet) {
+        for offset in offsets {
+            let category = categories[offset]
+            viewModel.deleteCategory(categoryId: category.id)
+        }
     }
 }
 

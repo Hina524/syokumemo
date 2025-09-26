@@ -156,11 +156,16 @@ struct InputInventoryPage: View {
                             .font(.headline)
                     }
                     
+                    
                     // MARK: 食材追加ボタン
                     Section {
-                        Button("追加") {
+                        Button("追加する") {
                             viewModel.addInventory()
                         }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
                         .alert("追加失敗", isPresented: $viewModel.isMutationError) {
                             Button("閉じる", role: .cancel) {
                                 viewModel.isMutationError = false
@@ -182,7 +187,6 @@ struct InputInventoryPage: View {
                         Text(viewModel.form.errorMessage ?? "エラーないよ")
                     }
                 }
-                .foregroundColor(.black)
                 .tint(.orange)
                 .onAppear {
                     viewModel.fetchCategoriesAndIngredients()

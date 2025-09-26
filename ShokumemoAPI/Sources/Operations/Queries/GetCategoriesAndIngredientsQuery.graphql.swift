@@ -7,7 +7,7 @@ public class GetCategoriesAndIngredientsQuery: GraphQLQuery {
   public static let operationName: String = "GetCategoriesAndIngredients"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetCategoriesAndIngredients { categories { __typename id name ingredients { __typename id name } } }"#
+      #"query GetCategoriesAndIngredients { categories { __typename id name colorCode ingredients { __typename id name } } }"#
     ))
 
   public init() {}
@@ -35,11 +35,13 @@ public class GetCategoriesAndIngredientsQuery: GraphQLQuery {
         .field("__typename", String.self),
         .field("id", ShokumemoAPI.ID.self),
         .field("name", String.self),
+        .field("colorCode", String.self),
         .field("ingredients", [Ingredient].self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var name: String { __data["name"] }
+      public var colorCode: String { __data["colorCode"] }
       public var ingredients: [Ingredient] { __data["ingredients"] }
 
       /// Category.Ingredient

@@ -42,6 +42,9 @@ class InputInventoryViewModel: ObservableObject {
     // GetCategoriesAndIngredients
     @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
     
+    // Category editing mode
+    @Published var isCategoryEditMode: Bool = false
+    
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
     }
@@ -117,5 +120,30 @@ class InputInventoryViewModel: ObservableObject {
             purchaseUnitId: self.form.purchaseUnitId
         )
         return inventoryData
+    }
+    
+    // MARK: deleteCategory
+    func deleteCategory(categoryId: String) {
+        let mutation = DeleteCategoryMutation(id: categoryId)
+        
+        form.isLoading = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let success = graphQLResult.data?.deleteCategory, success {
+                        // Remove the category from the local array
+                        self?.categories.removeAll { $0.id == categoryId }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "カテゴリの削除に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
     }
 }

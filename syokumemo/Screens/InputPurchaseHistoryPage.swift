@@ -161,12 +161,17 @@ struct InputPurchaseHistoryPage: View {
                             .font(.headline)
                     }
                     
+                    
                     // MARK: 追加ボタン
                     Section {
-                        Button("追加") {
+                        Button("追加する") {
                             purchaseHistoryViewModel.syncFromInventoryViewModel(inventoryViewModel)
                             purchaseHistoryViewModel.addPurchaseHistory()
                         }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
                         .alert("追加失敗", isPresented: $purchaseHistoryViewModel.isMutationError) {
                             Button("閉じる", role: .cancel) {
                                 purchaseHistoryViewModel.isMutationError = false
@@ -189,7 +194,6 @@ struct InputPurchaseHistoryPage: View {
                         Text(purchaseHistoryViewModel.form.errorMessage ?? "エラーないよ")
                     }
                 }
-                .foregroundColor(.black)
                 .tint(.orange)
                 .gesture(self.gesture)
                 .onAppear {
