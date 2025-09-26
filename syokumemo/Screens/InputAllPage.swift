@@ -217,7 +217,7 @@ struct InputAllPage: View {
                     switch appNavigationPath {
                     case .category(let categories):
                         CategorySelectionPage(
-                            categories: categories, path: $path, viewModel: viewModel
+                            path: $path, viewModel: viewModel
                         )
                     case .ingredients(let category):
                         IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)

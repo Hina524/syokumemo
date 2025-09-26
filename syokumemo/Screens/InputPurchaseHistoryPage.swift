@@ -203,7 +203,7 @@ struct InputPurchaseHistoryPage: View {
                     switch appNavigationPath {
                     case .category(let categories):
                         CategorySelectionPage(
-                            categories: categories, path: $path, viewModel: inventoryViewModel
+                            path: $path, viewModel: inventoryViewModel
                         )
                     case .ingredients(let category):
                         IngredientSelectionPage(path: $path, viewModel: inventoryViewModel, category: category)

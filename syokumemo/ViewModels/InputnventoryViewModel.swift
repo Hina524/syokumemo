@@ -44,6 +44,9 @@ class InputInventoryViewModel: ObservableObject {
     
     // Category editing mode
     @Published var isCategoryEditMode: Bool = false
+    @Published var showDeleteSuccessAlert: Bool = false
+    @Published var showDeleteErrorAlert: Bool = false
+    @Published var deleteErrorMessage: String = ""
     
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
@@ -135,13 +138,14 @@ class InputInventoryViewModel: ObservableObject {
                     if let success = graphQLResult.data?.deleteCategory, success {
                         // Remove the category from the local array
                         self?.categories.removeAll { $0.id == categoryId }
+                        self?.showDeleteSuccessAlert = true
                     } else if let errors = graphQLResult.errors {
-                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
-                        self?.isMutationError = true
+                        self?.deleteErrorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.showDeleteErrorAlert = true
                     }
                 case .failure(let error):
-                    self?.form.errorMessage = "カテゴリの削除に失敗しました: \(error.localizedDescription)"
-                    self?.isMutationError = true
+                    self?.deleteErrorMessage = "カテゴリの削除に失敗しました: \(error.localizedDescription)"
+                    self?.showDeleteErrorAlert = true
                 }
             }
         }

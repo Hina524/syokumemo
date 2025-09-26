@@ -9,7 +9,6 @@ import SwiftUI
 import ShokumemoAPI
 
 struct CategorySelectionPage: View {
-    var categories: [Category]
     @Binding var path: [AppNavigationPath]
     @ObservedObject var viewModel: InputInventoryViewModel
     
@@ -40,7 +39,7 @@ struct CategorySelectionPage: View {
         .frame(height: 50)
         
         List {
-            ForEach(categories, id: \.id) { category in
+            ForEach(viewModel.categories, id: \.id) { category in
                 NavigationLink(value: AppNavigationPath.ingredients(category)) {
                     HStack {
                         Circle()
@@ -62,11 +61,21 @@ struct CategorySelectionPage: View {
         }
         
         .navigationBarBackButtonHidden(true)
+        .alert("削除完了", isPresented: $viewModel.showDeleteSuccessAlert) {
+            Button("OK") { }
+        } message: {
+            Text("カテゴリを削除しました")
+        }
+        .alert("削除失敗", isPresented: $viewModel.showDeleteErrorAlert) {
+            Button("OK") { }
+        } message: {
+            Text(viewModel.deleteErrorMessage)
+        }
     }
     
     private func deleteCategories(at offsets: IndexSet) {
         for offset in offsets {
-            let category = categories[offset]
+            let category = viewModel.categories[offset]
             viewModel.deleteCategory(categoryId: category.id)
         }
     }
