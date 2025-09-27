@@ -48,6 +48,10 @@ class InputInventoryViewModel: ObservableObject {
     @Published var showDeleteErrorAlert: Bool = false
     @Published var deleteErrorMessage: String = ""
     
+    // Category color editing
+    @Published var editingCategoryColors: [String: Color] = [:]
+    @Published var showColorPicker: [String: Bool] = [:]
+    
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
     }
@@ -93,7 +97,7 @@ class InputInventoryViewModel: ObservableObject {
     func fetchCategoriesAndIngredients() {
         form.isLoading = true
         
-        Network.shared.apollo.fetch(query: GetCategoriesAndIngredientsQuery()) { [weak self] result in
+        Network.shared.apollo.fetch(query: GetCategoriesAndIngredientsQuery(), cachePolicy: .fetchIgnoringCacheData) { [weak self] result in
             DispatchQueue.main.async {
                 self?.form.isLoading = false
                 switch result {
@@ -146,6 +150,72 @@ class InputInventoryViewModel: ObservableObject {
                 case .failure(let error):
                     self?.deleteErrorMessage = "カテゴリの削除に失敗しました: \(error.localizedDescription)"
                     self?.showDeleteErrorAlert = true
+                }
+            }
+        }
+    }
+    
+    // MARK: completeEditing
+    func completeEditing() {
+        // Filter only categories that actually changed color
+        let changedCategories = editingCategoryColors.filter { (categoryId, newColor) in
+            guard let category = categories.first(where: { $0.id == categoryId }) else { return false }
+            let currentHex = category.colorCode.isEmpty ? "#808080" : category.colorCode
+            let newHex = newColor.toHex()
+            return currentHex != newHex
+        }
+        
+        // Check if there are any color changes to save
+        guard !changedCategories.isEmpty else {
+            editingCategoryColors.removeAll()
+            showColorPicker.removeAll()
+            isCategoryEditMode = false
+            return
+        }
+        
+        var updateCount = 0
+        let totalUpdates = changedCategories.count
+        
+        for (categoryId, newColor) in changedCategories {
+            guard let category = categories.first(where: { $0.id == categoryId }) else { continue }
+            
+            let hexColor = newColor.toHex()
+            updateCategoryColor(id: categoryId, name: category.name, colorCode: hexColor) {
+                updateCount += 1
+                if updateCount == totalUpdates {
+                    // All updates completed
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self.editingCategoryColors.removeAll()
+                        self.showColorPicker.removeAll()
+                        self.isCategoryEditMode = false
+                        self.fetchCategoriesAndIngredients()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func updateCategoryColor(id: String, name: String, colorCode: String, completion: @escaping () -> Void) {
+        let input = UpdateCategoryInput(
+            name: name,
+            colorCode: .some(colorCode)
+        )
+        
+        let mutation = UpdateCategoryMutation(id: id, input: input)
+        
+        Network.shared.apollo.perform(mutation: mutation) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.updateCategory {
+                        completion()
+                    } else if let errors = graphQLResult.errors {
+                        print("Error updating category color: \(errors)")
+                        completion()
+                    }
+                case .failure(let error):
+                    print("Failed to update category color: \(error.localizedDescription)")
+                    completion()
                 }
             }
         }

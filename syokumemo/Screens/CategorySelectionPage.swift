@@ -27,10 +27,16 @@ struct CategorySelectionPage: View {
                 }
                 Spacer()
                 Button(action: {
-                    viewModel.isCategoryEditMode.toggle()
+                    if viewModel.isCategoryEditMode {
+                        // Complete editing and save changes
+                        viewModel.completeEditing()
+                    } else {
+                        // Enter edit mode
+                        viewModel.isCategoryEditMode = true
+                    }
                 }) {
                     Text(viewModel.isCategoryEditMode ? "完了" : "編集")
-                        .foregroundColor(.black)
+                        .foregroundColor(.accentColor)
                 }
             }
             Text("カテゴリ選択")
@@ -40,16 +46,44 @@ struct CategorySelectionPage: View {
         
         List {
             ForEach(viewModel.categories, id: \.id) { category in
-                NavigationLink(value: AppNavigationPath.ingredients(category)) {
+                if viewModel.isCategoryEditMode {
                     HStack {
-                        Circle()
-                            .fill(category.colorCode.isEmpty ? Color.gray : Color(hex: category.colorCode))
-                            .frame(width: 20, height: 20)
+                        ColorPicker("", selection: Binding(
+                            get: { 
+                                // Initialize editing color if not set
+                                if viewModel.editingCategoryColors[category.id] == nil {
+                                    let initialColor = category.colorCode.isEmpty ? Color.gray : Color(hex: category.colorCode)
+                                    viewModel.editingCategoryColors[category.id] = initialColor
+                                }
+                                return viewModel.editingCategoryColors[category.id] ?? Color.gray
+                            },
+                            set: { viewModel.editingCategoryColors[category.id] = $0 }
+                        ), supportsOpacity: false)
+                        .labelsHidden()
+                        .frame(width: 30, height: 30)
+                        
                         Text(category.name)
                         Spacer()
                     }
+                } else {
+                    NavigationLink(value: AppNavigationPath.ingredients(category)) {
+                        HStack {
+                            Circle()
+                                .fill(category.colorCode.isEmpty ? Color.gray : Color(hex: category.colorCode))
+                                .frame(width: 20, height: 20)
+                            Text(category.name)
+                            Spacer()
+                        }
+                    }
                 }
-                .deleteDisabled(!viewModel.isCategoryEditMode)
+                
+                if viewModel.isCategoryEditMode {
+                    EmptyView()
+                        .deleteDisabled(false)
+                } else {
+                    EmptyView()
+                        .deleteDisabled(true)
+                }
             }
             .onDelete(perform: viewModel.isCategoryEditMode ? deleteCategories : nil)
         }
