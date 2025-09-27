@@ -52,6 +52,9 @@ class InputInventoryViewModel: ObservableObject {
     @Published var editingCategoryColors: [String: Color] = [:]
     @Published var showColorPicker: [String: Bool] = [:]
     
+    // Category name editing
+    @Published var editingCategoryNames: [String: String] = [:]
+    
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
     }
@@ -157,35 +160,47 @@ class InputInventoryViewModel: ObservableObject {
     
     // MARK: completeEditing
     func completeEditing() {
-        // Filter only categories that actually changed color
-        let changedCategories = editingCategoryColors.filter { (categoryId, newColor) in
-            guard let category = categories.first(where: { $0.id == categoryId }) else { return false }
+        // Collect all categories that need updating (either name or color changed)
+        var categoriesToUpdate: [(id: String, name: String, color: String)] = []
+        
+        // Get all category IDs that have been edited
+        let editedCategoryIds = Set(editingCategoryColors.keys).union(Set(editingCategoryNames.keys))
+        
+        for categoryId in editedCategoryIds {
+            guard let category = categories.first(where: { $0.id == categoryId }) else { continue }
+            
+            let currentName = category.name
+            let newName = editingCategoryNames[categoryId] ?? currentName
+            
             let currentHex = category.colorCode.isEmpty ? "#808080" : category.colorCode
-            let newHex = newColor.toHex()
-            return currentHex != newHex
+            let newHex = editingCategoryColors[categoryId]?.toHex() ?? currentHex
+            
+            // Check if anything actually changed
+            if currentName != newName || currentHex != newHex {
+                categoriesToUpdate.append((id: categoryId, name: newName, color: newHex))
+            }
         }
         
-        // Check if there are any color changes to save
-        guard !changedCategories.isEmpty else {
+        // Check if there are any changes to save
+        guard !categoriesToUpdate.isEmpty else {
             editingCategoryColors.removeAll()
+            editingCategoryNames.removeAll()
             showColorPicker.removeAll()
             isCategoryEditMode = false
             return
         }
         
         var updateCount = 0
-        let totalUpdates = changedCategories.count
+        let totalUpdates = categoriesToUpdate.count
         
-        for (categoryId, newColor) in changedCategories {
-            guard let category = categories.first(where: { $0.id == categoryId }) else { continue }
-            
-            let hexColor = newColor.toHex()
-            updateCategoryColor(id: categoryId, name: category.name, colorCode: hexColor) {
+        for categoryUpdate in categoriesToUpdate {
+            updateCategory(id: categoryUpdate.id, name: categoryUpdate.name, colorCode: categoryUpdate.color) {
                 updateCount += 1
                 if updateCount == totalUpdates {
                     // All updates completed
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         self.editingCategoryColors.removeAll()
+                        self.editingCategoryNames.removeAll()
                         self.showColorPicker.removeAll()
                         self.isCategoryEditMode = false
                         self.fetchCategoriesAndIngredients()
@@ -195,7 +210,7 @@ class InputInventoryViewModel: ObservableObject {
         }
     }
     
-    private func updateCategoryColor(id: String, name: String, colorCode: String, completion: @escaping () -> Void) {
+    private func updateCategory(id: String, name: String, colorCode: String, completion: @escaping () -> Void) {
         let input = UpdateCategoryInput(
             name: name,
             colorCode: .some(colorCode)

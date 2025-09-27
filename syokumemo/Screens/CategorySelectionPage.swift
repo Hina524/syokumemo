@@ -62,7 +62,24 @@ struct CategorySelectionPage: View {
                         .labelsHidden()
                         .frame(width: 30, height: 30)
                         
-                        Text(category.name)
+                        VStack(alignment: .leading, spacing: 2) {
+                            TextField("カテゴリ名", text: Binding(
+                                get: {
+                                    // Initialize editing name if not set
+                                    if viewModel.editingCategoryNames[category.id] == nil {
+                                        viewModel.editingCategoryNames[category.id] = category.name
+                                    }
+                                    return viewModel.editingCategoryNames[category.id] ?? category.name
+                                },
+                                set: { viewModel.editingCategoryNames[category.id] = $0 }
+                            ))
+                            .textFieldStyle(.plain)
+                            
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 1)
+                        }
+                        
                         Spacer()
                     }
                 } else {
