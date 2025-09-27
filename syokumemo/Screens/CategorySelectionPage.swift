@@ -103,6 +103,33 @@ struct CategorySelectionPage: View {
                 }
             }
             .onDelete(perform: viewModel.isCategoryEditMode ? deleteCategories : nil)
+            
+            // New category addition row in edit mode
+            if viewModel.isCategoryEditMode {
+                HStack {
+                    ColorPicker("", selection: $viewModel.newCategoryColor, supportsOpacity: false)
+                        .labelsHidden()
+                        .frame(width: 30, height: 30)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("新しいカテゴリ", text: $viewModel.newCategoryName)
+                            .textFieldStyle(.plain)
+                        
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 1)
+                    }
+                    
+                    Button(action: {
+                        viewModel.addNewCategory()
+                    }) {
+                        Text("追加")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(viewModel.newCategoryName.trimmingCharacters(in: .whitespaces).isEmpty || viewModel.isDefaultGrayColor())
+                }
+                .listRowSeparator(.hidden)
+            }
         }
         .environment(\.editMode, viewModel.isCategoryEditMode ? .constant(.active) : .constant(.inactive))
         .navigationDestination(for: AppNavigationPath.self) { selectIngredient in
@@ -123,7 +150,7 @@ struct CategorySelectionPage: View {
             Text(viewModel.deleteErrorMessage)
         }
         .alert("未入力の項目があります。", isPresented: $viewModel.showEmptyNameAlert) {
-            Button("閉じる") { }
+            Button("閉じる", role: .cancel) { }
         }
     }
     

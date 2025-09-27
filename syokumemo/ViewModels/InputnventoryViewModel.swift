@@ -56,6 +56,10 @@ class InputInventoryViewModel: ObservableObject {
     @Published var editingCategoryNames: [String: String] = [:]
     @Published var showEmptyNameAlert: Bool = false
     
+    // New category addition
+    @Published var newCategoryName: String = ""
+    @Published var newCategoryColor: Color = .gray
+    
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
     }
@@ -202,20 +206,31 @@ class InputInventoryViewModel: ObservableObject {
         var updateCount = 0
         let totalUpdates = categoriesToUpdate.count
         
+        // Update existing categories
         for categoryUpdate in categoriesToUpdate {
             updateCategory(id: categoryUpdate.id, name: categoryUpdate.name, colorCode: categoryUpdate.color) {
                 updateCount += 1
                 if updateCount == totalUpdates {
-                    // All updates completed
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        self.editingCategoryColors.removeAll()
-                        self.editingCategoryNames.removeAll()
-                        self.showColorPicker.removeAll()
-                        self.isCategoryEditMode = false
-                        self.fetchCategoriesAndIngredients()
-                    }
+                    self.completeAllEdits()
                 }
             }
+        }
+        
+        // If no updates, just exit edit mode
+        if totalUpdates == 0 {
+            completeAllEdits()
+        }
+    }
+    
+    private func completeAllEdits() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.editingCategoryColors.removeAll()
+            self.editingCategoryNames.removeAll()
+            self.showColorPicker.removeAll()
+            self.newCategoryName = ""
+            self.newCategoryColor = .gray
+            self.isCategoryEditMode = false
+            self.fetchCategoriesAndIngredients()
         }
     }
     
@@ -239,6 +254,51 @@ class InputInventoryViewModel: ObservableObject {
                     }
                 case .failure(let error):
                     print("Failed to update category color: \(error.localizedDescription)")
+                    completion()
+                }
+            }
+        }
+    }
+    
+    // MARK: isDefaultGrayColor
+    func isDefaultGrayColor() -> Bool {
+        let hexColor = newCategoryColor.toHex()
+        return hexColor == "#808080" || hexColor == "#7F7F7F"
+    }
+    
+    // MARK: addNewCategory
+    func addNewCategory() {
+        createCategory {
+            // Reset the input fields after successful creation
+            self.newCategoryName = ""
+            self.newCategoryColor = .gray
+            self.fetchCategoriesAndIngredients()
+        }
+    }
+    
+    // MARK: createCategory
+    private func createCategory(completion: @escaping () -> Void) {
+        let hexColor = newCategoryColor.toHex()
+        
+        let input = NewCategory(
+            name: newCategoryName,
+            colorCode: .some(hexColor)
+        )
+        
+        let mutation = CreateCategoryMutation(input: input)
+        
+        Network.shared.apollo.perform(mutation: mutation) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.createCategory {
+                        completion()
+                    } else if let errors = graphQLResult.errors {
+                        print("Error creating category: \(errors)")
+                        completion()
+                    }
+                case .failure(let error):
+                    print("Failed to create category: \(error.localizedDescription)")
                     completion()
                 }
             }
