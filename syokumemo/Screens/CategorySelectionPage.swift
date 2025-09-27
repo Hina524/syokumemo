@@ -122,6 +122,9 @@ struct CategorySelectionPage: View {
         } message: {
             Text(viewModel.deleteErrorMessage)
         }
+        .alert("未入力の項目があります。", isPresented: $viewModel.showEmptyNameAlert) {
+            Button("閉じる") { }
+        }
     }
     
     private func deleteCategories(at offsets: IndexSet) {

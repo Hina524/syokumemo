@@ -54,6 +54,7 @@ class InputInventoryViewModel: ObservableObject {
     
     // Category name editing
     @Published var editingCategoryNames: [String: String] = [:]
+    @Published var showEmptyNameAlert: Bool = false
     
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
@@ -160,6 +161,14 @@ class InputInventoryViewModel: ObservableObject {
     
     // MARK: completeEditing
     func completeEditing() {
+        // Check for empty category names
+        for (categoryId, name) in editingCategoryNames {
+            if name.trimmingCharacters(in: .whitespaces).isEmpty {
+                showEmptyNameAlert = true
+                return
+            }
+        }
+        
         // Collect all categories that need updating (either name or color changed)
         var categoriesToUpdate: [(id: String, name: String, color: String)] = []
         
