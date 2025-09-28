@@ -13,7 +13,7 @@ struct InputDataPage: View {
     var body: some View {
             VStack(spacing: 30) {
                 Text("データ入力方法を選択してください")
-                    .font(.title2)
+                    .font(.title3)
                     .fontWeight(.medium)
                     .padding(.top, 50)
                 
@@ -29,9 +29,6 @@ struct InputDataPage: View {
                                 .font(.system(size: 24))
                             Text("在庫と購入履歴を同時に入力")
                                 .font(.headline)
-                            Text("従来通りの入力方法")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
@@ -49,9 +46,6 @@ struct InputDataPage: View {
                                 .font(.system(size: 24))
                             Text("在庫のみ入力")
                                 .font(.headline)
-                            Text("在庫情報だけを登録")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
@@ -69,9 +63,6 @@ struct InputDataPage: View {
                                 .font(.system(size: 24))
                             Text("購入履歴のみ入力")
                                 .font(.headline)
-                            Text("購入情報だけを登録")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
