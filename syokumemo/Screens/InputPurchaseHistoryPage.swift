@@ -69,35 +69,17 @@ struct InputPurchaseHistoryPage: View {
                             .font(.headline)
                     }
                     
-                    // MARK: 数量
+                    // MARK: 購入単位
                     Section {
-                        HStack {
-                            if isOnFractionInput {
-                                VStack {
-                                    TextField("分子(半角数字)", value: $inventoryViewModel.form.numerator, format: .number)
-                                        .keyboardType(.asciiCapableNumberPad)
-                                        .focused($isFocused)
-                                    Divider()
-                                    TextField("分母(半角数字)", value: $inventoryViewModel.form.denominator, format: .number)
-                                        .keyboardType(.asciiCapableNumberPad)
-                                        .focused($isFocused)
-                                }
+                        NavigationLink(value: AppNavigationPath.purchaseUnits) {
+                            if let name = purchaseHistoryViewModel.selectedPurchaseUnitName {
+                                Text(name)
                             } else {
-                                TextField("数量(半角数字)", value: $inventoryViewModel.form.numerator, format: .number)
-                                    .keyboardType(.asciiCapableNumberPad)
-                                    .focused($isFocused)
+                                Text("未選択")
                             }
-                            
-                            Spacer()
-                            TextField("個", text: $inventoryViewModel.form.unit)
-                                .focused($isFocused)
                         }
-                        Toggle(isOn: $isOnFractionInput){
-                            Text("分数入力")
-                        }
-                        
                     } header: {
-                        Text("数量")
+                        Text("購入単位")
                             .font(.headline)
                     }
                     
@@ -154,8 +136,13 @@ struct InputPurchaseHistoryPage: View {
                     
                     // MARK: 購入場所
                     Section {
-                        TextField("ヨークベニマル会津大学店", text: $purchaseHistoryViewModel.form.location)
-                            .focused($isFocused)
+                        NavigationLink(value: AppNavigationPath.locations) {
+                            if let name = purchaseHistoryViewModel.selectedLocationName {
+                                Text(name)
+                            } else {
+                                Text("未選択")
+                            }
+                        }
                     } header: {
                         Text("購入場所")
                             .font(.headline)
@@ -198,6 +185,12 @@ struct InputPurchaseHistoryPage: View {
                 .gesture(self.gesture)
                 .onAppear {
                     inventoryViewModel.fetchCategoriesAndIngredients()
+                    purchaseHistoryViewModel.fetchLocations()
+                }
+                .onChange(of: inventoryViewModel.form.ingredientId) { newIngredientId in
+                    if !newIngredientId.isEmpty {
+                        purchaseHistoryViewModel.fetchPurchaseUnitsByIngredient(ingredientId: newIngredientId)
+                    }
                 }
                 .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in
                     switch appNavigationPath {
@@ -207,6 +200,10 @@ struct InputPurchaseHistoryPage: View {
                         )
                     case .ingredients(let category):
                         IngredientSelectionPage(path: $path, viewModel: inventoryViewModel, category: category)
+                    case .locations:
+                        LocationSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
+                    case .purchaseUnits:
+                        PurchaseUnitSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
                     default:
                         EmptyView()
                     }

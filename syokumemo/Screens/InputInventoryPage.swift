@@ -100,6 +100,8 @@ struct InputInventoryPage: View {
                     } header: {
                         Text("数量")
                             .font(.headline)
+                    } footer: {
+                        Text("3個や5日分などの表記がおすすめ！もちろん200gなどでも！")
                     }
                     
                     // MARK: 消費期限

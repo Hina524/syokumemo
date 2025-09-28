@@ -18,6 +18,8 @@ enum AppNavigationPath: Hashable {
     case combinedInput
     case inventoryOnly
     case purchaseHistoryOnly
+    case locations
+    case purchaseUnits
 }
 
 let numberFormatter: NumberFormatter = {
@@ -30,12 +32,15 @@ let numberFormatter: NumberFormatter = {
 struct InputAllPage: View {
     @EnvironmentObject var appState: AppState
     @StateObject var viewModel = InputInventoryViewModel()
+    @StateObject var purchaseHistoryViewModel = InputPurchaseHistoryViewModel()
     @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
     @State private var showCategorySelection = false
     @State private var path = [AppNavigationPath]()
     @State private var isOnFractionInput = false
     @State private var selectedDate = Date()
     @State private var setExpiryDateOneYearLater = false
+    @State private var setDateNotToday: Bool = false
+    @State private var purchaseDate = Date()
     
     @FocusState private var isFocused: Bool
     
@@ -119,6 +124,8 @@ struct InputAllPage: View {
                     } header: {
                         Text("数量")
                             .font(.headline)
+                    } footer: {
+                        Text("3個や5日分などの表記がおすすめ！もちろん200gなどでも！")
                     }
                     
                     // MARK: 消費期限
@@ -175,32 +182,134 @@ struct InputAllPage: View {
                             .font(.headline)
                     }
                     
+                    // MARK: 購入日
+                    Section {
+                        Text(
+                            DateFormatter.displayFormat.string(
+                                from: setDateNotToday
+                                ? purchaseDate
+                                : purchaseHistoryViewModel.form.date
+                            )
+                        )
+                        
+                        Toggle(isOn: $setDateNotToday) {
+                            if setDateNotToday {
+                                Text("ON")
+                            } else {
+                                Text("今日以外の日付に設定する")
+                            }
+                        }
+                        .onChange(of: setDateNotToday) { newValue in
+                            if newValue {
+                                purchaseHistoryViewModel.form.date = purchaseDate
+                            } else {
+                                purchaseHistoryViewModel.form.date = Date()
+                            }
+                        }
+                        
+                        if setDateNotToday {
+                            DatePicker("購入日", selection: $purchaseDate, displayedComponents: .date)
+                                .datePickerStyle(.graphical)
+                                .labelsHidden()
+                                .onChange(of: purchaseDate) { newValue in
+                                    purchaseHistoryViewModel.form.date = newValue
+                                }
+                        }
+                    } header: {
+                        Text("購入日")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 金額
+                    Section {
+                        HStack {
+                            TextField("金額", value: $purchaseHistoryViewModel.form.price, formatter: numberFormatter)
+                                .keyboardType(.decimalPad)
+                                .focused($isFocused)
+                            Text("円")
+                        }
+                    } header: {
+                        Text("金額")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 購入場所
+                    Section {
+                        NavigationLink(value: AppNavigationPath.locations) {
+                            if let name = purchaseHistoryViewModel.selectedLocationName {
+                                Text(name)
+                            } else {
+                                Text("未選択")
+                            }
+                        }
+                    } header: {
+                        Text("購入場所")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 購入単位
+                    Section {
+                        Button(action: {
+                            if viewModel.form.ingredientId.isEmpty {
+                                purchaseHistoryViewModel.form.errorMessage = "先に食材を選択してください"
+                                purchaseHistoryViewModel.isMutationError = true
+                            } else {
+                                purchaseHistoryViewModel.form.ingredientId = viewModel.form.ingredientId
+                                if purchaseHistoryViewModel.purchaseUnits.isEmpty {
+                                    purchaseHistoryViewModel.fetchPurchaseUnitsByIngredient(ingredientId: viewModel.form.ingredientId)
+                                }
+                                path.append(.purchaseUnits)
+                            }
+                        }) {
+                            HStack {
+                                if let name = purchaseHistoryViewModel.selectedPurchaseUnitName {
+                                    Text(name)
+                                } else {
+                                    Text("未選択")
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .foregroundColor(.black)
+                    } header: {
+                        Text("購入単位")
+                            .font(.headline)
+                    }
+                    
                     
                     // MARK: 食材追加ボタン
                     Section {
                         Button("追加する") {
-                            viewModel.addInventory()
-//                            isShowSheet.toggle()
+                            purchaseHistoryViewModel.syncFromInventoryViewModel(viewModel)
+                            purchaseHistoryViewModel.addInventoryAndPurchaseHistory(
+                                numerator: viewModel.form.numerator,
+                                denominator: viewModel.form.denominator,
+                                unit: viewModel.form.unit,
+                                expiryDate: viewModel.form.expiryDate,
+                                frozen: viewModel.form.frozen
+                            )
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.regular)
                         .frame(maxWidth: .infinity)
                         .listRowBackground(Color.clear)
-                        .alert("追加失敗", isPresented: $viewModel.isMutationError) {
-                            // ダイアログ内で行うアクション処理...
+                        .alert("追加失敗", isPresented: $purchaseHistoryViewModel.isMutationError) {
                             Button("閉じる", role: .cancel) {
-                                viewModel.isMutationError = false
+                                purchaseHistoryViewModel.isMutationError = false
                             }
                         } message: {
-                            // アラートのメッセージ...
-                            Text("入力を確認してください")
+                            Text(purchaseHistoryViewModel.form.errorMessage ?? "入力を確認してください")
                         }
-                        .sheet(isPresented: $viewModel.isShowSheet) {
-                            let inventoryDataForSheet = viewModel.convertToInventoryDataForPurchaseHistory()
-                            HalfSheetDetails(path: $path, inventoryData: inventoryDataForSheet, resetFormFunc: viewModel.resetForm)
-                                .presentationDetents([
-                                    .height(150)
-                                ])
+                        .alert("追加完了", isPresented: $purchaseHistoryViewModel.purchaseDidSucceed) {
+                            Button("OK", role: .cancel) {
+                                viewModel.resetForm()
+                                purchaseHistoryViewModel.resetForm()
+                                appState.inputMode = .selection
+                            }
+                        } message: {
+                            Text("在庫と購入履歴が追加されました")
                         }
                     }
                     
@@ -212,6 +321,13 @@ struct InputAllPage: View {
                 //                .gesture(self.gesture)
                 .onAppear {
                     viewModel.fetchCategoriesAndIngredients()
+                    purchaseHistoryViewModel.fetchLocations()
+                }
+                .onChange(of: viewModel.form.ingredientId) { newIngredientId in
+                    purchaseHistoryViewModel.form.ingredientId = newIngredientId
+                    if !newIngredientId.isEmpty {
+                        purchaseHistoryViewModel.fetchPurchaseUnitsByIngredient(ingredientId: newIngredientId)
+                    }
                 }
                 .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in // (4) 遷移先を設定
                     switch appNavigationPath {
@@ -221,66 +337,23 @@ struct InputAllPage: View {
                         )
                     case .ingredients(let category):
                         IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
-                    case .purchaseHistoryPage(let inventoryData):
-                        InputAll2Page(inventoryData: inventoryData)
+                    case .locations:
+                        LocationSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
+                    case .purchaseUnits:
+                        PurchaseUnitSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
                     case .combinedInput:
                         InputAllPage()
                     case .inventoryOnly:
                         Text("在庫のみ入力画面（未実装）")
                     case .purchaseHistoryOnly:
                         Text("購入履歴のみ入力画面（未実装）")
+                    case .purchaseHistoryPage:
+                        EmptyView()
                     }
                 }
             }
         }
         .navigationBarBackButtonHidden(true)
-    }
-}
-
-
-// MARK: HalfSheetDetails
-struct HalfSheetDetails: View {
-    @Binding var path: [AppNavigationPath] // (1) pathのBindingを受け取る
-    let inventoryData: InventoryDataForPurchaseHistory // (2) inventoryDataを受け取る
-    let resetFormFunc: () -> Void
-    
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        VStack {
-            Text("追加が完了しました")
-            Text("購入履歴を入力しますか？")
-            HStack {
-                Spacer()
-                Button(action: {
-                    resetFormFunc()
-                    dismiss()
-                }, label: {
-                    Text("入力しない")
-                        .font(.headline)
-                        .frame(width: 140, height: 30, alignment: .center)
-                        .background(.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
-                })
-                Spacer()
-                Button(action: {
-                    path.append(.purchaseHistoryPage(inventoryData: self.inventoryData))
-                    resetFormFunc()
-                    dismiss()
-                }, label: {
-                    Text("入力する")
-                        .font(.headline)
-                        .frame(width: 140, height: 30, alignment: .center)
-                        .background(.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
-                        
-                })
-                Spacer()
-            }
-        }
-        .padding()
     }
 }
 

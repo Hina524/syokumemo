@@ -1,0 +1,10 @@
+query GetPurchaseUnitsByIngredient($ingredientId: ID!) {
+	purchaseUnitsByIngredient(ingredientId: $ingredientId) {
+		id
+		name
+		ingredient {
+			id
+			name
+		}
+	}
+}
