@@ -27,6 +27,7 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
     case "Location": return ShokumemoAPI.Objects.Location
     case "Mutation": return ShokumemoAPI.Objects.Mutation
     case "PurchaseHistory": return ShokumemoAPI.Objects.PurchaseHistory
+    case "PurchaseUnit": return ShokumemoAPI.Objects.PurchaseUnit
     case "Query": return ShokumemoAPI.Objects.Query
     default: return nil
     }

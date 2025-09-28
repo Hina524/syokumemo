@@ -3,48 +3,63 @@
 
 @_exported import ApolloAPI
 
-public class GetCategoriesAndIngredientsQuery: GraphQLQuery {
-  public static let operationName: String = "GetCategoriesAndIngredients"
+public class UpdatePurchaseUnitMutation: GraphQLMutation {
+  public static let operationName: String = "UpdatePurchaseUnit"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetCategoriesAndIngredients { categories { __typename id name colorCode ingredients { __typename id name } } }"#
+      #"mutation UpdatePurchaseUnit($id: ID!, $input: UpdatePurchaseUnitInput!) { updatePurchaseUnit(id: $id, input: $input) { __typename id name ingredient { __typename id name } } }"#
     ))
 
-  public init() {}
+  public var id: ID
+  public var input: UpdatePurchaseUnitInput
+
+  public init(
+    id: ID,
+    input: UpdatePurchaseUnitInput
+  ) {
+    self.id = id
+    self.input = input
+  }
+
+  public var __variables: Variables? { [
+    "id": id,
+    "input": input
+  ] }
 
   public struct Data: ShokumemoAPI.SelectionSet {
     public let __data: DataDict
     public init(_dataDict: DataDict) { __data = _dataDict }
 
-    public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Query }
+    public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Mutation }
     public static var __selections: [ApolloAPI.Selection] { [
-      .field("categories", [Category].self),
+      .field("updatePurchaseUnit", UpdatePurchaseUnit.self, arguments: [
+        "id": .variable("id"),
+        "input": .variable("input")
+      ]),
     ] }
 
-    public var categories: [Category] { __data["categories"] }
+    public var updatePurchaseUnit: UpdatePurchaseUnit { __data["updatePurchaseUnit"] }
 
-    /// Category
+    /// UpdatePurchaseUnit
     ///
-    /// Parent Type: `Category`
-    public struct Category: ShokumemoAPI.SelectionSet {
+    /// Parent Type: `PurchaseUnit`
+    public struct UpdatePurchaseUnit: ShokumemoAPI.SelectionSet {
       public let __data: DataDict
       public init(_dataDict: DataDict) { __data = _dataDict }
 
-      public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Category }
+      public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.PurchaseUnit }
       public static var __selections: [ApolloAPI.Selection] { [
         .field("__typename", String.self),
         .field("id", ShokumemoAPI.ID.self),
         .field("name", String.self),
-        .field("colorCode", String.self),
-        .field("ingredients", [Ingredient].self),
+        .field("ingredient", Ingredient.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var name: String { __data["name"] }
-      public var colorCode: String { __data["colorCode"] }
-      public var ingredients: [Ingredient] { __data["ingredients"] }
+      public var ingredient: Ingredient { __data["ingredient"] }
 
-      /// Category.Ingredient
+      /// UpdatePurchaseUnit.Ingredient
       ///
       /// Parent Type: `Ingredient`
       public struct Ingredient: ShokumemoAPI.SelectionSet {

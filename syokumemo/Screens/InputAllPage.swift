@@ -1,21 +1,46 @@
 //
-//  InputPurchaseHistoryOnlyPage.swift
+//  InputInvestoryPage.swift
 //  syokumemo
 //
-//  Created by KONISHI Hina on 2025/09/24.
+//  Created by KONISHI Hina on 2025/05/06.
 //
 
 import SwiftUI
 import ShokumemoAPI
 
-struct InputPurchaseHistoryPage: View {
+typealias Category = GetCategoriesAndIngredientsQuery.Data.Category
+typealias Ingredient = GetCategoriesAndIngredientsQuery.Data.Category.Ingredient
+
+enum AppNavigationPath: Hashable {
+    case category([Category])
+    case ingredients(Category)
+    case purchaseHistoryPage(inventoryData: InventoryDataForPurchaseHistory)
+    case combinedInput
+    case inventoryOnly
+    case purchaseHistoryOnly
+    case locations
+    case purchaseUnits
+}
+
+let numberFormatter: NumberFormatter = {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .none
+    formatter.zeroSymbol  = ""
+    return formatter
+}()
+
+struct InputAllPage: View {
     @EnvironmentObject var appState: AppState
-    @StateObject var inventoryViewModel = InputInventoryViewModel() // 食材選択用
-    @StateObject var purchaseHistoryViewModel = InputPurchaseHistoryViewModel() // 購入履歴登録用
+    @StateObject var viewModel = InputInventoryViewModel()
+    @StateObject var purchaseHistoryViewModel = InputPurchaseHistoryViewModel()
+    @State private var selectedIngredient: GetCategoriesAndIngredientsQuery.Data.Category.Ingredient? = nil
+    @State private var showCategorySelection = false
     @State private var path = [AppNavigationPath]()
-    @State private var setDateNotToday: Bool = false
-    @State private var selectedDate = Date()
     @State private var isOnFractionInput = false
+    @State private var selectedDate = Date()
+    @State private var setExpiryDateOneYearLater = false
+    @State private var setDateNotToday: Bool = false
+    @State private var purchaseDate = Date()
     @State private var showPurchaseUnitHelp = false
     @State private var showPurchaseUnitError = false
     @AppStorage("hasShownPurchaseUnitHelp") private var hasShownPurchaseUnitHelp = false
@@ -49,7 +74,7 @@ struct InputPurchaseHistoryPage: View {
                         }
                         Spacer()
                     }
-                    Text("購入履歴のみ入力")
+                    Text("在庫と購入履歴を同時に入力")
                         .font(.headline)
                         .foregroundColor(.black)
                 }
@@ -60,8 +85,8 @@ struct InputPurchaseHistoryPage: View {
                 Form {
                     // MARK: 食材選択
                     Section {
-                        NavigationLink(value: AppNavigationPath.category(inventoryViewModel.categories)) {
-                            if let name = inventoryViewModel.form.selectedIngredientName {
+                        NavigationLink(value: AppNavigationPath.category(viewModel.categories)) {
+                            if let name = viewModel.form.selectedIngredientName {
                                 Text(name)
                             } else {
                                 Text("未選択")
@@ -72,12 +97,100 @@ struct InputPurchaseHistoryPage: View {
                             .font(.headline)
                     }
                     
+                    // MARK: 数量
+                    Section {
+                        HStack {
+                            if isOnFractionInput {
+                                VStack {
+                                    TextField("分子(半角数字)", value: $viewModel.form.numerator, format: .number)
+                                        .keyboardType(.asciiCapableNumberPad)
+                                        .focused($isFocused)
+                                    Divider()
+                                    TextField("分母(半角数字)", value: $viewModel.form.denominator, format: .number)
+                                        .keyboardType(.asciiCapableNumberPad)
+                                        .focused($isFocused)
+                                }
+                            }else{
+                                TextField("数量(半角数字)", value: $viewModel.form.numerator, format: .number)
+                                    .keyboardType(.asciiCapableNumberPad)
+                                    .focused($isFocused)
+                            }
+                            
+                            Spacer()
+                            TextField("個", text: $viewModel.form.unit)
+                                .focused($isFocused)
+                        }
+                        Toggle(isOn: $isOnFractionInput){
+                            Text("分数入力")
+                        }
+                        
+                    } header: {
+                        Text("数量")
+                            .font(.headline)
+                    } footer: {
+                        Text("3個や5日分などの表記がおすすめ！もちろん200gなどでも！")
+                    }
+                    
+                    // MARK: 消費期限
+                    Section {
+                        // 表示用のText（今日+1年 or selectedDate）
+                        Text(
+                            DateFormatter.displayFormat.string(
+                                from: setExpiryDateOneYearLater
+                                ? Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+                                : viewModel.form.expiryDate
+                            )
+                        )
+                        
+                        // Toggle（切り替えたら viewModel.form.expiryDate を更新）
+                        Toggle(isOn: $setExpiryDateOneYearLater) {
+                            if setExpiryDateOneYearLater {
+                                Text("ON")
+                            } else {
+                                Text("消費期限を一年後に設定する")
+                            }
+                        }
+                        .onChange(of: setExpiryDateOneYearLater) { newValue in
+                            if newValue {
+                                // ToggleがONになった → 今日から1年後をセット
+                                viewModel.form.expiryDate = Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+                            } else {
+                                // ToggleがOFFになった → 選択された日付をセット
+                                viewModel.form.expiryDate = selectedDate
+                            }
+                        }
+                        
+                        // ToggleがOFFのときのみ、DatePicker表示＆変更時に更新
+                        if !setExpiryDateOneYearLater {
+                            DatePicker("消費期限", selection: $selectedDate, displayedComponents: .date)
+                                .datePickerStyle(.graphical)
+                                .labelsHidden()
+                                .onChange(of: selectedDate) { newValue in
+                                    viewModel.form.expiryDate = newValue
+                                }
+                        }
+                    } header: {
+                        Text("消費期限")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 冷凍
+                    Section {
+                        Toggle(
+                            viewModel.form.frozen ? "冷凍されている" : "冷凍されていない",
+                            isOn: $viewModel.form.frozen
+                        )
+                    } header: {
+                        Text("冷凍")
+                            .font(.headline)
+                    }
+                    
                     // MARK: 購入日
                     Section {
                         Text(
                             DateFormatter.displayFormat.string(
                                 from: setDateNotToday
-                                ? selectedDate
+                                ? purchaseDate
                                 : purchaseHistoryViewModel.form.date
                             )
                         )
@@ -91,17 +204,17 @@ struct InputPurchaseHistoryPage: View {
                         }
                         .onChange(of: setDateNotToday) { newValue in
                             if newValue {
-                                purchaseHistoryViewModel.form.date = selectedDate
+                                purchaseHistoryViewModel.form.date = purchaseDate
                             } else {
                                 purchaseHistoryViewModel.form.date = Date()
                             }
                         }
                         
                         if setDateNotToday {
-                            DatePicker("購入日", selection: $selectedDate, displayedComponents: .date)
+                            DatePicker("購入日", selection: $purchaseDate, displayedComponents: .date)
                                 .datePickerStyle(.graphical)
                                 .labelsHidden()
-                                .onChange(of: selectedDate) { newValue in
+                                .onChange(of: purchaseDate) { newValue in
                                     purchaseHistoryViewModel.form.date = newValue
                                 }
                         }
@@ -126,9 +239,13 @@ struct InputPurchaseHistoryPage: View {
                     // MARK: 購入単位
                     Section {
                         Button(action: {
-                            if inventoryViewModel.form.ingredientId.isEmpty {
+                            if viewModel.form.ingredientId.isEmpty {
                                 showPurchaseUnitError = true
                             } else {
+                                purchaseHistoryViewModel.form.ingredientId = viewModel.form.ingredientId
+                                if purchaseHistoryViewModel.purchaseUnits.isEmpty {
+                                    purchaseHistoryViewModel.fetchPurchaseUnitsByIngredient(ingredientId: viewModel.form.ingredientId)
+                                }
                                 path.append(.purchaseUnits)
                             }
                         }) {
@@ -199,11 +316,17 @@ struct InputPurchaseHistoryPage: View {
                     }
                     
                     
-                    // MARK: 追加ボタン
+                    // MARK: 食材追加ボタン
                     Section {
                         Button("追加する") {
-                            purchaseHistoryViewModel.syncFromInventoryViewModel(inventoryViewModel)
-                            purchaseHistoryViewModel.addPurchaseHistory()
+                            purchaseHistoryViewModel.syncFromInventoryViewModel(viewModel)
+                            purchaseHistoryViewModel.addInventoryAndPurchaseHistory(
+                                numerator: viewModel.form.numerator,
+                                denominator: viewModel.form.denominator,
+                                unit: viewModel.form.unit,
+                                expiryDate: viewModel.form.expiryDate,
+                                frozen: viewModel.form.frozen
+                            )
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.regular)
@@ -221,23 +344,23 @@ struct InputPurchaseHistoryPage: View {
                         }
                         .alert("追加完了", isPresented: $purchaseHistoryViewModel.purchaseDidSucceed) {
                             Button("OK", role: .cancel) {
-                                inventoryViewModel.resetForm()
+                                viewModel.resetForm()
                                 purchaseHistoryViewModel.resetForm()
                                 appState.inputMode = .selection
                             }
                         } message: {
-                            Text("購入履歴が追加されました")
+                            Text("在庫と購入履歴が追加されました")
                         }
                     }
                     
                     Section {
-                        Text(purchaseHistoryViewModel.form.errorMessage ?? "エラーないよ")
+                        Text(viewModel.form.errorMessage ?? "エラーないよ")
                     }
                 }
                 .tint(.orange)
-                .gesture(self.gesture)
+                //                .gesture(self.gesture)
                 .onAppear {
-                    inventoryViewModel.fetchCategoriesAndIngredients()
+                    viewModel.fetchCategoriesAndIngredients()
                     purchaseHistoryViewModel.fetchLocations()
                     
                     if !hasShownPurchaseUnitHelp {
@@ -247,25 +370,31 @@ struct InputPurchaseHistoryPage: View {
                         }
                     }
                 }
-                .onChange(of: inventoryViewModel.form.ingredientId) { newIngredientId in
+                .onChange(of: viewModel.form.ingredientId) { newIngredientId in
                     purchaseHistoryViewModel.form.ingredientId = newIngredientId
                     if !newIngredientId.isEmpty {
                         purchaseHistoryViewModel.fetchPurchaseUnitsByIngredient(ingredientId: newIngredientId)
                     }
                 }
-                .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in
+                .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in // (4) 遷移先を設定
                     switch appNavigationPath {
                     case .category(let categories):
                         SelectCategoryPage(
-                            path: $path, viewModel: inventoryViewModel
+                            path: $path, viewModel: viewModel
                         )
                     case .ingredients(let category):
-                        SelectIngredientPage(path: $path, viewModel: inventoryViewModel, category: category)
+                        SelectIngredientPage(path: $path, viewModel: viewModel, category: category)
                     case .locations:
                         SelectLocationPage(path: $path, viewModel: purchaseHistoryViewModel)
                     case .purchaseUnits:
                         SelectPurchaseUnitPage(path: $path, viewModel: purchaseHistoryViewModel)
-                    default:
+                    case .combinedInput:
+                        InputAllPage()
+                    case .inventoryOnly:
+                        Text("在庫のみ入力画面（未実装）")
+                    case .purchaseHistoryOnly:
+                        Text("購入履歴のみ入力画面（未実装）")
+                    case .purchaseHistoryPage:
                         EmptyView()
                     }
                 }
@@ -276,6 +405,5 @@ struct InputPurchaseHistoryPage: View {
 }
 
 #Preview {
-    InputPurchaseHistoryPage()
-        .environmentObject(AppState())
+    InputAllPage()
 }

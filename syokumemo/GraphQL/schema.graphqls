@@ -40,6 +40,12 @@ type Location {
   name: String!
 }
 
+type PurchaseUnit {
+  id: ID!
+  name: String!
+  ingredient: Ingredient!
+}
+
 type Category {
   id: ID!
   name: String!
@@ -53,6 +59,13 @@ type Ingredient {
   category: Category!
   inventory: [Inventory!]!
   purchaseHistory: [PurchaseHistory!]!
+  purchaseUnits: [PurchaseUnit!]!
+}
+
+enum InventoryStatus {
+  ACTIVE
+  DISCARDED
+  CONSUMED
 }
 
 type Inventory {
@@ -63,6 +76,7 @@ type Inventory {
   expiryDate: String!
   frozen: Boolean!
   expired: Boolean!
+  status: InventoryStatus!
 }
 
 type PurchaseHistory {
@@ -70,6 +84,7 @@ type PurchaseHistory {
   ingredient: Ingredient!
   date: String!
   location: Location!
+  purchaseUnit: PurchaseUnit!
   price: Int!
 }
 
@@ -92,6 +107,15 @@ input UpdateLocationInput {
   name: String!
 }
 
+input NewPurchaseUnit {
+  ingredientId: ID!
+  name: String!
+}
+
+input UpdatePurchaseUnitInput {
+  name: String!
+}
+
 input NewCategory {
   name: String!
   colorCode: String
@@ -100,6 +124,11 @@ input NewCategory {
 input NewIngredient {
   name: String!
   categoryId: ID!
+}
+
+input UpdateIngredientInput {
+  name: String
+  categoryId: ID
 }
 
 input NewInventory {
@@ -119,6 +148,7 @@ input UpdateInventory {
 
 input InventoryFilter {
   ingredientId: ID
+  status: [InventoryStatus!]
 }
 
 enum InventorySort {
@@ -128,18 +158,16 @@ enum InventorySort {
 
 input NewPurchaseHistory {
   ingredientId: ID!
-  quantity: FractionInput!
-  unit: String!
   date: String!
   locationId: ID!
+  purchaseUnitId: ID!
   price: Int!
 }
 
 input UpdatePurchaseHistory {
-  quantity: FractionInput
-  unit: String
   date: String
   locationId: ID
+  purchaseUnitId: ID
   price: Int
 }
 
@@ -152,6 +180,9 @@ type Query {
   me: User @auth
   locations: [Location!]! @auth
   location(id: ID!): Location @auth
+  purchaseUnits: [PurchaseUnit!]! @auth
+  purchaseUnit(id: ID!): PurchaseUnit @auth
+  purchaseUnitsByIngredient(ingredientId: ID!): [PurchaseUnit!]! @auth
   categories: [Category!]! @auth
   category(id: ID!): Category @auth
   ingredients(categoryId: ID, q: String): [Ingredient!]! @auth
@@ -164,16 +195,22 @@ type Mutation {
   createLocation(input: NewLocation!): Location! @auth
   updateLocation(id: ID!, input: UpdateLocationInput!): Location! @auth
   deleteLocation(id: ID!): Boolean! @auth
+  createPurchaseUnit(input: NewPurchaseUnit!): PurchaseUnit! @auth
+  updatePurchaseUnit(id: ID!, input: UpdatePurchaseUnitInput!): PurchaseUnit! @auth
+  deletePurchaseUnit(id: ID!): Boolean! @auth
   createCategory(input: NewCategory!): Category! @auth
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category! @auth
   deleteCategory(id: ID!): Boolean! @auth
   addIngredient(input: NewIngredient!): Ingredient! @auth
+  updateIngredient(id: ID!, input: UpdateIngredientInput!): Ingredient! @auth
   deleteIngredient(id: ID!): Boolean! @auth
   addInventory(input: NewInventory!): Inventory! @auth
   updateInventory(id: ID!, input: UpdateInventory!): Inventory! @auth
   freezeInventory(id: ID!): Inventory! @auth
   deleteInventory(id: ID!): Boolean! @auth
   updateQuantity(id: ID!, input: UpdateQuantity!): Inventory! @auth
+  discardInventory(id: ID!): Inventory! @auth
+  consumeInventory(id: ID!): Inventory! @auth
   addPurchaseHistory(input: NewPurchaseHistory!): PurchaseHistory! @auth
   updatePurchaseHistory(id: ID!, input: UpdatePurchaseHistory!): PurchaseHistory! @auth
   deletePurchaseHistory(id: ID!): Boolean! @auth

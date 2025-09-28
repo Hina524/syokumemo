@@ -1,0 +1,10 @@
+mutation UpdatePurchaseUnit($id: ID!, $input: UpdatePurchaseUnitInput!) {
+	updatePurchaseUnit(id: $id, input: $input) {
+		id
+		name
+		ingredient {
+			id
+			name
+		}
+	}
+}

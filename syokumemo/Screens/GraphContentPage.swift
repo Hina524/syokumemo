@@ -25,7 +25,7 @@ struct NavigationHeader: View {
                             Text("戻る")
                                 .font(.body)
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(.accentColor)
                     }
                     Spacer()
                 }
@@ -34,8 +34,9 @@ struct NavigationHeader: View {
                     .font(.headline)
                     .foregroundColor(.black)
             }
-            .padding()
-            .frame(height: 50)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .frame(height: 44)
             .navigationBarBackButtonHidden(true)
         }
     }

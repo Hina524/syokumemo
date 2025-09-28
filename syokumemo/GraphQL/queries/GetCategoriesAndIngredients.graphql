@@ -2,6 +2,7 @@ query GetCategoriesAndIngredients{
     categories {
         id
         name
+        colorCode
         ingredients {
             id
             name
