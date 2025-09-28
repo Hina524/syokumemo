@@ -160,6 +160,7 @@ struct InputPurchaseHistoryPage: View {
                                 VStack(alignment: .leading, spacing: 12) {
                                     Text("購入単位の入力方法")
                                         .font(.headline)
+                                        .foregroundColor(.primary)
                                     
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text("**例1:** 3個入りのトマトを324円で購入")
