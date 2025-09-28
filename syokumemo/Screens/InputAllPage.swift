@@ -41,6 +41,9 @@ struct InputAllPage: View {
     @State private var setExpiryDateOneYearLater = false
     @State private var setDateNotToday: Bool = false
     @State private var purchaseDate = Date()
+    @State private var showPurchaseUnitHelp = false
+    @State private var showPurchaseUnitError = false
+    @AppStorage("hasShownPurchaseUnitHelp") private var hasShownPurchaseUnitHelp = false
     
     @FocusState private var isFocused: Bool
     
@@ -237,8 +240,7 @@ struct InputAllPage: View {
                     Section {
                         Button(action: {
                             if viewModel.form.ingredientId.isEmpty {
-                                purchaseHistoryViewModel.form.errorMessage = "先に食材を選択してください"
-                                purchaseHistoryViewModel.isMutationError = true
+                                showPurchaseUnitError = true
                             } else {
                                 purchaseHistoryViewModel.form.ingredientId = viewModel.form.ingredientId
                                 if purchaseHistoryViewModel.purchaseUnits.isEmpty {
@@ -260,8 +262,42 @@ struct InputAllPage: View {
                         }
                         .foregroundColor(.black)
                     } header: {
-                        Text("購入単位")
-                            .font(.headline)
+                        HStack(spacing: 4) {
+                            Text("購入単位")
+                                .font(.headline)
+                            Button(action: {
+                                showPurchaseUnitHelp = true
+                            }) {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.accentColor)
+                                    .font(.caption)
+                            }
+                            .buttonStyle(.plain)
+                            .popover(isPresented: $showPurchaseUnitHelp) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("購入単位の入力方法")
+                                        .font(.headline)
+                                    
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("**例1:** 3個入りのトマトを324円で購入")
+                                            .font(.subheadline)
+                                        Text("→ 金額: 324, 購入単位: 3個入り")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("**例2:** 100g 76円の鶏胸肉を購入")
+                                            .font(.subheadline)
+                                        Text("→ 金額: 76, 購入単位: 100g")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .padding()
+                                .presentationCompactAdaptation(.popover)
+                            }
+                        }
                     }
                     
                     // MARK: 購入場所
@@ -295,12 +331,15 @@ struct InputAllPage: View {
                         .controlSize(.regular)
                         .frame(maxWidth: .infinity)
                         .listRowBackground(Color.clear)
+                        .alert("先に食材を選択してください", isPresented: $showPurchaseUnitError) {
+                            Button("閉じる", role: .cancel) { }
+                        }
                         .alert("追加失敗", isPresented: $purchaseHistoryViewModel.isMutationError) {
                             Button("閉じる", role: .cancel) {
                                 purchaseHistoryViewModel.isMutationError = false
                             }
                         } message: {
-                            Text(purchaseHistoryViewModel.form.errorMessage ?? "入力を確認してください")
+                            Text("入力を確認してください")
                         }
                         .alert("追加完了", isPresented: $purchaseHistoryViewModel.purchaseDidSucceed) {
                             Button("OK", role: .cancel) {
@@ -322,6 +361,13 @@ struct InputAllPage: View {
                 .onAppear {
                     viewModel.fetchCategoriesAndIngredients()
                     purchaseHistoryViewModel.fetchLocations()
+                    
+                    if !hasShownPurchaseUnitHelp {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showPurchaseUnitHelp = true
+                            hasShownPurchaseUnitHelp = true
+                        }
+                    }
                 }
                 .onChange(of: viewModel.form.ingredientId) { newIngredientId in
                     purchaseHistoryViewModel.form.ingredientId = newIngredientId
