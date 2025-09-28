@@ -1,0 +1,10 @@
+mutation CreatePurchaseUnit($input: NewPurchaseUnit!) {
+	createPurchaseUnit(input: $input) {
+		id
+		name
+		ingredient {
+			id
+			name
+		}
+	}
+}

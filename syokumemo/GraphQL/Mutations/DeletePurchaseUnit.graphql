@@ -1,0 +1,3 @@
+mutation DeletePurchaseUnit($id: ID!) {
+    deletePurchaseUnit(id: $id)
+}

@@ -188,6 +188,7 @@ struct InputPurchaseHistoryPage: View {
                     purchaseHistoryViewModel.fetchLocations()
                 }
                 .onChange(of: inventoryViewModel.form.ingredientId) { newIngredientId in
+                    purchaseHistoryViewModel.form.ingredientId = newIngredientId
                     if !newIngredientId.isEmpty {
                         purchaseHistoryViewModel.fetchPurchaseUnitsByIngredient(ingredientId: newIngredientId)
                     }
