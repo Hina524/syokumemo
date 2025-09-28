@@ -1,5 +1,5 @@
 //
-//  PurchaseUnitSelectionPage.swift
+//  SelectPurchaseUnitPage.swift
 //  syokumemo
 //
 //  Created by KONISHI Hina on 2025/09/28.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ShokumemoAPI
 
-struct PurchaseUnitSelectionPage: View {
+struct SelectPurchaseUnitPage: View {
     @Binding var path: [AppNavigationPath]
     @ObservedObject var viewModel: InputPurchaseHistoryViewModel
     

@@ -1,5 +1,5 @@
 //
-//  CategorySelectionView.swift
+//  SelectIngredientPage.swift
 //  syokumemo
 //
 //  Created by KONISHI Hina on 2025/05/07.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ShokumemoAPI
 
-struct IngredientSelectionPage: View {
+struct SelectIngredientPage: View {
     
     @Binding var path: [AppNavigationPath]
     

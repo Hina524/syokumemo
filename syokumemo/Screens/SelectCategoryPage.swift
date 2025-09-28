@@ -1,5 +1,5 @@
 //
-//  CategorySelectionPage.swift
+//  SelectCategoryPage.swift
 //  syokumemo
 //
 //  Created by KONISHI Hina on 2025/05/22.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ShokumemoAPI
 
-struct CategorySelectionPage: View {
+struct SelectCategoryPage: View {
     @Binding var path: [AppNavigationPath]
     @ObservedObject var viewModel: InputInventoryViewModel
     
@@ -28,10 +28,8 @@ struct CategorySelectionPage: View {
                 Spacer()
                 Button(action: {
                     if viewModel.isCategoryEditMode {
-                        // Complete editing and save changes
                         viewModel.completeEditing()
                     } else {
-                        // Enter edit mode
                         viewModel.isCategoryEditMode = true
                     }
                 }) {
@@ -50,7 +48,6 @@ struct CategorySelectionPage: View {
                     HStack {
                         ColorPicker("", selection: Binding(
                             get: { 
-                                // Initialize editing color if not set
                                 if viewModel.editingCategoryColors[category.id] == nil {
                                     let initialColor = category.colorCode.isEmpty ? Color.gray : Color(hex: category.colorCode)
                                     viewModel.editingCategoryColors[category.id] = initialColor
@@ -65,7 +62,6 @@ struct CategorySelectionPage: View {
                         VStack(alignment: .leading, spacing: 2) {
                             TextField("カテゴリ名", text: Binding(
                                 get: {
-                                    // Initialize editing name if not set
                                     if viewModel.editingCategoryNames[category.id] == nil {
                                         viewModel.editingCategoryNames[category.id] = category.name
                                     }
@@ -104,7 +100,6 @@ struct CategorySelectionPage: View {
             }
             .onDelete(perform: viewModel.isCategoryEditMode ? deleteCategories : nil)
             
-            // New category addition row in edit mode
             if viewModel.isCategoryEditMode {
                 HStack {
                     ColorPicker("", selection: $viewModel.newCategoryColor, supportsOpacity: false)
@@ -133,8 +128,8 @@ struct CategorySelectionPage: View {
         }
         .environment(\.editMode, viewModel.isCategoryEditMode ? .constant(.active) : .constant(.inactive))
         .navigationDestination(for: AppNavigationPath.self) { selectIngredient in
-            if case AppNavigationPath.ingredients(let category) = selectIngredient { // Item.member から associated value を取得する
-                IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
+            if case AppNavigationPath.ingredients(let category) = selectIngredient {
+                SelectIngredientPage(path: $path, viewModel: viewModel, category: category)
             }
         }
         
@@ -161,9 +156,3 @@ struct CategorySelectionPage: View {
         }
     }
 }
-
-//#Preview {
-//    @Previewable @State var path = [SelectIngredient]()
-//    var categories: [Category] = Category.init()
-//    CategorySelectionPage(categories: categories, path: $path)
-//}

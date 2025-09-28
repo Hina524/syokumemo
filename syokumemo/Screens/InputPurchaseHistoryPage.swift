@@ -195,15 +195,15 @@ struct InputPurchaseHistoryPage: View {
                 .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in
                     switch appNavigationPath {
                     case .category(let categories):
-                        CategorySelectionPage(
+                        SelectCategoryPage(
                             path: $path, viewModel: inventoryViewModel
                         )
                     case .ingredients(let category):
-                        IngredientSelectionPage(path: $path, viewModel: inventoryViewModel, category: category)
+                        SelectIngredientPage(path: $path, viewModel: inventoryViewModel, category: category)
                     case .locations:
-                        LocationSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
+                        SelectLocationPage(path: $path, viewModel: purchaseHistoryViewModel)
                     case .purchaseUnits:
-                        PurchaseUnitSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
+                        SelectPurchaseUnitPage(path: $path, viewModel: purchaseHistoryViewModel)
                     default:
                         EmptyView()
                     }

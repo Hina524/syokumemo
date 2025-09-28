@@ -196,11 +196,11 @@ struct InputInventoryPage: View {
                 .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in
                     switch appNavigationPath {
                     case .category(let categories):
-                        CategorySelectionPage(
+                        SelectCategoryPage(
                             path: $path, viewModel: viewModel
                         )
                     case .ingredients(let category):
-                        IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
+                        SelectIngredientPage(path: $path, viewModel: viewModel, category: category)
                     default:
                         EmptyView()
                     }

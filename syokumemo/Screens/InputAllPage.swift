@@ -332,15 +332,15 @@ struct InputAllPage: View {
                 .navigationDestination(for: AppNavigationPath.self) { appNavigationPath in // (4) 遷移先を設定
                     switch appNavigationPath {
                     case .category(let categories):
-                        CategorySelectionPage(
+                        SelectCategoryPage(
                             path: $path, viewModel: viewModel
                         )
                     case .ingredients(let category):
-                        IngredientSelectionPage(path: $path, viewModel: viewModel, category: category)
+                        SelectIngredientPage(path: $path, viewModel: viewModel, category: category)
                     case .locations:
-                        LocationSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
+                        SelectLocationPage(path: $path, viewModel: purchaseHistoryViewModel)
                     case .purchaseUnits:
-                        PurchaseUnitSelectionPage(path: $path, viewModel: purchaseHistoryViewModel)
+                        SelectPurchaseUnitPage(path: $path, viewModel: purchaseHistoryViewModel)
                     case .combinedInput:
                         InputAllPage()
                     case .inventoryOnly:
