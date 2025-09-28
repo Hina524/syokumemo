@@ -2,3 +2,4 @@ Config.xcconfig
 build/
 syokumemo/CLAUDE/
 .swiftpm
+.claude/commands/create-pull-request.md
