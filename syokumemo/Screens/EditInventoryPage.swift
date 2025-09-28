@@ -27,7 +27,7 @@ struct EditInventoryPage: View {
                             Text("消費期限リスト")
                                 .font(.body)
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(.accentColor)
                     }
                     Spacer()
                 }

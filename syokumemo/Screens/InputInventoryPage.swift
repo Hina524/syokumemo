@@ -43,7 +43,7 @@ struct InputInventoryPage: View {
                                 Text("戻る")
                                     .font(.body)
                             }
-                            .foregroundColor(.black)
+                            .foregroundColor(.accentColor)
                         }
                         Spacer()
                     }

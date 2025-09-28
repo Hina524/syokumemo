@@ -30,7 +30,7 @@ struct SelectIngredientPage: View {
                         Text("カテゴリ選択")
                             .font(.body)
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(.accentColor)
                 }
                 Spacer()
                 Button(action: {

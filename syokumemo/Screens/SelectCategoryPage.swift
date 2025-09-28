@@ -23,7 +23,7 @@ struct SelectCategoryPage: View {
                         Text("戻る")
                             .font(.body)
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(.accentColor)
                 }
                 Spacer()
                 Button(action: {
