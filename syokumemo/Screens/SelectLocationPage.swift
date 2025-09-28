@@ -39,8 +39,9 @@ struct SelectLocationPage: View {
             }
             Text("購入場所選択")
         }
-        .padding()
-        .frame(height: 50)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .frame(height: 44)
         
         List {
             ForEach(viewModel.locations, id: \.id) { location in

@@ -41,8 +41,9 @@ struct SelectPurchaseUnitPage: View {
             }
             Text("購入単位選択")
         }
-        .padding()
-        .frame(height: 50)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .frame(height: 44)
         
         VStack {
             if viewModel.form.ingredientId.isEmpty {

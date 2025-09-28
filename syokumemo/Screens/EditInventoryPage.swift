@@ -36,8 +36,9 @@ struct EditInventoryPage: View {
                     .font(.headline)
                     .foregroundColor(.black)
             }
-            .padding()
-            .frame(height: 50)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .frame(height: 44)
             .navigationBarBackButtonHidden(true)
             
             

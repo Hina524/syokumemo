@@ -49,8 +49,9 @@ struct SelectIngredientPage: View {
                 .font(.headline)
                 .foregroundColor(.black)
         }
-        .padding()
-        .frame(height: 50)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .frame(height: 44)
         
         List {
             ForEach(currentCategory.ingredients, id: \.id) { ingredient in

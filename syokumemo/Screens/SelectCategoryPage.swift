@@ -39,8 +39,9 @@ struct SelectCategoryPage: View {
             }
             Text("カテゴリ選択")
         }
-        .padding()
-        .frame(height: 50)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .frame(height: 44)
         
         List {
             ForEach(viewModel.categories, id: \.id) { category in
