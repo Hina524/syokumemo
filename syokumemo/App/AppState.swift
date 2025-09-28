@@ -19,7 +19,7 @@ class AppState: ObservableObject {
         var title: String {
             switch self {
             case .list: return "消費期限リスト"
-            case .input: return "食材を追加"
+            case .input: return "データを入力"
             case .graph: return "金額推移グラフ"
             }
         }

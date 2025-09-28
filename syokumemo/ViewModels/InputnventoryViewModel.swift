@@ -60,6 +60,19 @@ class InputInventoryViewModel: ObservableObject {
     @Published var newCategoryName: String = ""
     @Published var newCategoryColor: Color = .gray
     
+    // Ingredient editing mode
+    @Published var isIngredientEditMode: Bool = false
+    @Published var showIngredientDeleteSuccessAlert: Bool = false
+    @Published var showIngredientDeleteErrorAlert: Bool = false
+    @Published var ingredientDeleteErrorMessage: String = ""
+    
+    // Ingredient name editing
+    @Published var editingIngredientNames: [String: String] = [:]
+    @Published var showEmptyIngredientNameAlert: Bool = false
+    
+    // New ingredient addition
+    @Published var newIngredientName: String = ""
+    
     func resetForm() {
         form = InputInventoryFormData()  // デフォルトイニシャライザでクリア
     }
@@ -299,6 +312,156 @@ class InputInventoryViewModel: ObservableObject {
                     }
                 case .failure(let error):
                     print("Failed to create category: \(error.localizedDescription)")
+                    completion()
+                }
+            }
+        }
+    }
+    
+    // MARK: deleteIngredient
+    func deleteIngredient(ingredientId: String, categoryId: String) {
+        let mutation = DeleteIngredientMutation(id: ingredientId)
+        
+        form.isLoading = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let success = graphQLResult.data?.deleteIngredient, success {
+                        // Refresh categories to update the ingredients list
+                        self?.fetchCategoriesAndIngredients()
+                        self?.showIngredientDeleteSuccessAlert = true
+                    } else if let errors = graphQLResult.errors {
+                        self?.ingredientDeleteErrorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.showIngredientDeleteErrorAlert = true
+                    }
+                case .failure(let error):
+                    self?.ingredientDeleteErrorMessage = "食材の削除に失敗しました: \(error.localizedDescription)"
+                    self?.showIngredientDeleteErrorAlert = true
+                }
+            }
+        }
+    }
+    
+    // MARK: completeIngredientEditing
+    func completeIngredientEditing() {
+        for (ingredientId, name) in editingIngredientNames {
+            if name.trimmingCharacters(in: .whitespaces).isEmpty {
+                showEmptyIngredientNameAlert = true
+                return
+            }
+        }
+        
+        var ingredientsToUpdate: [(id: String, name: String)] = []
+        
+        for (ingredientId, newName) in editingIngredientNames {
+            guard let category = categories.first(where: { $0.ingredients.contains(where: { $0.id == ingredientId }) }),
+                  let ingredient = category.ingredients.first(where: { $0.id == ingredientId }) else { continue }
+            
+            let currentName = ingredient.name
+            
+            if currentName != newName {
+                ingredientsToUpdate.append((id: ingredientId, name: newName))
+            }
+        }
+        
+        guard !ingredientsToUpdate.isEmpty else {
+            editingIngredientNames.removeAll()
+            showEmptyIngredientNameAlert = false
+            newIngredientName = ""
+            isIngredientEditMode = false
+            return
+        }
+        
+        var updateCount = 0
+        let totalUpdates = ingredientsToUpdate.count
+        
+        for ingredientUpdate in ingredientsToUpdate {
+            updateIngredient(id: ingredientUpdate.id, name: ingredientUpdate.name) {
+                updateCount += 1
+                if updateCount == totalUpdates {
+                    self.completeAllIngredientEdits()
+                }
+            }
+        }
+        
+        if totalUpdates == 0 {
+            completeAllIngredientEdits()
+        }
+    }
+    
+    private func completeAllIngredientEdits() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.editingIngredientNames.removeAll()
+            self.showEmptyIngredientNameAlert = false
+            self.newIngredientName = ""
+            self.isIngredientEditMode = false
+            self.fetchCategoriesAndIngredients()
+        }
+    }
+    
+    // MARK: addNewIngredient
+    func addNewIngredient(categoryId: String) {
+        guard !newIngredientName.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showEmptyIngredientNameAlert = true
+            return
+        }
+        
+        createIngredient(categoryId: categoryId) {
+            self.newIngredientName = ""
+            self.fetchCategoriesAndIngredients()
+        }
+    }
+    
+    // MARK: createIngredient
+    private func createIngredient(categoryId: String, completion: @escaping () -> Void) {
+        let input = NewIngredient(
+            name: newIngredientName,
+            categoryId: categoryId
+        )
+        
+        let mutation = CreateIngredientMutation(input: input)
+        
+        form.isLoading = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.addIngredient {
+                        completion()
+                    } else if let errors = graphQLResult.errors {
+                        print("Error creating ingredient: \(errors)")
+                    }
+                case .failure(let error):
+                    print("Failed to create ingredient: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    // MARK: updateIngredient
+    private func updateIngredient(id: String, name: String, completion: @escaping () -> Void) {
+        let input = UpdateIngredientInput(
+            name: .some(name),
+            categoryId: .none
+        )
+        
+        let mutation = UpdateIngredientMutation(id: id, input: input)
+        
+        Network.shared.apollo.perform(mutation: mutation) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.updateIngredient {
+                        completion()
+                    } else if let errors = graphQLResult.errors {
+                        print("Error updating ingredient: \(errors)")
+                        completion()
+                    }
+                case .failure(let error):
+                    print("Failed to update ingredient: \(error.localizedDescription)")
                     completion()
                 }
             }

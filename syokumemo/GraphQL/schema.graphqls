@@ -126,6 +126,11 @@ input NewIngredient {
   categoryId: ID!
 }
 
+input UpdateIngredientInput {
+  name: String
+  categoryId: ID
+}
+
 input NewInventory {
   ingredientId: ID!
   quantity: FractionInput!
@@ -197,6 +202,7 @@ type Mutation {
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category! @auth
   deleteCategory(id: ID!): Boolean! @auth
   addIngredient(input: NewIngredient!): Ingredient! @auth
+  updateIngredient(id: ID!, input: UpdateIngredientInput!): Ingredient! @auth
   deleteIngredient(id: ID!): Boolean! @auth
   addInventory(input: NewInventory!): Inventory! @auth
   updateInventory(id: ID!, input: UpdateInventory!): Inventory! @auth
