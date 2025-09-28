@@ -233,20 +233,6 @@ struct InputAllPage: View {
                             .font(.headline)
                     }
                     
-                    // MARK: 購入場所
-                    Section {
-                        NavigationLink(value: AppNavigationPath.locations) {
-                            if let name = purchaseHistoryViewModel.selectedLocationName {
-                                Text(name)
-                            } else {
-                                Text("未選択")
-                            }
-                        }
-                    } header: {
-                        Text("購入場所")
-                            .font(.headline)
-                    }
-                    
                     // MARK: 購入単位
                     Section {
                         Button(action: {
@@ -275,6 +261,20 @@ struct InputAllPage: View {
                         .foregroundColor(.black)
                     } header: {
                         Text("購入単位")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 購入場所
+                    Section {
+                        NavigationLink(value: AppNavigationPath.locations) {
+                            if let name = purchaseHistoryViewModel.selectedLocationName {
+                                Text(name)
+                            } else {
+                                Text("未選択")
+                            }
+                        }
+                    } header: {
+                        Text("購入場所")
                             .font(.headline)
                     }
                     

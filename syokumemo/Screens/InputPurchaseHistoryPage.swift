@@ -69,20 +69,6 @@ struct InputPurchaseHistoryPage: View {
                             .font(.headline)
                     }
                     
-                    // MARK: 購入単位
-                    Section {
-                        NavigationLink(value: AppNavigationPath.purchaseUnits) {
-                            if let name = purchaseHistoryViewModel.selectedPurchaseUnitName {
-                                Text(name)
-                            } else {
-                                Text("未選択")
-                            }
-                        }
-                    } header: {
-                        Text("購入単位")
-                            .font(.headline)
-                    }
-                    
                     // MARK: 購入日
                     Section {
                         Text(
@@ -131,6 +117,20 @@ struct InputPurchaseHistoryPage: View {
                         }
                     } header: {
                         Text("金額")
+                            .font(.headline)
+                    }
+                    
+                    // MARK: 購入単位
+                    Section {
+                        NavigationLink(value: AppNavigationPath.purchaseUnits) {
+                            if let name = purchaseHistoryViewModel.selectedPurchaseUnitName {
+                                Text(name)
+                            } else {
+                                Text("未選択")
+                            }
+                        }
+                    } header: {
+                        Text("購入単位")
                             .font(.headline)
                     }
                     
