@@ -107,24 +107,30 @@ struct ListPage: View {
                             } else {
                                 ForEach(viewModel.expiredInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            HStack {
-                                                Circle()
-                                                    .fill(Color(hex: inventory.ingredient.category.colorCode))
-                                                    .frame(width: 16, height: 16)
-                                                Text(inventory.ingredient.category.name)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.secondary)
-                                                Spacer()
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack {
+                                                    Circle()
+                                                        .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                        .frame(width: 16, height: 16)
+                                                    Text(inventory.ingredient.category.name)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.secondary)
+                                                    Spacer()
+                                                }
+                                                
+                                                Text(inventory.ingredient.name)
+                                                    .font(.headline)
+                                                
+                                                Text("\(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(Color(hex: inventory.ingredient.category.colorCode))
                                             }
                                             
-                                            Text(inventory.ingredient.name)
-                                                .font(.headline)
+                                            Spacer()
                                             
-                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
-                                            
-                                            Text("賞味期限: \(inventory.expiryDate)")
-                                                .font(.caption)
+                                            Text(inventory.expiryDate)
+                                                .font(.body)
                                                 .foregroundColor(.red)
                                         }
                                         .padding(.vertical, 4)
@@ -141,24 +147,30 @@ struct ListPage: View {
                             } else {
                                 ForEach(viewModel.todayInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            HStack {
-                                                Circle()
-                                                    .fill(Color(hex: inventory.ingredient.category.colorCode))
-                                                    .frame(width: 16, height: 16)
-                                                Text(inventory.ingredient.category.name)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.secondary)
-                                                Spacer()
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack {
+                                                    Circle()
+                                                        .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                        .frame(width: 16, height: 16)
+                                                    Text(inventory.ingredient.category.name)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.secondary)
+                                                    Spacer()
+                                                }
+                                                
+                                                Text(inventory.ingredient.name)
+                                                    .font(.headline)
+                                                
+                                                Text("\(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(Color(hex: inventory.ingredient.category.colorCode))
                                             }
                                             
-                                            Text(inventory.ingredient.name)
-                                                .font(.headline)
+                                            Spacer()
                                             
-                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
-                                            
-                                            Text("賞味期限: \(inventory.expiryDate)")
-                                                .font(.caption)
+                                            Text(inventory.expiryDate)
+                                                .font(.body)
                                                 .foregroundColor(.orange)
                                         }
                                         .padding(.vertical, 4)
@@ -175,24 +187,30 @@ struct ListPage: View {
                             } else {
                                 ForEach(viewModel.futureInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            HStack {
-                                                Circle()
-                                                    .fill(Color(hex: inventory.ingredient.category.colorCode))
-                                                    .frame(width: 16, height: 16)
-                                                Text(inventory.ingredient.category.name)
-                                                    .font(.footnote)
-                                                    .foregroundColor(.secondary)
-                                                Spacer()
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack {
+                                                    Circle()
+                                                        .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                        .frame(width: 16, height: 16)
+                                                    Text(inventory.ingredient.category.name)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.secondary)
+                                                    Spacer()
+                                                }
+                                                
+                                                Text(inventory.ingredient.name)
+                                                    .font(.headline)
+                                                
+                                                Text("\(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(Color(hex: inventory.ingredient.category.colorCode))
                                             }
                                             
-                                            Text(inventory.ingredient.name)
-                                                .font(.headline)
+                                            Spacer()
                                             
-                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
-                                            
-                                            Text("賞味期限: \(inventory.expiryDate)")
-                                                .font(.caption)
+                                            Text(inventory.expiryDate)
+                                                .font(.body)
                                                 .foregroundColor(.gray)
                                         }
                                         .padding(.vertical, 4)
