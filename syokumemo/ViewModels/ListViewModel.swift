@@ -28,6 +28,18 @@ class ListViewModel: ObservableObject {
         return inventories.filter { Date.isFuture($0.expiryDate) }
     }
     
+    var discardedCount: Int {
+        return inventories.filter { $0.status == .discarded }.count
+    }
+    
+    var activeCount: Int {
+        return inventories.filter { $0.status == .active }.count
+    }
+    
+    var consumedCount: Int {
+        return inventories.filter { $0.status == .consumed }.count
+    }
+    
     init(sort: InventorySort? = .expiryAsc ) {
         
         let gqlSort: GraphQLNullable<GraphQLEnum<InventorySort>> =

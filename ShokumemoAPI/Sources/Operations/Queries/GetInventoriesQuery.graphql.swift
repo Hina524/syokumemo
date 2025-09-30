@@ -7,7 +7,7 @@ public class GetInventoriesQuery: GraphQLQuery {
   public static let operationName: String = "GetInventories"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen } }"#
+      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
     ))
 
   public var sort: GraphQLNullable<GraphQLEnum<InventorySort>>
@@ -45,6 +45,7 @@ public class GetInventoriesQuery: GraphQLQuery {
         .field("unit", String.self),
         .field("expiryDate", String.self),
         .field("frozen", Bool.self),
+        .field("status", GraphQLEnum<ShokumemoAPI.InventoryStatus>.self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
@@ -53,6 +54,7 @@ public class GetInventoriesQuery: GraphQLQuery {
       public var unit: String { __data["unit"] }
       public var expiryDate: String { __data["expiryDate"] }
       public var frozen: Bool { __data["frozen"] }
+      public var status: GraphQLEnum<ShokumemoAPI.InventoryStatus> { __data["status"] }
 
       /// Inventory.Ingredient
       ///

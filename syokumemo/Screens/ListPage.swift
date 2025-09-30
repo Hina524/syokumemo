@@ -24,6 +24,81 @@ struct ListPage: View {
             } else {
                 NavigationStack(path: $path) {
                     List {
+                        Section {
+                            VStack(spacing: 0) {
+                                HStack {
+                                    Spacer()
+                                    let now = Date()
+                                    let calendar = Calendar.current
+                                    let year = calendar.component(.year, from: now)
+                                    let month = calendar.component(.month, from: now)
+                                    
+                                    HStack(spacing: 2) {
+                                        Text(String(year))
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("年")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text(String(month))
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("月")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                    }
+                                    Spacer()
+                                }
+                                
+                                HStack(spacing: 60) {
+                                    Spacer()
+                                    
+                                    VStack {
+                                        Text("\(viewModel.discardedCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("すてた")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    VStack {
+                                        Text("\(viewModel.activeCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("在庫数")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    VStack {
+                                        Text("\(viewModel.consumedCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("食べた")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                }
+                                .padding(.top, 8)
+                            }
+                            .padding(.vertical, 8)
+                        }
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        
                         Section(header: Text("賞味期限切れ").font(.headline).foregroundColor(.primary)) {
                             if viewModel.expiredInventories.isEmpty {
                                 Text("該当なし")

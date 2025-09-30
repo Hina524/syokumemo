@@ -12,5 +12,6 @@ query GetInventories($sort: InventorySort) {
 		unit
 		expiryDate
 		frozen
+		status
 	}
 }
