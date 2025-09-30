@@ -7,7 +7,7 @@ public class GetInventoriesQuery: GraphQLQuery {
   public static let operationName: String = "GetInventories"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
+      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name category { __typename id name colorCode } } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
     ))
 
   public var sort: GraphQLNullable<GraphQLEnum<InventorySort>>
@@ -68,10 +68,32 @@ public class GetInventoriesQuery: GraphQLQuery {
           .field("__typename", String.self),
           .field("id", ShokumemoAPI.ID.self),
           .field("name", String.self),
+          .field("category", Category.self),
         ] }
 
         public var id: ShokumemoAPI.ID { __data["id"] }
         public var name: String { __data["name"] }
+        public var category: Category { __data["category"] }
+
+        /// Inventory.Ingredient.Category
+        ///
+        /// Parent Type: `Category`
+        public struct Category: ShokumemoAPI.SelectionSet {
+          public let __data: DataDict
+          public init(_dataDict: DataDict) { __data = _dataDict }
+
+          public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Category }
+          public static var __selections: [ApolloAPI.Selection] { [
+            .field("__typename", String.self),
+            .field("id", ShokumemoAPI.ID.self),
+            .field("name", String.self),
+            .field("colorCode", String.self),
+          ] }
+
+          public var id: ShokumemoAPI.ID { __data["id"] }
+          public var name: String { __data["name"] }
+          public var colorCode: String { __data["colorCode"] }
+        }
       }
 
       /// Inventory.Quantity

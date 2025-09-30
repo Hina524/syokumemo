@@ -108,6 +108,16 @@ struct ListPage: View {
                                 ForEach(viewModel.expiredInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
                                         VStack(alignment: .leading, spacing: 4) {
+                                            HStack {
+                                                Circle()
+                                                    .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                    .frame(width: 16, height: 16)
+                                                Text(inventory.ingredient.category.name)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.secondary)
+                                                Spacer()
+                                            }
+                                            
                                             Text(inventory.ingredient.name)
                                                 .font(.headline)
                                             
@@ -132,6 +142,16 @@ struct ListPage: View {
                                 ForEach(viewModel.todayInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
                                         VStack(alignment: .leading, spacing: 4) {
+                                            HStack {
+                                                Circle()
+                                                    .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                    .frame(width: 16, height: 16)
+                                                Text(inventory.ingredient.category.name)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.secondary)
+                                                Spacer()
+                                            }
+                                            
                                             Text(inventory.ingredient.name)
                                                 .font(.headline)
                                             
@@ -156,6 +176,16 @@ struct ListPage: View {
                                 ForEach(viewModel.futureInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
                                         VStack(alignment: .leading, spacing: 4) {
+                                            HStack {
+                                                Circle()
+                                                    .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                    .frame(width: 16, height: 16)
+                                                Text(inventory.ingredient.category.name)
+                                                    .font(.footnote)
+                                                    .foregroundColor(.secondary)
+                                                Spacer()
+                                            }
+                                            
                                             Text(inventory.ingredient.name)
                                                 .font(.headline)
                                             
