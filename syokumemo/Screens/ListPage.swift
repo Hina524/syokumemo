@@ -246,25 +246,27 @@ struct ListPage: View {
                 }
             }
             
-            // フローティングボタン
-            VStack {
-                Spacer()
-                HStack {
+            // フローティングボタン（リストページでのみ表示）
+            if path.isEmpty {
+                VStack {
                     Spacer()
-                    Button(action: {
-                        viewModel.showFilterMenu = true
-                    }) {
-                        Label("絞込み", systemImage: "arrow.up.and.down.text.horizontal")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.green)
-                            .cornerRadius(25)
-                            .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            viewModel.showFilterMenu = true
+                        }) {
+                            Label("絞込み", systemImage: "arrow.up.and.down.text.horizontal")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(Color.green)
+                                .cornerRadius(25)
+                                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
                     }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 20)
                 }
             }
         }
