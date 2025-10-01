@@ -3,3 +3,4 @@ build/
 syokumemo/CLAUDE/
 .swiftpm
 .claude/commands/create-pull-request.md
+GoogleService-Info.plist
