@@ -25,17 +25,50 @@ class EditInventoryViewModel: ObservableObject {
     @Published var form = EditFormData()
     @Published var isSubmitting = false
     @Published var isMutationError: Bool = false
+    @Published var isShowFreezeSheet = false
+    @Published var newExpiryDate = Date()
+    @Published var isShowQuantitySheet = false
+    @Published var newNumerator: Int? = nil
+    @Published var newDenominator: Int? = nil
+    @Published var newUnit: String? = nil
+    @Published var isOnFractionInput = false
+    @Published var showDiscardAlert = false
+    @Published var showConsumeAlert = false
+    @Published var showDeleteAlert = false
    
-    
+    var listViewModel: ListViewModel?
     var inventoryId: String = ""
+    var onNavigateBack: (() -> Void)?
     
     func updateQuantity() {
-        let input = UpdateQuantity(
-            numerator: form.numerator,
-            denominator: form.denominator == .none ? 1 : .init(integerLiteral: form.denominator!)
+        let denominatorValue = isOnFractionInput ? (newDenominator ?? 1) : 1
+        let numeratorValue = newNumerator ?? 1
+        
+        let quantityInput: GraphQLNullable<FractionInput>
+        if newNumerator != nil || newDenominator != nil {
+            quantityInput = .some(FractionInput(
+                numerator: numeratorValue,
+                denominator: denominatorValue
+            ))
+        } else {
+            quantityInput = .none
+        }
+        
+        let unitInput: GraphQLNullable<String>
+        if let unit = newUnit {
+            unitInput = .some(unit)
+        } else {
+            unitInput = .none
+        }
+        
+        let input = UpdateInventory(
+            quantity: quantityInput,
+            unit: unitInput,
+            expiryDate: .none,
+            frozen: .none
         )
         
-        let mutation = UpdateQuantityMutation(id: inventoryId, input: input)
+        let mutation = UpdateInventoryMutation(id: inventoryId, input: input)
         
         form.isLoading = true
         isSubmitting = true
@@ -44,15 +77,168 @@ class EditInventoryViewModel: ObservableObject {
                 self?.form.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
-                    if let _ = graphQLResult.data?.updateQuantity {
+                    if let _ = graphQLResult.data?.updateInventory {
                         self?.isSubmitting = false
-                        self?.resetForm()
+                        self?.isShowQuantitySheet = false
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
                     } else if let errors = graphQLResult.errors {
                         self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
                         self?.isMutationError = true
                     }
                 case .failure(let error):
-                    self?.form.errorMessage = "登録に失敗しました: \(error.localizedDescription)"
+                    self?.form.errorMessage = "更新に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func updateExpiryDate() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let expiryDateString = dateFormatter.string(from: newExpiryDate)
+        
+        let input = UpdateInventory(
+            quantity: .none,
+            unit: .none,
+            expiryDate: .some(expiryDateString),
+            frozen: .none
+        )
+        
+        let mutation = UpdateInventoryMutation(id: inventoryId, input: input)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.updateInventory {
+                        self?.isSubmitting = false
+                        self?.isShowFreezeSheet = false
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "更新に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func discardInventory() {
+        let mutation = DiscardInventoryMutation(id: inventoryId)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                self?.isSubmitting = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.discardInventory {
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "削除に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func consumeInventory() {
+        let mutation = ConsumeInventoryMutation(id: inventoryId)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                self?.isSubmitting = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.consumeInventory {
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "削除に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func deleteInventory() {
+        let mutation = DeleteInventoryMutation(id: inventoryId)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                self?.isSubmitting = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.deleteInventory {
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "削除に失敗しました: \(error.localizedDescription)"
                     self?.isMutationError = true
                 }
             }

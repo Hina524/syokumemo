@@ -1,5 +1,5 @@
-query GetInventories($sort: InventorySort, $filter: InventoryFilter) {
-	inventory(sort: $sort, filter: $filter) {
+mutation UpdateInventory($id: ID!, $input: UpdateInventory!) {
+	updateInventory(id: $id, input: $input) {
 		id
 		ingredient {
 			id

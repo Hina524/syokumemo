@@ -15,15 +15,91 @@ struct ListPage: View {
     @State private var path = [Inventory]()
     
     var body: some View {
-        VStack {
-            if viewModel.isLoading {
-                ProgressView("読み込み中…")
-            } else if let error = viewModel.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-            } else {
-                NavigationStack(path: $path) {
+        ZStack {
+            VStack {
+                if viewModel.isLoading {
+                    ProgressView("読み込み中…")
+                } else if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                } else {
+                    NavigationStack(path: $path) {
                     List {
+                        Section {
+                            VStack(spacing: 0) {
+                                HStack {
+                                    Spacer()
+                                    let now = Date()
+                                    let calendar = Calendar.current
+                                    let year = calendar.component(.year, from: now)
+                                    let month = calendar.component(.month, from: now)
+                                    
+                                    HStack(spacing: 2) {
+                                        Text(String(year))
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("年")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text(String(month))
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("月")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                    }
+                                    Spacer()
+                                }
+                                
+                                HStack(spacing: 60) {
+                                    Spacer()
+                                    
+                                    VStack {
+                                        Text("\(viewModel.discardedCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("すてた")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    VStack {
+                                        Text("\(viewModel.activeCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("在庫数")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    VStack {
+                                        Text("\(viewModel.consumedCount)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.primary)
+                                        Text("食べた")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                }
+                                .padding(.top, 8)
+                            }
+                            .padding(.vertical, 8)
+                        }
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        
                         Section(header: Text("賞味期限切れ").font(.headline).foregroundColor(.primary)) {
                             if viewModel.expiredInventories.isEmpty {
                                 Text("該当なし")
@@ -32,15 +108,36 @@ struct ListPage: View {
                             } else {
                                 ForEach(viewModel.expiredInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(inventory.ingredient.name)
-                                                .font(.headline)
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack {
+                                                    Circle()
+                                                        .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                        .frame(width: 16, height: 16)
+                                                    Text(inventory.ingredient.category.name)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.secondary)
+                                                    Spacer()
+                                                }
+                                                
+                                                Text(inventory.ingredient.name)
+                                                    .font(.headline)
+                                                
+                                                Text("\(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(Color(hex: inventory.ingredient.category.colorCode))
+                                            }
                                             
-                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                            Spacer()
                                             
-                                            Text("賞味期限: \(inventory.expiryDate)")
-                                                .font(.caption)
-                                                .foregroundColor(.red)
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("賞味期限")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
+                                                    .font(.body)
+                                                    .foregroundColor(.red)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
@@ -56,15 +153,36 @@ struct ListPage: View {
                             } else {
                                 ForEach(viewModel.todayInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(inventory.ingredient.name)
-                                                .font(.headline)
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack {
+                                                    Circle()
+                                                        .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                        .frame(width: 16, height: 16)
+                                                    Text(inventory.ingredient.category.name)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.secondary)
+                                                    Spacer()
+                                                }
+                                                
+                                                Text(inventory.ingredient.name)
+                                                    .font(.headline)
+                                                
+                                                Text("\(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(Color(hex: inventory.ingredient.category.colorCode))
+                                            }
                                             
-                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                            Spacer()
                                             
-                                            Text("賞味期限: \(inventory.expiryDate)")
-                                                .font(.caption)
-                                                .foregroundColor(.orange)
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("賞味期限")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
+                                                    .font(.body)
+                                                    .foregroundColor(.orange)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
@@ -80,15 +198,36 @@ struct ListPage: View {
                             } else {
                                 ForEach(viewModel.futureInventories, id: \.id) { inventory in
                                     NavigationLink(value: inventory) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(inventory.ingredient.name)
-                                                .font(.headline)
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack {
+                                                    Circle()
+                                                        .fill(Color(hex: inventory.ingredient.category.colorCode))
+                                                        .frame(width: 16, height: 16)
+                                                    Text(inventory.ingredient.category.name)
+                                                        .font(.footnote)
+                                                        .foregroundColor(.secondary)
+                                                    Spacer()
+                                                }
+                                                
+                                                Text(inventory.ingredient.name)
+                                                    .font(.headline)
+                                                
+                                                Text("\(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(Color(hex: inventory.ingredient.category.colorCode))
+                                            }
                                             
-                                            Text("量: \(FractionFormatter.format(numerator: inventory.quantity.numerator, denominator: inventory.quantity.denominator)) \(inventory.unit)")
+                                            Spacer()
                                             
-                                            Text("賞味期限: \(inventory.expiryDate)")
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("賞味期限")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
+                                                    .font(.body)
+                                                    .foregroundColor(.gray)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
@@ -99,11 +238,43 @@ struct ListPage: View {
                     .navigationDestination(for: Inventory.self) { inventory in
                         EditInventoryPage(
                             path: $path,
+                            listViewModel: viewModel,
                             inventory: inventory
                         )
                     }
+                    }
                 }
             }
+            
+            // フローティングボタン（リストページでのみ表示）
+            if path.isEmpty {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            viewModel.showFilterMenu = true
+                        }) {
+                            Label("絞込み", systemImage: "arrow.up.and.down.text.horizontal")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(Color.green)
+                                .cornerRadius(25)
+                                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $viewModel.showFilterMenu) {
+            CategoryFilterView(
+                selectedCategoryIds: $viewModel.selectedCategoryIds,
+                categories: viewModel.categories
+            )
         }
         .onAppear {
             viewModel.fetchInventories()

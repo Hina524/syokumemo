@@ -11,38 +11,84 @@ import ShokumemoAPI
 
 class ListViewModel: ObservableObject {
     @Published var inventories: [GetInventoriesQuery.Data.Inventory] = []
+    @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
+    @Published var selectedCategoryIds: Set<String> = []
+    @Published var showFilterMenu = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var isShowSheet = false
+    @Published var discardedCount: Int = 0
+    @Published var activeCount: Int = 0
+    @Published var consumedCount: Int = 0
     private var watcher: GraphQLQueryWatcher<GetInventoriesQuery>?
+    private var categoriesWatcher: GraphQLQueryWatcher<GetCategoriesAndIngredientsQuery>?
+    private var statusCountsWatcher: GraphQLQueryWatcher<GetInventoryStatusCountsQuery>?
+    
+    private var filteredInventories: [GetInventoriesQuery.Data.Inventory] {
+        guard !selectedCategoryIds.isEmpty else { return inventories }
+        return inventories.filter { selectedCategoryIds.contains($0.ingredient.category.id) }
+    }
     
     var expiredInventories: [GetInventoriesQuery.Data.Inventory] {
-        return inventories.filter { Date.isExpired($0.expiryDate) }
+        return filteredInventories.filter { Date.isExpired($0.expiryDate) }
     }
     
     var todayInventories: [GetInventoriesQuery.Data.Inventory] {
-        return inventories.filter { Date.isToday($0.expiryDate) }
+        return filteredInventories.filter { Date.isToday($0.expiryDate) }
     }
     
     var futureInventories: [GetInventoriesQuery.Data.Inventory] {
-        return inventories.filter { Date.isFuture($0.expiryDate) }
+        return filteredInventories.filter { Date.isFuture($0.expiryDate) }
     }
+    
     
     init(sort: InventorySort? = .expiryAsc ) {
         
         let gqlSort: GraphQLNullable<GraphQLEnum<InventorySort>> =
         sort.map { .some(GraphQLEnum($0)) } ?? .none
         
+        let activeFilter = InventoryFilter(status: [GraphQLEnum(.active)])
+        
+        // ACTIVEな在庫のみを取得
         watcher = Network.shared.apollo.watch(
-            query: GetInventoriesQuery(sort: gqlSort),
+            query: GetInventoriesQuery(sort: gqlSort, filter: .some(activeFilter)),
             cachePolicy: .returnCacheDataAndFetch
         ) { [weak self] result in
             switch result {
             case .success(let graphQLResult):
-                // キャッシュ or ネットワークから返ってきた最新の items に差し替え
                 self?.inventories = graphQLResult.data?.inventory ?? []
             case .failure(let error):
                 print("Query watch error:", error)
+            }
+        }
+        
+        // 統計データを取得
+        statusCountsWatcher = Network.shared.apollo.watch(
+            query: GetInventoryStatusCountsQuery(),
+            cachePolicy: .returnCacheDataAndFetch
+        ) { [weak self] result in
+            switch result {
+            case .success(let graphQLResult):
+                if let counts = graphQLResult.data?.inventoryStatusCounts {
+                    self?.activeCount = counts.active
+                    self?.discardedCount = counts.discarded
+                    self?.consumedCount = counts.consumed
+                }
+            case .failure(let error):
+                print("Status counts query watch error:", error)
+            }
+        }
+        
+        // カテゴリー一覧を取得
+        categoriesWatcher = Network.shared.apollo.watch(
+            query: GetCategoriesAndIngredientsQuery(),
+            cachePolicy: .returnCacheDataAndFetch
+        ) { [weak self] result in
+            switch result {
+            case .success(let graphQLResult):
+                self?.categories = graphQLResult.data?.categories ?? []
+            case .failure(let error):
+                print("Categories query watch error:", error)
             }
         }
     }
@@ -52,8 +98,10 @@ class ListViewModel: ObservableObject {
         
         let gqlSort: GraphQLNullable<GraphQLEnum<InventorySort>> =
         sort.map { .some(GraphQLEnum($0)) } ?? .none
+        
+        let activeFilter = InventoryFilter(status: [GraphQLEnum(.active)])
 
-        Network.shared.apollo.fetch(query: GetInventoriesQuery(sort: gqlSort)) { [weak self] result in
+        Network.shared.apollo.fetch(query: GetInventoriesQuery(sort: gqlSort, filter: .some(activeFilter)), cachePolicy: .fetchIgnoringCacheData) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {
@@ -79,6 +127,26 @@ class ListViewModel: ObservableObject {
                     }
                 case .failure(let error):
                     self?.errorMessage = "削除エラー: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+    
+    func fetchInventoryStatusCounts() {
+        Network.shared.apollo.fetch(
+            query: GetInventoryStatusCountsQuery(),
+            cachePolicy: .fetchIgnoringCacheData
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    if let counts = graphQLResult.data?.inventoryStatusCounts {
+                        self?.activeCount = counts.active
+                        self?.discardedCount = counts.discarded
+                        self?.consumedCount = counts.consumed
+                    }
+                case .failure(let error):
+                    print("Status counts fetch error:", error)
                 }
             }
         }

@@ -3,47 +3,47 @@
 
 @_exported import ApolloAPI
 
-public class GetInventoriesQuery: GraphQLQuery {
-  public static let operationName: String = "GetInventories"
+public class UpdateInventoryMutation: GraphQLMutation {
+  public static let operationName: String = "UpdateInventory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetInventories($sort: InventorySort, $filter: InventoryFilter) { inventory(sort: $sort, filter: $filter) { __typename id ingredient { __typename id name category { __typename id name colorCode } } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
+      #"mutation UpdateInventory($id: ID!, $input: UpdateInventory!) { updateInventory(id: $id, input: $input) { __typename id ingredient { __typename id name category { __typename id name colorCode } } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
     ))
 
-  public var sort: GraphQLNullable<GraphQLEnum<InventorySort>>
-  public var filter: GraphQLNullable<InventoryFilter>
+  public var id: ID
+  public var input: UpdateInventory
 
   public init(
-    sort: GraphQLNullable<GraphQLEnum<InventorySort>>,
-    filter: GraphQLNullable<InventoryFilter>
+    id: ID,
+    input: UpdateInventory
   ) {
-    self.sort = sort
-    self.filter = filter
+    self.id = id
+    self.input = input
   }
 
   public var __variables: Variables? { [
-    "sort": sort,
-    "filter": filter
+    "id": id,
+    "input": input
   ] }
 
   public struct Data: ShokumemoAPI.SelectionSet {
     public let __data: DataDict
     public init(_dataDict: DataDict) { __data = _dataDict }
 
-    public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Query }
+    public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Mutation }
     public static var __selections: [ApolloAPI.Selection] { [
-      .field("inventory", [Inventory].self, arguments: [
-        "sort": .variable("sort"),
-        "filter": .variable("filter")
+      .field("updateInventory", UpdateInventory.self, arguments: [
+        "id": .variable("id"),
+        "input": .variable("input")
       ]),
     ] }
 
-    public var inventory: [Inventory] { __data["inventory"] }
+    public var updateInventory: UpdateInventory { __data["updateInventory"] }
 
-    /// Inventory
+    /// UpdateInventory
     ///
     /// Parent Type: `Inventory`
-    public struct Inventory: ShokumemoAPI.SelectionSet {
+    public struct UpdateInventory: ShokumemoAPI.SelectionSet {
       public let __data: DataDict
       public init(_dataDict: DataDict) { __data = _dataDict }
 
@@ -67,7 +67,7 @@ public class GetInventoriesQuery: GraphQLQuery {
       public var frozen: Bool { __data["frozen"] }
       public var status: GraphQLEnum<ShokumemoAPI.InventoryStatus> { __data["status"] }
 
-      /// Inventory.Ingredient
+      /// UpdateInventory.Ingredient
       ///
       /// Parent Type: `Ingredient`
       public struct Ingredient: ShokumemoAPI.SelectionSet {
@@ -86,7 +86,7 @@ public class GetInventoriesQuery: GraphQLQuery {
         public var name: String { __data["name"] }
         public var category: Category { __data["category"] }
 
-        /// Inventory.Ingredient.Category
+        /// UpdateInventory.Ingredient.Category
         ///
         /// Parent Type: `Category`
         public struct Category: ShokumemoAPI.SelectionSet {
@@ -107,7 +107,7 @@ public class GetInventoriesQuery: GraphQLQuery {
         }
       }
 
-      /// Inventory.Quantity
+      /// UpdateInventory.Quantity
       ///
       /// Parent Type: `Fraction`
       public struct Quantity: ShokumemoAPI.SelectionSet {
