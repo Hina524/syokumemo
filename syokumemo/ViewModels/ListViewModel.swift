@@ -12,22 +12,31 @@ import ShokumemoAPI
 class ListViewModel: ObservableObject {
     @Published var inventories: [GetInventoriesQuery.Data.Inventory] = []
     @Published var allInventories: [GetInventoriesQuery.Data.Inventory] = []
+    @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
+    @Published var selectedCategoryIds: Set<String> = []
+    @Published var showFilterMenu = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var isShowSheet = false
     private var watcher: GraphQLQueryWatcher<GetInventoriesQuery>?
     private var allInventoriesWatcher: GraphQLQueryWatcher<GetInventoriesQuery>?
+    private var categoriesWatcher: GraphQLQueryWatcher<GetCategoriesAndIngredientsQuery>?
+    
+    private var filteredInventories: [GetInventoriesQuery.Data.Inventory] {
+        guard !selectedCategoryIds.isEmpty else { return inventories }
+        return inventories.filter { selectedCategoryIds.contains($0.ingredient.category.id) }
+    }
     
     var expiredInventories: [GetInventoriesQuery.Data.Inventory] {
-        return inventories.filter { Date.isExpired($0.expiryDate) }
+        return filteredInventories.filter { Date.isExpired($0.expiryDate) }
     }
     
     var todayInventories: [GetInventoriesQuery.Data.Inventory] {
-        return inventories.filter { Date.isToday($0.expiryDate) }
+        return filteredInventories.filter { Date.isToday($0.expiryDate) }
     }
     
     var futureInventories: [GetInventoriesQuery.Data.Inventory] {
-        return inventories.filter { Date.isFuture($0.expiryDate) }
+        return filteredInventories.filter { Date.isFuture($0.expiryDate) }
     }
     
     var discardedCount: Int {
@@ -72,6 +81,19 @@ class ListViewModel: ObservableObject {
                 self?.allInventories = graphQLResult.data?.inventory ?? []
             case .failure(let error):
                 print("All inventories query watch error:", error)
+            }
+        }
+        
+        // カテゴリー一覧を取得
+        categoriesWatcher = Network.shared.apollo.watch(
+            query: GetCategoriesAndIngredientsQuery(),
+            cachePolicy: .returnCacheDataAndFetch
+        ) { [weak self] result in
+            switch result {
+            case .success(let graphQLResult):
+                self?.categories = graphQLResult.data?.categories ?? []
+            case .failure(let error):
+                print("Categories query watch error:", error)
             }
         }
     }
