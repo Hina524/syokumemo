@@ -11,16 +11,18 @@ import ShokumemoAPI
 
 class ListViewModel: ObservableObject {
     @Published var inventories: [GetInventoriesQuery.Data.Inventory] = []
-    @Published var allInventories: [GetInventoriesQuery.Data.Inventory] = []
     @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
     @Published var selectedCategoryIds: Set<String> = []
     @Published var showFilterMenu = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var isShowSheet = false
+    @Published var discardedCount: Int = 0
+    @Published var activeCount: Int = 0
+    @Published var consumedCount: Int = 0
     private var watcher: GraphQLQueryWatcher<GetInventoriesQuery>?
-    private var allInventoriesWatcher: GraphQLQueryWatcher<GetInventoriesQuery>?
     private var categoriesWatcher: GraphQLQueryWatcher<GetCategoriesAndIngredientsQuery>?
+    private var statusCountsWatcher: GraphQLQueryWatcher<GetInventoryStatusCountsQuery>?
     
     private var filteredInventories: [GetInventoriesQuery.Data.Inventory] {
         guard !selectedCategoryIds.isEmpty else { return inventories }
@@ -39,17 +41,6 @@ class ListViewModel: ObservableObject {
         return filteredInventories.filter { Date.isFuture($0.expiryDate) }
     }
     
-    var discardedCount: Int {
-        return allInventories.filter { $0.status == .discarded }.count
-    }
-    
-    var activeCount: Int {
-        return allInventories.filter { $0.status == .active }.count
-    }
-    
-    var consumedCount: Int {
-        return allInventories.filter { $0.status == .consumed }.count
-    }
     
     init(sort: InventorySort? = .expiryAsc ) {
         
@@ -71,16 +62,20 @@ class ListViewModel: ObservableObject {
             }
         }
         
-        // 統計用にすべての在庫を取得
-        allInventoriesWatcher = Network.shared.apollo.watch(
-            query: GetInventoriesQuery(sort: gqlSort, filter: .none),
+        // 統計データを取得
+        statusCountsWatcher = Network.shared.apollo.watch(
+            query: GetInventoryStatusCountsQuery(),
             cachePolicy: .returnCacheDataAndFetch
         ) { [weak self] result in
             switch result {
             case .success(let graphQLResult):
-                self?.allInventories = graphQLResult.data?.inventory ?? []
+                if let counts = graphQLResult.data?.inventoryStatusCounts {
+                    self?.activeCount = counts.active
+                    self?.discardedCount = counts.discarded
+                    self?.consumedCount = counts.consumed
+                }
             case .failure(let error):
-                print("All inventories query watch error:", error)
+                print("Status counts query watch error:", error)
             }
         }
         
@@ -132,6 +127,26 @@ class ListViewModel: ObservableObject {
                     }
                 case .failure(let error):
                     self?.errorMessage = "削除エラー: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+    
+    func fetchInventoryStatusCounts() {
+        Network.shared.apollo.fetch(
+            query: GetInventoryStatusCountsQuery(),
+            cachePolicy: .fetchIgnoringCacheData
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    if let counts = graphQLResult.data?.inventoryStatusCounts {
+                        self?.activeCount = counts.active
+                        self?.discardedCount = counts.discarded
+                        self?.consumedCount = counts.consumed
+                    }
+                case .failure(let error):
+                    print("Status counts fetch error:", error)
                 }
             }
         }

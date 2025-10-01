@@ -1,0 +1,7 @@
+query GetInventoryStatusCounts {
+  inventoryStatusCounts {
+    active
+    discarded
+    consumed
+  }
+}

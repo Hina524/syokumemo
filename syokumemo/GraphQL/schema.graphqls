@@ -79,6 +79,12 @@ type Inventory {
   status: InventoryStatus!
 }
 
+type InventoryStatusCounts {
+  active: Int!
+  discarded: Int!
+  consumed: Int!
+}
+
 type PurchaseHistory {
   id: ID!
   ingredient: Ingredient!
@@ -187,6 +193,7 @@ type Query {
   category(id: ID!): Category @auth
   ingredients(categoryId: ID, q: String): [Ingredient!]! @auth
   inventory(id: ID, filter: InventoryFilter, sort: InventorySort): [Inventory!]! @auth
+  inventoryStatusCounts: InventoryStatusCounts! @auth
   purchaseHistory(ingredientId: ID): [PurchaseHistory!]! @auth
 }
 

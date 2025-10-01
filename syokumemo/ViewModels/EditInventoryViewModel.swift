@@ -83,6 +83,7 @@ class EditInventoryViewModel: ObservableObject {
                         // ListViewModelを更新して即座に反映
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
                         }
                         // ListPageに戻る
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -127,6 +128,7 @@ class EditInventoryViewModel: ObservableObject {
                         // ListViewModelを更新して即座に反映
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
                         }
                         // ListPageに戻る
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -159,6 +161,7 @@ class EditInventoryViewModel: ObservableObject {
                         // ListViewModelを更新して即座に反映
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
                         }
                         // ListPageに戻る
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -191,6 +194,7 @@ class EditInventoryViewModel: ObservableObject {
                         // ListViewModelを更新して即座に反映
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
                         }
                         // ListPageに戻る
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -223,6 +227,7 @@ class EditInventoryViewModel: ObservableObject {
                         // ListViewModelを更新して即座に反映
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             self?.listViewModel?.fetchInventories()
+                            self?.listViewModel?.fetchInventoryStatusCounts()
                         }
                         // ListPageに戻る
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
