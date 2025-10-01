@@ -6,13 +6,37 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct SyokumemoApp: App {
+    @StateObject private var authViewModel = AuthenticationViewModel()
+    @StateObject private var appState = AppState()
+    
+    init() {
+        // Firebase初期化
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            SplashScreenPage()
-                .environmentObject(AppState())
+            Group {
+                switch appState.appState {
+                case .splash:
+                    SplashScreenPage()
+                        .environmentObject(appState)
+                        .environmentObject(authViewModel)
+                case .login:
+                    LoginPage()
+                        .environmentObject(appState)
+                        .environmentObject(authViewModel)
+                case .main:
+                    AppPage()
+                        .environmentObject(appState)
+                        .environmentObject(authViewModel)
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: appState.appState)
         }
     }
 }

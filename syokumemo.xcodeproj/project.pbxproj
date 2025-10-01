@@ -17,6 +17,7 @@
 		32A19FB52E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
 		32A19FB62E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
 		32A19FB72E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
+		32A19FC22E8D612800D6A0BC /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 32A19FC12E8D612800D6A0BC /* FirebaseCore */; };
 		32BC54402DCA5E640068D0D5 /* ShokumemoAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC543F2DCA5E640068D0D5 /* ShokumemoAPI */; };
 		32BC54422DCA60420068D0D5 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54412DCA60420068D0D5 /* Apollo */; };
 		32BC54462DCA60420068D0D5 /* ApolloAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54452DCA60420068D0D5 /* ApolloAPI */; };
@@ -93,6 +94,7 @@
 				32BC544A2DCA60420068D0D5 /* ApolloTestSupport in Frameworks */,
 				32BC544C2DCA60420068D0D5 /* ApolloWebSocket in Frameworks */,
 				32A19FB32E8D599F00D6A0BC /* FirebaseAuth in Frameworks */,
+				32A19FC22E8D612800D6A0BC /* FirebaseCore in Frameworks */,
 				32BC54462DCA60420068D0D5 /* ApolloAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -164,6 +166,7 @@
 				32BC54492DCA60420068D0D5 /* ApolloTestSupport */,
 				32BC544B2DCA60420068D0D5 /* ApolloWebSocket */,
 				32A19FB22E8D599F00D6A0BC /* FirebaseAuth */,
+				32A19FC12E8D612800D6A0BC /* FirebaseCore */,
 			);
 			productName = syokumemo;
 			productReference = 325977262DC93A2B001A075D /* syokumemo.app */;
@@ -687,6 +690,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 32A19FB12E8D599F00D6A0BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		32A19FC12E8D612800D6A0BC /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 32A19FB12E8D599F00D6A0BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 		32BC543F2DCA5E640068D0D5 /* ShokumemoAPI */ = {
 			isa = XCSwiftPackageProductDependency;

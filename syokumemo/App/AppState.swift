@@ -10,6 +10,7 @@ import SwiftUI
 class AppState: ObservableObject {
     @Published var currentScreen: ScreenType = .list
     @Published var inputMode: InputMode = .selection
+    @Published var appState: AppStateType = .splash
 
     enum ScreenType {
         case list
@@ -23,6 +24,12 @@ class AppState: ObservableObject {
             case .graph: return "金額推移グラフ"
             }
         }
+    }
+    
+    enum AppStateType {
+        case splash
+        case login
+        case main
     }
     
     enum InputMode {
