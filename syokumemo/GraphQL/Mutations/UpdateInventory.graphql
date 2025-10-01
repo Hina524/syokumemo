@@ -1,0 +1,22 @@
+mutation UpdateInventory($id: ID!, $input: UpdateInventory!) {
+	updateInventory(id: $id, input: $input) {
+		id
+		ingredient {
+			id
+			name
+			category {
+				id
+				name
+				colorCode
+			}
+		}
+		quantity {
+			numerator
+			denominator
+		}
+		unit
+		expiryDate
+		frozen
+		status
+	}
+}

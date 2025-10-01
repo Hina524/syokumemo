@@ -65,7 +65,7 @@ class ListViewModel: ObservableObject {
         let gqlSort: GraphQLNullable<GraphQLEnum<InventorySort>> =
         sort.map { .some(GraphQLEnum($0)) } ?? .none
 
-        Network.shared.apollo.fetch(query: GetInventoriesQuery(sort: gqlSort)) { [weak self] result in
+        Network.shared.apollo.fetch(query: GetInventoriesQuery(sort: gqlSort), cachePolicy: .fetchIgnoringCacheData) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {

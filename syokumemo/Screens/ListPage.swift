@@ -222,6 +222,7 @@ struct ListPage: View {
                     .navigationDestination(for: Inventory.self) { inventory in
                         EditInventoryPage(
                             path: $path,
+                            listViewModel: viewModel,
                             inventory: inventory
                         )
                     }
