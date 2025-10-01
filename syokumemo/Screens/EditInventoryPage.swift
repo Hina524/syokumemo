@@ -189,6 +189,74 @@ struct EditInventoryPage: View {
             EditInventoryNavigationHeader(path: $path, inventory: inventory)
             
             VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 12) {
+                    Button(action: {
+                        viewModel.inventoryId = inventory.id
+                        viewModel.listViewModel = listViewModel
+                        viewModel.onNavigateBack = {
+                            path.removeLast()
+                        }
+                        viewModel.showDiscardAlert = true
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "trash")
+                                .font(.title2)
+                                .foregroundColor(.red)
+                            Text("捨てる")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    }
+                    
+                    Button(action: {
+                        viewModel.inventoryId = inventory.id
+                        viewModel.listViewModel = listViewModel
+                        viewModel.onNavigateBack = {
+                            path.removeLast()
+                        }
+                        viewModel.showDeleteAlert = true
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "xmark.circle")
+                                .font(.title2)
+                                .foregroundColor(.gray)
+                            Text("削除")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    }
+                    
+                    Button(action: {
+                        viewModel.inventoryId = inventory.id
+                        viewModel.listViewModel = listViewModel
+                        viewModel.onNavigateBack = {
+                            path.removeLast()
+                        }
+                        viewModel.showConsumeAlert = true
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "fork.knife")
+                                .font(.title2)
+                                .foregroundColor(.green)
+                            Text("完食")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    }
+                }
+                
                 Button(action: {
                     viewModel.inventoryId = inventory.id
                     viewModel.listViewModel = listViewModel
@@ -249,6 +317,30 @@ struct EditInventoryPage: View {
             }
             .sheet(isPresented: $viewModel.isShowQuantitySheet) {
                 QuantitySheet(viewModel: viewModel, listViewModel: listViewModel, inventory: inventory)
+            }
+            .alert("捨てる", isPresented: $viewModel.showDiscardAlert) {
+                Button("キャンセル", role: .cancel) { }
+                Button("捨てる", role: .destructive) {
+                    viewModel.discardInventory()
+                }
+            } message: {
+                Text("この在庫を捨てますか？この操作は取り消せません。")
+            }
+            .alert("削除", isPresented: $viewModel.showDeleteAlert) {
+                Button("キャンセル", role: .cancel) { }
+                Button("削除", role: .destructive) {
+                    viewModel.deleteInventory()
+                }
+            } message: {
+                Text("この在庫を削除しますか？この操作は取り消せません。")
+            }
+            .alert("完食", isPresented: $viewModel.showConsumeAlert) {
+                Button("キャンセル", role: .cancel) { }
+                Button("完食") {
+                    viewModel.consumeInventory()
+                }
+            } message: {
+                Text("この在庫を完食済みにしますか？")
             }
     }
 }

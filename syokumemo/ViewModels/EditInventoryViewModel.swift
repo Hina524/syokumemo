@@ -32,6 +32,9 @@ class EditInventoryViewModel: ObservableObject {
     @Published var newDenominator: Int? = nil
     @Published var newUnit: String? = nil
     @Published var isOnFractionInput = false
+    @Published var showDiscardAlert = false
+    @Published var showConsumeAlert = false
+    @Published var showDeleteAlert = false
    
     var listViewModel: ListViewModel?
     var inventoryId: String = ""
@@ -135,6 +138,102 @@ class EditInventoryViewModel: ObservableObject {
                     }
                 case .failure(let error):
                     self?.form.errorMessage = "更新に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func discardInventory() {
+        let mutation = DiscardInventoryMutation(id: inventoryId)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                self?.isSubmitting = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.discardInventory {
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "削除に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func consumeInventory() {
+        let mutation = ConsumeInventoryMutation(id: inventoryId)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                self?.isSubmitting = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.consumeInventory {
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "削除に失敗しました: \(error.localizedDescription)"
+                    self?.isMutationError = true
+                }
+            }
+        }
+    }
+    
+    func deleteInventory() {
+        let mutation = DeleteInventoryMutation(id: inventoryId)
+        
+        form.isLoading = true
+        isSubmitting = true
+        Network.shared.apollo.perform(mutation: mutation) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.form.isLoading = false
+                self?.isSubmitting = false
+                switch result {
+                case .success(let graphQLResult):
+                    if let _ = graphQLResult.data?.deleteInventory {
+                        // ListViewModelを更新して即座に反映
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self?.listViewModel?.fetchInventories()
+                        }
+                        // ListPageに戻る
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self?.onNavigateBack?()
+                        }
+                    } else if let errors = graphQLResult.errors {
+                        self?.form.errorMessage = errors.map { $0.localizedDescription }.joined(separator: "\n")
+                        self?.isMutationError = true
+                    }
+                case .failure(let error):
+                    self?.form.errorMessage = "削除に失敗しました: \(error.localizedDescription)"
                     self?.isMutationError = true
                 }
             }

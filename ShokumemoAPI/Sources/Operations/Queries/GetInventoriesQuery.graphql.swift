@@ -7,16 +7,24 @@ public class GetInventoriesQuery: GraphQLQuery {
   public static let operationName: String = "GetInventories"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetInventories($sort: InventorySort) { inventory(sort: $sort) { __typename id ingredient { __typename id name category { __typename id name colorCode } } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
+      #"query GetInventories($sort: InventorySort, $filter: InventoryFilter) { inventory(sort: $sort, filter: $filter) { __typename id ingredient { __typename id name category { __typename id name colorCode } } quantity { __typename numerator denominator } unit expiryDate frozen status } }"#
     ))
 
   public var sort: GraphQLNullable<GraphQLEnum<InventorySort>>
+  public var filter: GraphQLNullable<InventoryFilter>
 
-  public init(sort: GraphQLNullable<GraphQLEnum<InventorySort>>) {
+  public init(
+    sort: GraphQLNullable<GraphQLEnum<InventorySort>>,
+    filter: GraphQLNullable<InventoryFilter>
+  ) {
     self.sort = sort
+    self.filter = filter
   }
 
-  public var __variables: Variables? { ["sort": sort] }
+  public var __variables: Variables? { [
+    "sort": sort,
+    "filter": filter
+  ] }
 
   public struct Data: ShokumemoAPI.SelectionSet {
     public let __data: DataDict
@@ -24,7 +32,10 @@ public class GetInventoriesQuery: GraphQLQuery {
 
     public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Query }
     public static var __selections: [ApolloAPI.Selection] { [
-      .field("inventory", [Inventory].self, arguments: ["sort": .variable("sort")]),
+      .field("inventory", [Inventory].self, arguments: [
+        "sort": .variable("sort"),
+        "filter": .variable("filter")
+      ]),
     ] }
 
     public var inventory: [Inventory] { __data["inventory"] }

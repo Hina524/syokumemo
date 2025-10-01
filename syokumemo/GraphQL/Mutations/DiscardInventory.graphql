@@ -1,0 +1,6 @@
+mutation DiscardInventory($id: ID!) {
+  discardInventory(id: $id) {
+    id
+    status
+  }
+}

@@ -1,5 +1,5 @@
-query GetInventories($sort: InventorySort) {
-	inventory(sort: $sort) {
+query GetInventories($sort: InventorySort, $filter: InventoryFilter) {
+	inventory(sort: $sort, filter: $filter) {
 		id
 		ingredient {
 			id

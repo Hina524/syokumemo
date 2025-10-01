@@ -1,0 +1,6 @@
+mutation ConsumeInventory($id: ID!) {
+  consumeInventory(id: $id) {
+    id
+    status
+  }
+}
