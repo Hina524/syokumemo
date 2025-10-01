@@ -130,9 +130,14 @@ struct ListPage: View {
                                             
                                             Spacer()
                                             
-                                            Text(inventory.expiryDate)
-                                                .font(.body)
-                                                .foregroundColor(.red)
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("賞味期限")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
+                                                    .font(.body)
+                                                    .foregroundColor(.red)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
@@ -170,9 +175,14 @@ struct ListPage: View {
                                             
                                             Spacer()
                                             
-                                            Text(inventory.expiryDate)
-                                                .font(.body)
-                                                .foregroundColor(.orange)
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("賞味期限")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
+                                                    .font(.body)
+                                                    .foregroundColor(.orange)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
@@ -210,9 +220,14 @@ struct ListPage: View {
                                             
                                             Spacer()
                                             
-                                            Text(inventory.expiryDate)
-                                                .font(.body)
-                                                .foregroundColor(.gray)
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("賞味期限")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
+                                                    .font(.body)
+                                                    .foregroundColor(.gray)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
