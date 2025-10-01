@@ -242,6 +242,10 @@ struct ListPage: View {
                             inventory: inventory
                         )
                     }
+                    .refreshable {
+                        viewModel.errorMessage = nil
+                        await viewModel.refreshAllData()
+                    }
                     }
                 }
             }
