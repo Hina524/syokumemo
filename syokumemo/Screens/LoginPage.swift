@@ -69,7 +69,7 @@ struct LoginPage: View {
                 Text("Apple でサインインすることで、")
                     .font(.caption2)
                     .foregroundColor(.secondary)
-                Text("利用規約とプライバシーポリシーに同意したものとみなされます")
+                Text("利用規約とプライバシーポリシーに同意したものとみなされます。")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
