@@ -104,12 +104,35 @@ class AuthenticationService: NSObject {
         try Auth.auth().signOut()
     }
     
-    func getIDToken() async throws -> String {
+    func getIDToken(forceRefresh: Bool = false) async throws -> String {
         guard let user = Auth.auth().currentUser else {
             throw AuthenticationError.notAuthenticated
         }
         
-        return try await user.getIDToken()
+        return try await user.getIDToken(forcingRefresh: forceRefresh)
+    }
+    
+    // MARK: - Token Refresh
+    func refreshToken() async throws -> String {
+        guard let user = Auth.auth().currentUser else {
+            throw AuthenticationError.notAuthenticated
+        }
+        
+        return try await user.getIDToken(forcingRefresh: true)
+    }
+    
+    // MARK: - Token Validation
+    func isTokenValid() async -> Bool {
+        guard let user = Auth.auth().currentUser else {
+            return false
+        }
+        
+        do {
+            _ = try await user.getIDToken(forcingRefresh: false)
+            return true
+        } catch {
+            return false
+        }
     }
     
     // MARK: - Auth State Listener
@@ -131,6 +154,7 @@ enum AuthenticationError: LocalizedError {
     case invalidTokenData
     case notAuthenticated
     case signInFailed(String)
+    case tokenRefreshFailed
     
     var errorDescription: String? {
         switch self {
@@ -144,6 +168,8 @@ enum AuthenticationError: LocalizedError {
             return "User is not authenticated."
         case .signInFailed(let message):
             return message
+        case .tokenRefreshFailed:
+            return "Failed to refresh authentication token."
         }
     }
 }

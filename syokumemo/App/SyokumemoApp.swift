@@ -37,6 +37,11 @@ struct SyokumemoApp: App {
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: appState.appState)
+            .onChange(of: scenePhase) { phase in
+                authViewModel.handleScenePhaseChange(phase)
+            }
         }
     }
+    
+    @Environment(\.scenePhase) private var scenePhase
 }
