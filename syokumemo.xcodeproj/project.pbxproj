@@ -13,6 +13,11 @@
 		323A813D2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
 		323A813E2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
 		323A813F2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
+		32A19FB32E8D599F00D6A0BC /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 32A19FB22E8D599F00D6A0BC /* FirebaseAuth */; };
+		32A19FB52E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
+		32A19FB62E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
+		32A19FB72E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
+		32A19FC22E8D612800D6A0BC /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 32A19FC12E8D612800D6A0BC /* FirebaseCore */; };
 		32BC54402DCA5E640068D0D5 /* ShokumemoAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC543F2DCA5E640068D0D5 /* ShokumemoAPI */; };
 		32BC54422DCA60420068D0D5 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54412DCA60420068D0D5 /* Apollo */; };
 		32BC54462DCA60420068D0D5 /* ApolloAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54452DCA60420068D0D5 /* ApolloAPI */; };
@@ -44,6 +49,7 @@
 		325977262DC93A2B001A075D /* syokumemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = syokumemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		325977372DC93A2C001A075D /* syokumemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = syokumemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		325977412DC93A2C001A075D /* syokumemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = syokumemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -87,6 +93,8 @@
 				32BC54482DCA60420068D0D5 /* ApolloSQLite in Frameworks */,
 				32BC544A2DCA60420068D0D5 /* ApolloTestSupport in Frameworks */,
 				32BC544C2DCA60420068D0D5 /* ApolloWebSocket in Frameworks */,
+				32A19FB32E8D599F00D6A0BC /* FirebaseAuth in Frameworks */,
+				32A19FC22E8D612800D6A0BC /* FirebaseCore in Frameworks */,
 				32BC54462DCA60420068D0D5 /* ApolloAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,6 +119,7 @@
 		3259771D2DC93A2B001A075D = {
 			isa = PBXGroup;
 			children = (
+				32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */,
 				320552772E548A4400CC1400 /* Config.xcconfig */,
 				323A813C2E545A980027C1C7 /* .gitignore */,
 				325977282DC93A2B001A075D /* syokumemo */,
@@ -156,6 +165,8 @@
 				32BC54472DCA60420068D0D5 /* ApolloSQLite */,
 				32BC54492DCA60420068D0D5 /* ApolloTestSupport */,
 				32BC544B2DCA60420068D0D5 /* ApolloWebSocket */,
+				32A19FB22E8D599F00D6A0BC /* FirebaseAuth */,
+				32A19FC12E8D612800D6A0BC /* FirebaseCore */,
 			);
 			productName = syokumemo;
 			productReference = 325977262DC93A2B001A075D /* syokumemo.app */;
@@ -242,6 +253,7 @@
 			packageReferences = (
 				32993F7B2DCA4272009431C5 /* XCRemoteSwiftPackageReference "apollo-ios" */,
 				32993F8F2DCA57C5009431C5 /* XCLocalSwiftPackageReference "ShokumemoAPI" */,
+				32A19FB12E8D599F00D6A0BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 325977272DC93A2B001A075D /* Products */;
@@ -262,6 +274,7 @@
 			files = (
 				320552782E548A4400CC1400 /* Config.xcconfig in Resources */,
 				323A813E2E545AA00027C1C7 /* .gitignore in Resources */,
+				32A19FB52E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +284,7 @@
 			files = (
 				3205527A2E548A4400CC1400 /* Config.xcconfig in Resources */,
 				323A813F2E545AA00027C1C7 /* .gitignore in Resources */,
+				32A19FB62E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +294,7 @@
 			files = (
 				320552792E548A4400CC1400 /* Config.xcconfig in Resources */,
 				323A813D2E545AA00027C1C7 /* .gitignore in Resources */,
+				32A19FB72E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -660,9 +675,27 @@
 				minimumVersion = 1.21.0;
 			};
 		};
+		32A19FB12E8D599F00D6A0BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		32A19FB22E8D599F00D6A0BC /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 32A19FB12E8D599F00D6A0BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		32A19FC12E8D612800D6A0BC /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 32A19FB12E8D599F00D6A0BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		32BC543F2DCA5E640068D0D5 /* ShokumemoAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ShokumemoAPI;

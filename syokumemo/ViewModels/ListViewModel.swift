@@ -151,4 +151,96 @@ class ListViewModel: ObservableObject {
             }
         }
     }
+    
+    // MARK: - Refresh Data
+    func refreshAllData() async {
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        // 在庫データと統計データを並行して取得
+        await withTaskGroup(of: Void.self) { group in
+            // 在庫データの取得
+            group.addTask { [weak self] in
+                await self?.refreshInventoriesAsync()
+            }
+            
+            // 統計データの取得
+            group.addTask { [weak self] in
+                await self?.refreshStatusCountsAsync()
+            }
+            
+            // カテゴリデータの取得
+            group.addTask { [weak self] in
+                await self?.refreshCategoriesAsync()
+            }
+        }
+        
+        await MainActor.run {
+            isLoading = false
+        }
+    }
+    
+    private func refreshInventoriesAsync() async {
+        return await withCheckedContinuation { continuation in
+            let activeFilter = InventoryFilter(status: [GraphQLEnum(.active)])
+            
+            Network.shared.apollo.fetch(
+                query: GetInventoriesQuery(sort: .some(GraphQLEnum(.expiryAsc)), filter: .some(activeFilter)),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        self?.inventories = graphQLResult.data?.inventory ?? []
+                    case .failure(let error):
+                        self?.errorMessage = "在庫データの取得に失敗しました: \(error.localizedDescription)"
+                    }
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    private func refreshStatusCountsAsync() async {
+        return await withCheckedContinuation { continuation in
+            Network.shared.apollo.fetch(
+                query: GetInventoryStatusCountsQuery(),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        if let counts = graphQLResult.data?.inventoryStatusCounts {
+                            self?.activeCount = counts.active
+                            self?.discardedCount = counts.discarded
+                            self?.consumedCount = counts.consumed
+                        }
+                    case .failure(let error):
+                        print("Status counts refresh error:", error)
+                    }
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    private func refreshCategoriesAsync() async {
+        return await withCheckedContinuation { continuation in
+            Network.shared.apollo.fetch(
+                query: GetCategoriesAndIngredientsQuery(),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        self?.categories = graphQLResult.data?.categories ?? []
+                    case .failure(let error):
+                        print("Categories refresh error:", error)
+                    }
+                    continuation.resume()
+                }
+            }
+        }
+    }
 }

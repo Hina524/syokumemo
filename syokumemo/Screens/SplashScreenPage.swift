@@ -8,26 +8,29 @@
 import SwiftUI
 
 struct SplashScreenPage: View {
-    @State private var isActive = false
-    @State private var size = 0.8
-    @State private var opsity = 0.5
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var authViewModel: AuthenticationViewModel
     
     var body: some View {
-        if isActive {
-            AppPage()
+        VStack {
+            Image("logo")
+                .resizable()
+                .frame(width: 218.19, height: 95)
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                checkAuthenticationAndNavigate()
+            }
+        }
+    }
+    
+    private func checkAuthenticationAndNavigate() {
+        if authViewModel.isAuthenticated {
+            // 認証済みの場合、メイン画面へ
+            appState.appState = .main
         } else {
-            VStack {
-                    Image("logo")
-                        .resizable()
-                        .frame(width: 218.19, height: 95)
-            }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    withAnimation {
-                        self.isActive = true
-                    }
-                }
-            }
+            // 未認証の場合、ログイン画面へ
+            appState.appState = .login
         }
     }
 }
