@@ -93,3 +93,9 @@ struct LoginPage: View {
         }
     }
 }
+
+#Preview {
+    LoginPage()
+        .environmentObject(AuthenticationViewModel())
+        .environmentObject(AppState())
+}
