@@ -30,13 +30,20 @@ struct GraphPage: View {
                             Section(
                             ) {
                                 HStack {
-                                    VStack(alignment: .leading) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Circle()
+                                                .fill(Color(hex: ingredient.category.colorCode))
+                                                .frame(width: 16, height: 16)
+                                            Text(ingredient.category.name)
+                                                .font(.footnote)
+                                                .foregroundColor(.secondary)
+                                            Spacer()
+                                        }
+                                        
                                         Text(ingredient.name)
                                             .font(.headline)
                                             .foregroundColor(.black)
-                                        Text("説明")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
                                     }
                                     Spacer()
                                     Chart {

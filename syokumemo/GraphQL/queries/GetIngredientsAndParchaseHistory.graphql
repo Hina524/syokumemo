@@ -2,6 +2,11 @@ query GetIngredientsAndParchaseHistory {
 	ingredients {
 		id
 		name
+		category {
+			id
+			name
+			colorCode
+		}
 		purchaseHistory {
 			id
 			date

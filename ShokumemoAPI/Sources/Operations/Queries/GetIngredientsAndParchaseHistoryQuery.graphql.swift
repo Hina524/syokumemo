@@ -7,7 +7,7 @@ public class GetIngredientsAndParchaseHistoryQuery: GraphQLQuery {
   public static let operationName: String = "GetIngredientsAndParchaseHistory"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query GetIngredientsAndParchaseHistory { ingredients { __typename id name purchaseHistory { __typename id date location { __typename id name } price } } }"#
+      #"query GetIngredientsAndParchaseHistory { ingredients { __typename id name category { __typename id name colorCode } purchaseHistory { __typename id date location { __typename id name } price } } }"#
     ))
 
   public init() {}
@@ -35,12 +35,34 @@ public class GetIngredientsAndParchaseHistoryQuery: GraphQLQuery {
         .field("__typename", String.self),
         .field("id", ShokumemoAPI.ID.self),
         .field("name", String.self),
+        .field("category", Category.self),
         .field("purchaseHistory", [PurchaseHistory].self),
       ] }
 
       public var id: ShokumemoAPI.ID { __data["id"] }
       public var name: String { __data["name"] }
+      public var category: Category { __data["category"] }
       public var purchaseHistory: [PurchaseHistory] { __data["purchaseHistory"] }
+
+      /// Ingredient.Category
+      ///
+      /// Parent Type: `Category`
+      public struct Category: ShokumemoAPI.SelectionSet {
+        public let __data: DataDict
+        public init(_dataDict: DataDict) { __data = _dataDict }
+
+        public static var __parentType: any ApolloAPI.ParentType { ShokumemoAPI.Objects.Category }
+        public static var __selections: [ApolloAPI.Selection] { [
+          .field("__typename", String.self),
+          .field("id", ShokumemoAPI.ID.self),
+          .field("name", String.self),
+          .field("colorCode", String.self),
+        ] }
+
+        public var id: ShokumemoAPI.ID { __data["id"] }
+        public var name: String { __data["name"] }
+        public var colorCode: String { __data["colorCode"] }
+      }
 
       /// Ingredient.PurchaseHistory
       ///
