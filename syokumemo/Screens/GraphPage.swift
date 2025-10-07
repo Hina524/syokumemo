@@ -59,7 +59,7 @@ struct GraphPage: View {
                                         x: .value("日付", data.date),
                                         y: .value("価格", data.price)
                                     )
-                                    .foregroundStyle(.green)
+                                    .foregroundStyle(Color(hex: ingredient.category.colorCode))
                                     .lineStyle(StrokeStyle(lineWidth: 2.5)) // 線を少し太く
                                 }
                             }

@@ -137,13 +137,14 @@ struct GraphContentPage: View {
                                     x: .value("日付", data.date),
                                     y: .value("価格", data.price)
                                 )
+                                .foregroundStyle(Color(hex: ingredient.category.colorCode))
                                 .symbol(Circle())
                             }
                             if let selectedData = viewModel.getSelectedDataPoint(rawSelectedDate, in: ingredient) {
                                 RuleMark(
                                     x: .value("Selected", selectedData.date)
                                 )
-                                .foregroundStyle(.gray.opacity(0.3))
+                                .foregroundStyle(Color(hex: ingredient.category.colorCode).opacity(0.3))
                                 .offset(yStart: -10)
                                 .zIndex(-1)
                                 .annotation(
