@@ -104,9 +104,9 @@ struct GraphContentPage: View {
                     
                     // MARK: - グラフ
                     
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("平均")
                                     .font(.caption)
                                     .foregroundColor(.gray)
@@ -119,10 +119,16 @@ struct GraphContentPage: View {
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                 }
-                                Text(viewModel.getDisplayDateRange(for: ingredient))
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
                             }
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        
+                        HStack {
+                            Text(viewModel.getDisplayDateRange(for: ingredient))
+                                .font(.caption)
+                                .foregroundColor(.gray)
                             
                             Spacer()
                             
@@ -149,10 +155,6 @@ struct GraphContentPage: View {
                                         .font(.caption)
                                         .foregroundColor(.accentColor)
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.accentColor.opacity(0.1))
-                                .cornerRadius(8)
                             }
                         }
                         .padding(.horizontal)
