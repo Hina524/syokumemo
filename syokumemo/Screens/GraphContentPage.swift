@@ -214,48 +214,44 @@ struct GraphContentPage: View {
                                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                                 )
                         }
-                        .frame(height: 300)
+                        .frame(height: 200)
                         .padding(.horizontal)
                     }
                     
                     // MARK: - データリスト
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("購入履歴")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .padding(.horizontal)
-                        
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(viewModel.getSortedPurchaseHistoryForList(for: ingredient), id: \.id) { historyItem in
-                                    HStack {
-                                        Text("\(historyItem.price)円")
-                                            .font(.body)
-                                            .fontWeight(.medium)
-                                            .foregroundColor(.black)
-                                        
-                                        Spacer()
-                                        
-                                        if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
-                                            Text(DateFormatter.displayFormat.string(from: date))
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                    .padding(.vertical, 12)
-                                    .background(Color.clear)
+                    List {
+                        ForEach(viewModel.getSortedPurchaseHistoryForList(for: ingredient), id: \.id) { historyItem in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("\(historyItem.price)円")
+                                        .font(.headline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.black)
                                     
-                                    Divider()
-                                        .padding(.horizontal)
+                                    Text(historyItem.purchaseUnit.name)
+                                        .font(.footnote)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text("購入日")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
+                                        Text(DateFormatter.displayFormat.string(from: date))
+                                            .font(.body)
+                                            .foregroundColor(.gray)
+                                    }
                                 }
                             }
+                            .padding(.vertical, 4)
                         }
-                        .frame(maxHeight: 200)
                     }
+                    .listStyle(.insetGrouped)
                 }
             }
-            Spacer()
         }
         .onAppear {
             viewModel.setupPurchaseUnits(for: ingredient)
