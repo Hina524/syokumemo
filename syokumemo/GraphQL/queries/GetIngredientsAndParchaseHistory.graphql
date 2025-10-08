@@ -7,10 +7,18 @@ query GetIngredientsAndParchaseHistory {
 			name
 			colorCode
 		}
+		purchaseUnits {
+			id
+			name
+		}
 		purchaseHistory {
 			id
 			date
 			location {
+				id
+				name
+			}
+			purchaseUnit {
 				id
 				name
 			}

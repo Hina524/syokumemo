@@ -32,6 +32,8 @@ class GraphViewModel: ObservableObject {
     @Published var visibleDomain: ClosedRange<Date>?
     @Published var isDataExplorationMode = false
     @Published var selectedDataPoint: LineData?
+    @Published var selectedPurchaseUnit: String? = nil
+    @Published var availablePurchaseUnits: [String] = []
     
     private var watcher: GraphQLQueryWatcher<GetIngredientsAndParchaseHistoryQuery>?
     
@@ -48,6 +50,7 @@ class GraphViewModel: ObservableObject {
                 self?.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
+                    print("GetIngredientsAndParchaseHistory Response:", graphQLResult)
                     // キャッシュ or ネットワークから返ってきた最新の items に差し替え
                     self?.ingredients = graphQLResult.data?.ingredients ?? []
                 case .failure(let error):
@@ -63,6 +66,21 @@ class GraphViewModel: ObservableObject {
         isDataExplorationMode = false // 期間選択時はデータ閲覧モードを解除
         selectedDataPoint = nil
         updateVisibleDomain(for: ingredient)
+    }
+    
+    func selectPurchaseUnit(_ unit: String?, for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
+        selectedPurchaseUnit = unit
+        isDataExplorationMode = false
+        selectedDataPoint = nil
+        updateVisibleDomain(for: ingredient)
+    }
+    
+    func setupPurchaseUnits(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
+        let units = ingredient.purchaseUnits.map { $0.name }
+        availablePurchaseUnits = ["全て"] + units
+        if selectedPurchaseUnit == nil && !units.isEmpty {
+            selectedPurchaseUnit = "全て"
+        }
     }
     
     func updateVisibleDomain(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
@@ -91,8 +109,14 @@ class GraphViewModel: ObservableObject {
     func filteredPurchaseHistory(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient.PurchaseHistory] {
         let calendar = Calendar.current
         
+        // 購入単位でフィルタリング
+        var history = ingredient.purchaseHistory
+        if let selectedUnit = selectedPurchaseUnit, selectedUnit != "全て" {
+            history = history.filter { $0.purchaseUnit.name == selectedUnit }
+        }
+        
         // データの最新日付を取得
-        let latestDate = ingredient.purchaseHistory
+        let latestDate = history
             .compactMap { DateFormatter.apiFormat.date(from: $0.date) }
             .max() ?? Date()
         
@@ -108,8 +132,8 @@ class GraphViewModel: ObservableObject {
             startDate = calendar.date(byAdding: .year, value: -1, to: latestDate) ?? latestDate
         }
         
-        return ingredient.purchaseHistory.filter { history in
-            guard let date = DateFormatter.apiFormat.date(from: history.date) else { return false }
+        return history.filter { historyItem in
+            guard let date = DateFormatter.apiFormat.date(from: historyItem.date) else { return false }
             return date >= startDate && date <= latestDate
         }
     }
@@ -218,6 +242,17 @@ class GraphViewModel: ObservableObject {
             return 7  // 7日ごと
         case .week:
             return 1  // 日ごと（曜日ごと）
+        }
+    }
+    
+    func getSortedPurchaseHistoryForList(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient.PurchaseHistory] {
+        let filteredHistory = filteredPurchaseHistory(for: ingredient)
+        return filteredHistory.sorted { historyA, historyB in
+            guard let dateA = DateFormatter.apiFormat.date(from: historyA.date),
+                  let dateB = DateFormatter.apiFormat.date(from: historyB.date) else {
+                return false
+            }
+            return dateA > dateB // 新しい順
         }
     }
 }

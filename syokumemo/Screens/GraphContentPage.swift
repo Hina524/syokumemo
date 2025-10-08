@@ -105,22 +105,55 @@ struct GraphContentPage: View {
                     // MARK: - グラフ
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("平均")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(viewModel.getAveragePrice(for: ingredient))
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.black)
-                                Text("円")
-                                    .font(.subheadline)
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("平均")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                HStack(alignment: .firstTextBaseline) {
+                                    Text(viewModel.getAveragePrice(for: ingredient))
+                                        .font(.title)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.black)
+                                    Text("円")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Text(viewModel.getDisplayDateRange(for: ingredient))
+                                    .font(.caption)
                                     .foregroundColor(.gray)
                             }
-                            Text(viewModel.getDisplayDateRange(for: ingredient))
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                            
+                            Spacer()
+                            
+                            // 購入単位選択メニュー
+                            Menu {
+                                ForEach(viewModel.availablePurchaseUnits, id: \.self) { unit in
+                                    Button(action: {
+                                        viewModel.selectPurchaseUnit(unit, for: ingredient)
+                                    }) {
+                                        HStack {
+                                            Text(unit)
+                                            if unit == viewModel.selectedPurchaseUnit {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(viewModel.selectedPurchaseUnit ?? "全て")
+                                        .font(.subheadline)
+                                        .foregroundColor(.accentColor)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption)
+                                        .foregroundColor(.accentColor)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.accentColor.opacity(0.1))
+                                .cornerRadius(8)
+                            }
                         }
                         .padding(.horizontal)
                         
@@ -184,9 +217,51 @@ struct GraphContentPage: View {
                         .frame(height: 300)
                         .padding(.horizontal)
                     }
+                    
+                    // MARK: - データリスト
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("購入履歴")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                            .padding(.horizontal)
+                        
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                ForEach(viewModel.getSortedPurchaseHistoryForList(for: ingredient), id: \.id) { historyItem in
+                                    HStack {
+                                        Text("\(historyItem.price)円")
+                                            .font(.body)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.black)
+                                        
+                                        Spacer()
+                                        
+                                        if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
+                                            Text(DateFormatter.displayFormat.string(from: date))
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 12)
+                                    .background(Color.clear)
+                                    
+                                    Divider()
+                                        .padding(.horizontal)
+                                }
+                            }
+                        }
+                        .frame(maxHeight: 200)
+                    }
                 }
             }
             Spacer()
+        }
+        .onAppear {
+            viewModel.setupPurchaseUnits(for: ingredient)
+        }
+        .onChange(of: ingredient) { _, newIngredient in
+            viewModel.setupPurchaseUnits(for: newIngredient)
         }
     }
 }
