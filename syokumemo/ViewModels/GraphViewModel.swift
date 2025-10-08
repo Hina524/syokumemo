@@ -178,7 +178,8 @@ class GraphViewModel: ObservableObject {
     }
     
     func findNearestDataPoint(to date: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> LineData? {
-        let dataPoints = ingredient.purchaseHistory.compactMap { history -> LineData? in
+        let filteredHistory = filteredPurchaseHistory(for: ingredient)
+        let dataPoints = filteredHistory.compactMap { history -> LineData? in
             guard let historyDate = DateFormatter.apiFormat.date(from: history.date) else { return nil }
             return LineData(id: history.id, date: historyDate, price: history.price)
         }
