@@ -14,6 +14,8 @@ typealias GraphIngredient = GetIngredientsAndParchaseHistoryQuery.Data.Ingredien
 enum GraphNavigationPath: Hashable {
     case ingredient(GraphIngredient)
     case purchaseHistory(String) // IDのみを保持
+    case selectLocation(historyId: String)
+    case selectPurchaseUnit(historyId: String, ingredientId: String)
     
     static func == (lhs: GraphNavigationPath, rhs: GraphNavigationPath) -> Bool {
         switch (lhs, rhs) {
@@ -21,6 +23,10 @@ enum GraphNavigationPath: Hashable {
             return lhsIngredient.id == rhsIngredient.id
         case (.purchaseHistory(let lhsId), .purchaseHistory(let rhsId)):
             return lhsId == rhsId
+        case (.selectLocation(let lhsHistoryId), .selectLocation(let rhsHistoryId)):
+            return lhsHistoryId == rhsHistoryId
+        case (.selectPurchaseUnit(let lhsHistoryId, let lhsIngredientId), .selectPurchaseUnit(let rhsHistoryId, let rhsIngredientId)):
+            return lhsHistoryId == rhsHistoryId && lhsIngredientId == rhsIngredientId
         default:
             return false
         }
@@ -34,6 +40,13 @@ enum GraphNavigationPath: Hashable {
         case .purchaseHistory(let id):
             hasher.combine("purchaseHistory")
             hasher.combine(id)
+        case .selectLocation(let historyId):
+            hasher.combine("selectLocation")
+            hasher.combine(historyId)
+        case .selectPurchaseUnit(let historyId, let ingredientId):
+            hasher.combine("selectPurchaseUnit")
+            hasher.combine(historyId)
+            hasher.combine(ingredientId)
         }
     }
 }
@@ -111,11 +124,18 @@ struct GraphPage: View {
                         case .ingredient(let ingredient):
                             GraphContentPage(path: $path, ingredient: ingredient)
                         case .purchaseHistory(let historyId):
-                            if let historyItem = findPurchaseHistory(id: historyId) {
-                                PurchaseHistoryDetailPage(historyItem: historyItem)
+                            if let historyItem = findPurchaseHistory(id: historyId),
+                               let ingredient = findIngredientByHistoryId(historyId: historyId) {
+                                PurchaseHistoryDetailPage(
+                                    historyItem: historyItem,
+                                    ingredientId: ingredient.id
+                                )
                             } else {
                                 Text("購入履歴が見つかりません")
                             }
+                        case .selectLocation, .selectPurchaseUnit:
+                            // Sheet方式に変更したため不要
+                            EmptyView()
                         }
                     }
                 }
@@ -131,6 +151,15 @@ struct GraphPage: View {
         for ingredient in viewModel.ingredients {
             if let historyItem = ingredient.purchaseHistory.first(where: { $0.id == id }) {
                 return historyItem
+            }
+        }
+        return nil
+    }
+    
+    private func findIngredientByHistoryId(historyId: String) -> GraphIngredient? {
+        for ingredient in viewModel.ingredients {
+            if ingredient.purchaseHistory.contains(where: { $0.id == historyId }) {
+                return ingredient
             }
         }
         return nil
