@@ -72,6 +72,7 @@ struct ChartAnnotation: View {
 struct GraphContentPage: View {
     @StateObject private var viewModel = GraphViewModel()
     @State private var rawSelectedDate: Date?
+    @Binding var path: [GraphNavigationPath]
     let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
     @Environment(\.dismiss) private var dismiss
     
@@ -148,7 +149,7 @@ struct GraphContentPage: View {
                                 }
                             } label: {
                                 HStack(spacing: 4) {
-                                    Text(viewModel.selectedPurchaseUnit ?? "全て")
+                                    Text("購入単位")
                                         .font(.subheadline)
                                         .foregroundColor(.accentColor)
                                     Image(systemName: "chevron.up.chevron.down")
@@ -158,6 +159,7 @@ struct GraphContentPage: View {
                             }
                         }
                         .padding(.horizontal)
+                        .padding(.bottom, 4)
                         
                         Chart {
                             ForEach(
@@ -218,37 +220,61 @@ struct GraphContentPage: View {
                         }
                         .frame(height: 200)
                         .padding(.horizontal)
+                        
+                        // カスタム凡例
+                        HStack {
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color(hex: ingredient.category.colorCode))
+                                    .frame(width: 8, height: 8)
+                                Text(viewModel.selectedPurchaseUnit ?? "全て")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 4)
                     }
                     
                     // MARK: - データリスト
                     List {
                         ForEach(viewModel.getSortedPurchaseHistoryForList(for: ingredient), id: \.id) { historyItem in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(historyItem.price)円")
-                                        .font(.headline)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(.black)
-                                    
-                                    Text(historyItem.purchaseUnit.name)
-                                        .font(.footnote)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    Text("購入日")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
-                                        Text(DateFormatter.displayFormat.string(from: date))
-                                            .font(.body)
-                                            .foregroundColor(.gray)
+                            Button(action: {
+                                path.append(GraphNavigationPath.purchaseHistory(historyItem.id))
+                            }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("\(historyItem.price)円")
+                                            .font(.headline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.black)
+                                        
+                                        Text(historyItem.purchaseUnit.name)
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
                                     }
+                                    
+                                    Spacer()
+                                    
+                                    VStack(alignment: .trailing, spacing: 2) {
+                                        Text("購入日")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
+                                            Text(DateFormatter.displayFormat.string(from: date))
+                                                .font(.body)
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
                                 }
+                                .padding(.vertical, 4)
                             }
-                            .padding(.vertical, 4)
+                            .buttonStyle(.plain)
                         }
                     }
                     .listStyle(.insetGrouped)
