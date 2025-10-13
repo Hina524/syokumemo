@@ -67,7 +67,7 @@ struct PurchaseHistoryDetailPage: View {
                             Text("金額")
                                 .font(.callout)
                                 .foregroundColor(.secondary)
-                            TextField("金額", text: $viewModel.editingPrice)
+                            TextField("\(historyItem.price)", text: $viewModel.editingPrice)
                                 .textFieldStyle(.plain)
                                 .keyboardType(.numberPad)
                                 .font(.body)
