@@ -63,51 +63,51 @@ struct PurchaseHistoryDetailPage: View {
                         // 編集モード
                         
                         // 金額
-                        HStack {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("金額")
-                                .font(.body)
+                                .font(.callout)
                                 .foregroundColor(.secondary)
-                            Spacer()
                             TextField("金額", text: $viewModel.editingPrice)
                                 .textFieldStyle(.plain)
                                 .keyboardType(.numberPad)
-                                .multilineTextAlignment(.trailing)
-                                .font(.title3)
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                         
                         // 購入日
                         VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("購入日")
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                            }
+                            Text("購入日")
+                                .font(.callout)
+                                .foregroundColor(.secondary)
                             DatePicker("", selection: $viewModel.editingDate, displayedComponents: .date)
                                 .datePickerStyle(.graphical)
                                 .labelsHidden()
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                         
                         // 購入場所
                         Button(action: {
                             viewModel.showLocationPicker = true
                         }) {
-                            HStack {
-                                Text("購入場所")
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(viewModel.selectedLocationName)
-                                    .font(.title3)
-                                    .foregroundColor(.primary)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("購入場所")
+                                        .font(.callout)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                HStack {
+                                    Text(viewModel.selectedLocationName)
+                                        .font(.body)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                }
                             }
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 4)
                         }
                         .buttonStyle(.plain)
                         
@@ -115,19 +115,24 @@ struct PurchaseHistoryDetailPage: View {
                         Button(action: {
                             viewModel.showPurchaseUnitPicker = true
                         }) {
-                            HStack {
-                                Text("購入単位")
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(viewModel.selectedPurchaseUnitName)
-                                    .font(.title3)
-                                    .foregroundColor(.primary)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("購入単位")
+                                        .font(.callout)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                HStack {
+                                    Text(viewModel.selectedPurchaseUnitName)
+                                        .font(.body)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                }
                             }
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 4)
                         }
                         .buttonStyle(.plain)
                         
@@ -135,57 +140,53 @@ struct PurchaseHistoryDetailPage: View {
                         // 表示モード（ローカルステート優先）
                         
                         // 金額
-                        HStack {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("金額")
-                                .font(.body)
+                                .font(.callout)
                                 .foregroundColor(.secondary)
-                            Spacer()
                             Text("\(viewModel.currentDisplayPrice ?? historyItem.price)円")
-                                .font(.title3)
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                         
                         // 購入日
-                        HStack {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("購入日")
-                                .font(.body)
+                                .font(.callout)
                                 .foregroundColor(.secondary)
-                            Spacer()
                             let displayDate = viewModel.currentDisplayDate ?? historyItem.date
                             if let date = DateFormatter.apiFormat.date(from: displayDate) {
                                 Text(DateFormatter.displayFormat.string(from: date))
-                                    .font(.title3)
+                                    .font(.body)
                                     .foregroundColor(.primary)
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                         
                         // 購入場所
-                        HStack {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("購入場所")
-                                .font(.body)
+                                .font(.callout)
                                 .foregroundColor(.secondary)
-                            Spacer()
                             let locationName = viewModel.currentDisplayLocation?.name ?? historyItem.location.name
                             Text(locationName)
-                                .font(.title3)
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                         
                         // 購入単位
-                        HStack {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("購入単位")
-                                .font(.body)
+                                .font(.callout)
                                 .foregroundColor(.secondary)
-                            Spacer()
                             let unitName = viewModel.currentDisplayPurchaseUnit?.name ?? historyItem.purchaseUnit.name
                             Text(unitName)
-                                .font(.title3)
+                                .font(.body)
                                 .foregroundColor(.primary)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                     }
                 }
             }
