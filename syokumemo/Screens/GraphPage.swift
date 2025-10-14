@@ -117,8 +117,34 @@ struct GraphPage: View {
                         .foregroundColor(.red)
                 } else {
                     NavigationStack(path: $path) {
-                        List(viewModel.filteredIngredients, id: \.id) { ingredient in
-                            IngredientRow(ingredient: ingredient)
+                        if viewModel.filteredIngredients.isEmpty {
+                            VStack(spacing: 20) {
+                                Image(systemName: "chart.line.uptrend.xyaxis")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.gray)
+                                Text("データがありません")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                Text("購入履歴がある食材が表示されます")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .refreshable {
+                                viewModel.errorMessage = nil
+                                await viewModel.refreshAllData()
+                            }
+                        } else {
+                            List(viewModel.filteredIngredients, id: \.id) { ingredient in
+                                IngredientRow(ingredient: ingredient)
+                            }
+                            .refreshable {
+                                viewModel.errorMessage = nil
+                                await viewModel.refreshAllData()
+                            }
+                            .listStyle(.plain)
                         }
                     .navigationDestination(for: GraphNavigationPath.self) { destination in
                         switch destination {
@@ -140,11 +166,6 @@ struct GraphPage: View {
                         }
                     }
                     }
-                    .refreshable {
-                        viewModel.errorMessage = nil
-                        await viewModel.refreshAllData()
-                    }
-                    .listStyle(.plain)
                 }
             }
             
