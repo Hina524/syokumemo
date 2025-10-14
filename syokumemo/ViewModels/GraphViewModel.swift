@@ -46,7 +46,7 @@ class GraphViewModel: ObservableObject {
         
         watcher = Network.shared.apollo.watch(
             query: GetIngredientsAndParchaseHistoryQuery(),
-            cachePolicy: .returnCacheDataAndFetch
+            cachePolicy: .returnCacheDataElseFetch
         ) { [weak self] result in
             
             
@@ -67,7 +67,7 @@ class GraphViewModel: ObservableObject {
         // カテゴリー一覧を取得
         categoriesWatcher = Network.shared.apollo.watch(
             query: GetCategoriesAndIngredientsQuery(),
-            cachePolicy: .returnCacheDataAndFetch
+            cachePolicy: .returnCacheDataElseFetch
         ) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {

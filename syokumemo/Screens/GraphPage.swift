@@ -81,6 +81,9 @@ struct IngredientRow: View {
                             ingredient.purchaseHistory
                                 .compactMap { history -> LineData? in
                                     guard let date = DateFormatter.apiFormat.date(from: history.date) else { return nil }
+                                    // 6ヶ月以内のデータのみ返す
+                                    let sixMonthsAgo = Calendar.current.date(byAdding: .month, value: -6, to: Date()) ?? Date()
+                                    guard date >= sixMonthsAgo else { return nil }
                                     return LineData(id: history.id, date: date, price: history.price)
                                 }
                                 .sorted { $0.date < $1.date }
