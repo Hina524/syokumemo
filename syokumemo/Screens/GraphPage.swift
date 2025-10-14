@@ -140,6 +140,10 @@ struct GraphPage: View {
                         }
                     }
                     }
+                    .refreshable {
+                        viewModel.errorMessage = nil
+                        await viewModel.refreshAllData()
+                    }
                     .listStyle(.plain)
                 }
             }

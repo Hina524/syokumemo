@@ -293,4 +293,66 @@ class GraphViewModel: ObservableObject {
             return dateA > dateB // 新しい順
         }
     }
+    
+    // MARK: - Refresh Data
+    func refreshAllData() async {
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        // 食材データとカテゴリデータを並行して取得
+        await withTaskGroup(of: Void.self) { group in
+            // 食材・購入履歴データの取得
+            group.addTask { [weak self] in
+                await self?.refreshIngredientsAsync()
+            }
+            
+            // カテゴリデータの取得
+            group.addTask { [weak self] in
+                await self?.refreshCategoriesAsync()
+            }
+        }
+        
+        await MainActor.run {
+            isLoading = false
+        }
+    }
+    
+    private func refreshIngredientsAsync() async {
+        return await withCheckedContinuation { continuation in
+            Network.shared.apollo.fetch(
+                query: GetIngredientsAndParchaseHistoryQuery(),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        self?.ingredients = graphQLResult.data?.ingredients ?? []
+                    case .failure(let error):
+                        self?.errorMessage = "食材データの取得に失敗しました: \(error.localizedDescription)"
+                    }
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    private func refreshCategoriesAsync() async {
+        return await withCheckedContinuation { continuation in
+            Network.shared.apollo.fetch(
+                query: GetCategoriesAndIngredientsQuery(),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        self?.categories = graphQLResult.data?.categories ?? []
+                    case .failure(let error):
+                        print("Categories refresh error:", error)
+                    }
+                    continuation.resume()
+                }
+            }
+        }
+    }
 }
