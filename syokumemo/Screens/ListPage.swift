@@ -250,8 +250,8 @@ struct ListPage: View {
                 }
             }
             
-            // フローティングボタン（リストページでのみ表示）
-            if path.isEmpty {
+            // フローティングボタン（絞り込み機能）
+            if path.isEmpty && !viewModel.isLoading {
                 VStack {
                     Spacer()
                     HStack {
