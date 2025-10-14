@@ -25,6 +25,9 @@ enum TimePeriod: String, CaseIterable {
 
 class GraphViewModel: ObservableObject {
     @Published var ingredients: [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient] = []
+    @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
+    @Published var selectedCategoryIds: Set<String> = []
+    @Published var showFilterMenu = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var lineData: [LineData] = []
@@ -36,6 +39,7 @@ class GraphViewModel: ObservableObject {
     @Published var availablePurchaseUnits: [String] = []
     
     private var watcher: GraphQLQueryWatcher<GetIngredientsAndParchaseHistoryQuery>?
+    private var categoriesWatcher: GraphQLQueryWatcher<GetCategoriesAndIngredientsQuery>?
     
     init() {
         isLoading = true
@@ -59,6 +63,26 @@ class GraphViewModel: ObservableObject {
                 }
             }
         }
+        
+        // カテゴリー一覧を取得
+        categoriesWatcher = Network.shared.apollo.watch(
+            query: GetCategoriesAndIngredientsQuery(),
+            cachePolicy: .returnCacheDataAndFetch
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    self?.categories = graphQLResult.data?.categories ?? []
+                case .failure(let error):
+                    print("Categories query watch error:", error)
+                }
+            }
+        }
+    }
+    
+    var filteredIngredients: [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient] {
+        guard !selectedCategoryIds.isEmpty else { return ingredients }
+        return ingredients.filter { selectedCategoryIds.contains($0.category.id) }
     }
     
     func selectPeriod(_ period: TimePeriod, for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
