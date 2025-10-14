@@ -296,10 +296,6 @@ class GraphViewModel: ObservableObject {
     
     // MARK: - Refresh Data
     func refreshAllData() async {
-        await MainActor.run {
-            isLoading = true
-        }
-        
         // 食材データとカテゴリデータを並行して取得
         await withTaskGroup(of: Void.self) { group in
             // 食材・購入履歴データの取得
@@ -311,10 +307,6 @@ class GraphViewModel: ObservableObject {
             group.addTask { [weak self] in
                 await self?.refreshCategoriesAsync()
             }
-        }
-        
-        await MainActor.run {
-            isLoading = false
         }
     }
     
