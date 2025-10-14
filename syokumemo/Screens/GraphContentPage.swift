@@ -164,7 +164,7 @@ struct GraphContentPage: View {
                                 }
                             } label: {
                                 HStack(spacing: 4) {
-                                    Text("購入単位")
+                                    Text(viewModel.selectedPurchaseUnit ?? "全て")
                                         .font(.subheadline)
                                         .foregroundColor(.accentColor)
                                     Image(systemName: "chevron.up.chevron.down")
@@ -235,21 +235,6 @@ struct GraphContentPage: View {
                         }
                         .frame(height: 200)
                         .padding(.horizontal)
-                        
-                        // カスタム凡例
-                        HStack {
-                            HStack(spacing: 6) {
-                                Circle()
-                                    .fill(Color(hex: ingredient.category.colorCode))
-                                    .frame(width: 8, height: 8)
-                                Text(viewModel.selectedPurchaseUnit ?? "全て")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        .padding(.top, 4)
                     }
                     
                     // MARK: - データリスト

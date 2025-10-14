@@ -120,54 +120,52 @@ struct GraphPage: View {
                         .foregroundColor(.red)
                 } else {
                     NavigationStack(path: $path) {
-                        if viewModel.filteredIngredients.isEmpty {
-                            VStack(spacing: 20) {
-                                Image(systemName: "chart.line.uptrend.xyaxis")
-                                    .font(.system(size: 60))
-                                    .foregroundColor(.gray)
-                                Text("データがありません")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                                Text("購入履歴がある食材が表示されます")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .refreshable {
-                                viewModel.errorMessage = nil
-                                await viewModel.refreshAllData()
-                            }
-                        } else {
-                            List(viewModel.filteredIngredients, id: \.id) { ingredient in
-                                IngredientRow(ingredient: ingredient)
-                            }
-                            .refreshable {
-                                viewModel.errorMessage = nil
-                                await viewModel.refreshAllData()
-                            }
-                            .listStyle(.plain)
-                        }
-                    .navigationDestination(for: GraphNavigationPath.self) { destination in
-                        switch destination {
-                        case .ingredient(let ingredient):
-                            GraphContentPage(path: $path, ingredient: ingredient)
-                        case .purchaseHistory(let historyId):
-                            if let historyItem = findPurchaseHistory(id: historyId),
-                               let ingredient = findIngredientByHistoryId(historyId: historyId) {
-                                PurchaseHistoryDetailPage(
-                                    historyItem: historyItem,
-                                    ingredientId: ingredient.id
-                                )
+                        Group {
+                            if viewModel.filteredIngredients.isEmpty {
+                                VStack(spacing: 20) {
+                                    Image(systemName: "chart.line.uptrend.xyaxis")
+                                        .font(.system(size: 60))
+                                        .foregroundColor(.gray)
+                                    Text("データがありません")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                    Text("購入履歴がある食材が表示されます")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                             } else {
-                                Text("購入履歴が見つかりません")
+                                List(viewModel.filteredIngredients, id: \.id) { ingredient in
+                                    IngredientRow(ingredient: ingredient)
+                                }
+                                .listStyle(.plain)
                             }
-                        case .selectLocation, .selectPurchaseUnit:
-                            // Sheet方式に変更したため不要
-                            EmptyView()
                         }
-                    }
+                        .refreshable {
+                            viewModel.errorMessage = nil
+                            await viewModel.refreshAllData()
+                        }
+                        .navigationDestination(for: GraphNavigationPath.self) { destination in
+                            switch destination {
+                            case .ingredient(let ingredient):
+                                GraphContentPage(path: $path, ingredient: ingredient)
+                            case .purchaseHistory(let historyId):
+                                if let historyItem = findPurchaseHistory(id: historyId),
+                                   let ingredient = findIngredientByHistoryId(historyId: historyId) {
+                                    PurchaseHistoryDetailPage(
+                                        historyItem: historyItem,
+                                        ingredientId: ingredient.id
+                                    )
+                                } else {
+                                    Text("購入履歴が見つかりません")
+                                }
+                            case .selectLocation, .selectPurchaseUnit:
+                                // Sheet方式に変更したため不要
+                                EmptyView()
+                            }
+                        }
                     }
                 }
             }
