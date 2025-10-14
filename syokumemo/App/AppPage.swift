@@ -19,6 +19,18 @@ struct AppPage: View {
             BottomBarView()
         }
         .ignoresSafeArea(.keyboard, edges: .all)
+        .onAppear {
+            // ListPage表示時にGraphデータを先読み
+            if appState.currentScreen == .list {
+                GraphDataPreloader.shared.preloadGraphDataInBackground()
+            }
+        }
+        .onChange(of: appState.currentScreen) { _, newScreen in
+            // ListPageに遷移した時にもプリロード
+            if newScreen == .list {
+                GraphDataPreloader.shared.preloadGraphDataInBackground()
+            }
+        }
     }
 
     @ViewBuilder

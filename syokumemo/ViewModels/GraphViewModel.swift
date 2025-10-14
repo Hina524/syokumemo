@@ -25,6 +25,9 @@ enum TimePeriod: String, CaseIterable {
 
 class GraphViewModel: ObservableObject {
     @Published var ingredients: [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient] = []
+    @Published var categories: [GetCategoriesAndIngredientsQuery.Data.Category] = []
+    @Published var selectedCategoryIds: Set<String> = []
+    @Published var showFilterMenu = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var lineData: [LineData] = []
@@ -32,15 +35,18 @@ class GraphViewModel: ObservableObject {
     @Published var visibleDomain: ClosedRange<Date>?
     @Published var isDataExplorationMode = false
     @Published var selectedDataPoint: LineData?
+    @Published var selectedPurchaseUnit: String? = nil
+    @Published var availablePurchaseUnits: [String] = []
     
     private var watcher: GraphQLQueryWatcher<GetIngredientsAndParchaseHistoryQuery>?
+    private var categoriesWatcher: GraphQLQueryWatcher<GetCategoriesAndIngredientsQuery>?
     
     init() {
         isLoading = true
         
         watcher = Network.shared.apollo.watch(
             query: GetIngredientsAndParchaseHistoryQuery(),
-            cachePolicy: .returnCacheDataAndFetch
+            cachePolicy: .returnCacheDataElseFetch
         ) { [weak self] result in
             
             
@@ -48,6 +54,7 @@ class GraphViewModel: ObservableObject {
                 self?.isLoading = false
                 switch result {
                 case .success(let graphQLResult):
+                    print("GetIngredientsAndParchaseHistory Response:", graphQLResult)
                     // キャッシュ or ネットワークから返ってきた最新の items に差し替え
                     self?.ingredients = graphQLResult.data?.ingredients ?? []
                 case .failure(let error):
@@ -56,6 +63,26 @@ class GraphViewModel: ObservableObject {
                 }
             }
         }
+        
+        // カテゴリー一覧を取得
+        categoriesWatcher = Network.shared.apollo.watch(
+            query: GetCategoriesAndIngredientsQuery(),
+            cachePolicy: .returnCacheDataElseFetch
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let graphQLResult):
+                    self?.categories = graphQLResult.data?.categories ?? []
+                case .failure(let error):
+                    print("Categories query watch error:", error)
+                }
+            }
+        }
+    }
+    
+    var filteredIngredients: [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient] {
+        guard !selectedCategoryIds.isEmpty else { return ingredients }
+        return ingredients.filter { selectedCategoryIds.contains($0.category.id) }
     }
     
     func selectPeriod(_ period: TimePeriod, for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
@@ -63,6 +90,21 @@ class GraphViewModel: ObservableObject {
         isDataExplorationMode = false // 期間選択時はデータ閲覧モードを解除
         selectedDataPoint = nil
         updateVisibleDomain(for: ingredient)
+    }
+    
+    func selectPurchaseUnit(_ unit: String?, for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
+        selectedPurchaseUnit = unit
+        isDataExplorationMode = false
+        selectedDataPoint = nil
+        updateVisibleDomain(for: ingredient)
+    }
+    
+    func setupPurchaseUnits(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
+        let units = ingredient.purchaseUnits.map { $0.name }
+        availablePurchaseUnits = ["全て"] + units
+        if selectedPurchaseUnit == nil && !units.isEmpty {
+            selectedPurchaseUnit = "全て"
+        }
     }
     
     func updateVisibleDomain(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) {
@@ -91,8 +133,14 @@ class GraphViewModel: ObservableObject {
     func filteredPurchaseHistory(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient.PurchaseHistory] {
         let calendar = Calendar.current
         
+        // 購入単位でフィルタリング
+        var history = ingredient.purchaseHistory
+        if let selectedUnit = selectedPurchaseUnit, selectedUnit != "全て" {
+            history = history.filter { $0.purchaseUnit.name == selectedUnit }
+        }
+        
         // データの最新日付を取得
-        let latestDate = ingredient.purchaseHistory
+        let latestDate = history
             .compactMap { DateFormatter.apiFormat.date(from: $0.date) }
             .max() ?? Date()
         
@@ -108,8 +156,8 @@ class GraphViewModel: ObservableObject {
             startDate = calendar.date(byAdding: .year, value: -1, to: latestDate) ?? latestDate
         }
         
-        return ingredient.purchaseHistory.filter { history in
-            guard let date = DateFormatter.apiFormat.date(from: history.date) else { return false }
+        return history.filter { historyItem in
+            guard let date = DateFormatter.apiFormat.date(from: historyItem.date) else { return false }
             return date >= startDate && date <= latestDate
         }
     }
@@ -124,14 +172,27 @@ class GraphViewModel: ObservableObject {
         return "\(DateFormatter.displayFormat.string(from: minDate))〜\(DateFormatter.displayFormat.string(from: maxDate))"
     }
     
-    func getAveragePrice(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> String {
+    func getLowestPriceInfo(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> (price: Int, date: String, location: String)? {
         let filteredHistory = filteredPurchaseHistory(for: ingredient)
-        guard !filteredHistory.isEmpty else { return "データなし" }
+        guard !filteredHistory.isEmpty else { return nil }
         
-        let totalPrice = filteredHistory.reduce(0) { $0 + $1.price }
-        let averagePrice = Double(totalPrice) / Double(filteredHistory.count)
+        // 最安値のアイテムを検索
+        let lowestPriceHistory = filteredHistory.min(by: { $0.price < $1.price })
         
-        return String(format: "%.2f", averagePrice)
+        guard let lowestHistory = lowestPriceHistory,
+              let date = DateFormatter.apiFormat.date(from: lowestHistory.date) else {
+            return nil
+        }
+        
+        let shortFormatter = DateFormatter()
+        shortFormatter.dateFormat = "yyyy/MM/dd"
+        let dateString = shortFormatter.string(from: date)
+        
+        return (
+            price: lowestHistory.price,
+            date: dateString,
+            location: lowestHistory.location.name
+        )
     }
     
     var visibleDomainLength: TimeInterval {
@@ -154,7 +215,8 @@ class GraphViewModel: ObservableObject {
     }
     
     func findNearestDataPoint(to date: Date, in ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> LineData? {
-        let dataPoints = ingredient.purchaseHistory.compactMap { history -> LineData? in
+        let filteredHistory = filteredPurchaseHistory(for: ingredient)
+        let dataPoints = filteredHistory.compactMap { history -> LineData? in
             guard let historyDate = DateFormatter.apiFormat.date(from: history.date) else { return nil }
             return LineData(id: history.id, date: historyDate, price: history.price)
         }
@@ -218,6 +280,71 @@ class GraphViewModel: ObservableObject {
             return 7  // 7日ごと
         case .week:
             return 1  // 日ごと（曜日ごと）
+        }
+    }
+    
+    func getSortedPurchaseHistoryForList(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> [GetIngredientsAndParchaseHistoryQuery.Data.Ingredient.PurchaseHistory] {
+        let filteredHistory = filteredPurchaseHistory(for: ingredient)
+        return filteredHistory.sorted { historyA, historyB in
+            guard let dateA = DateFormatter.apiFormat.date(from: historyA.date),
+                  let dateB = DateFormatter.apiFormat.date(from: historyB.date) else {
+                return false
+            }
+            return dateA > dateB // 新しい順
+        }
+    }
+    
+    // MARK: - Refresh Data
+    func refreshAllData() async {
+        // 食材データとカテゴリデータを並行して取得
+        await withTaskGroup(of: Void.self) { group in
+            // 食材・購入履歴データの取得
+            group.addTask { [weak self] in
+                await self?.refreshIngredientsAsync()
+            }
+            
+            // カテゴリデータの取得
+            group.addTask { [weak self] in
+                await self?.refreshCategoriesAsync()
+            }
+        }
+    }
+    
+    private func refreshIngredientsAsync() async {
+        return await withCheckedContinuation { continuation in
+            Network.shared.apollo.fetch(
+                query: GetIngredientsAndParchaseHistoryQuery(),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        self?.ingredients = graphQLResult.data?.ingredients ?? []
+                    case .failure(let error):
+                        self?.errorMessage = "食材データの取得に失敗しました: \(error.localizedDescription)"
+                    }
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    private func refreshCategoriesAsync() async {
+        return await withCheckedContinuation { continuation in
+            Network.shared.apollo.fetch(
+                query: GetCategoriesAndIngredientsQuery(),
+                cachePolicy: .fetchIgnoringCacheData
+            ) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let graphQLResult):
+                        self?.categories = graphQLResult.data?.categories ?? []
+                    case .failure(let error):
+                        print("Categories refresh error:", error)
+                    }
+                    continuation.resume()
+                }
+            }
         }
     }
 }

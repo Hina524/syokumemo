@@ -1,0 +1,15 @@
+mutation UpdatePurchaseHistory($id: ID!, $input: UpdatePurchaseHistory!) {
+	updatePurchaseHistory(id: $id, input: $input) {
+		id
+		date
+		location {
+			id
+			name
+		}
+		purchaseUnit {
+			id
+			name
+		}
+		price
+	}
+}

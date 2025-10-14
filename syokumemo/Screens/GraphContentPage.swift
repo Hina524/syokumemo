@@ -54,7 +54,7 @@ struct ChartAnnotation: View {
                 .foregroundColor(.black)
             Text(selectedData.date, format: Date.FormatStyle(date: .numeric, time: .none))
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
         }
         .padding(8)
         .background(Color.white)
@@ -72,6 +72,7 @@ struct ChartAnnotation: View {
 struct GraphContentPage: View {
     @StateObject private var viewModel = GraphViewModel()
     @State private var rawSelectedDate: Date?
+    @Binding var path: [GraphNavigationPath]
     let ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient
     @Environment(\.dismiss) private var dismiss
     
@@ -104,25 +105,76 @@ struct GraphContentPage: View {
                     
                     // MARK: - グラフ
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("平均")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(viewModel.getAveragePrice(for: ingredient))
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.black)
-                                Text("円")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                if let lowestInfo = viewModel.getLowestPriceInfo(for: ingredient) {
+                                    HStack(alignment: .bottom, spacing: 4) {
+                                        Text("最安値")
+                                            .font(.callout)
+                                            .bold()
+                                            .foregroundColor(.secondary)
+                                        Text("(\(lowestInfo.date))")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    HStack(alignment: .bottom, spacing: 2) {
+                                        Text("\(lowestInfo.price)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.black)
+                                        Text("円")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("@ \(lowestInfo.location)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                } else {
+                                    Text("データなし")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
-                            Text(viewModel.getDisplayDateRange(for: ingredient))
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                            
+                            Spacer()
                         }
                         .padding(.horizontal)
+                        
+                        HStack {
+                            Text(viewModel.getDisplayDateRange(for: ingredient))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            Spacer()
+                            
+                            // 購入単位選択メニュー
+                            Menu {
+                                ForEach(viewModel.availablePurchaseUnits, id: \.self) { unit in
+                                    Button(action: {
+                                        viewModel.selectPurchaseUnit(unit, for: ingredient)
+                                    }) {
+                                        HStack {
+                                            Text(unit)
+                                            if unit == viewModel.selectedPurchaseUnit {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(viewModel.selectedPurchaseUnit ?? "全て")
+                                        .font(.subheadline)
+                                        .foregroundColor(.accentColor)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption)
+                                        .foregroundColor(.accentColor)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 4)
                         
                         Chart {
                             ForEach(
@@ -137,13 +189,14 @@ struct GraphContentPage: View {
                                     x: .value("日付", data.date),
                                     y: .value("価格", data.price)
                                 )
+                                .foregroundStyle(Color(hex: ingredient.category.colorCode))
                                 .symbol(Circle())
                             }
                             if let selectedData = viewModel.getSelectedDataPoint(rawSelectedDate, in: ingredient) {
                                 RuleMark(
                                     x: .value("Selected", selectedData.date)
                                 )
-                                .foregroundStyle(.gray.opacity(0.3))
+                                .foregroundStyle(Color(hex: ingredient.category.colorCode).opacity(0.3))
                                 .offset(yStart: -10)
                                 .zIndex(-1)
                                 .annotation(
@@ -180,12 +233,59 @@ struct GraphContentPage: View {
                                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                                 )
                         }
-                        .frame(height: 300)
+                        .frame(height: 200)
                         .padding(.horizontal)
                     }
+                    
+                    // MARK: - データリスト
+                    List {
+                        ForEach(viewModel.getSortedPurchaseHistoryForList(for: ingredient), id: \.id) { historyItem in
+                            Button(action: {
+                                path.append(GraphNavigationPath.purchaseHistory(historyItem.id))
+                            }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("\(historyItem.price)円")
+                                            .font(.headline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.black)
+                                        
+                                        Text(historyItem.purchaseUnit.name)
+                                            .font(.footnote)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    VStack(alignment: .trailing, spacing: 2) {
+                                        Text("購入日")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
+                                            Text(DateFormatter.displayFormat.string(from: date))
+                                                .font(.body)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .listStyle(.insetGrouped)
                 }
             }
-            Spacer()
+        }
+        .onAppear {
+            viewModel.setupPurchaseUnits(for: ingredient)
+        }
+        .onChange(of: ingredient) { _, newIngredient in
+            viewModel.setupPurchaseUnits(for: newIngredient)
         }
     }
 }

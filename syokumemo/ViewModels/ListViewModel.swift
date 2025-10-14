@@ -154,10 +154,6 @@ class ListViewModel: ObservableObject {
     
     // MARK: - Refresh Data
     func refreshAllData() async {
-        await MainActor.run {
-            isLoading = true
-        }
-        
         // 在庫データと統計データを並行して取得
         await withTaskGroup(of: Void.self) { group in
             // 在庫データの取得
@@ -174,10 +170,6 @@ class ListViewModel: ObservableObject {
             group.addTask { [weak self] in
                 await self?.refreshCategoriesAsync()
             }
-        }
-        
-        await MainActor.run {
-            isLoading = false
         }
     }
     

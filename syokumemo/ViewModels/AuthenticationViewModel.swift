@@ -25,6 +25,11 @@ class AuthenticationViewModel: ObservableObject {
         observeAuthState()
         setupTokenRefreshTimer()
         setupAuthenticationNotificationObserver()
+        
+        // アプリ起動時に既存の認証状態でトークンをリフレッシュ
+        Task {
+            await refreshTokenOnAppLaunch()
+        }
     }
     
     deinit {
@@ -190,6 +195,26 @@ class AuthenticationViewModel: ObservableObject {
         let isValid = await authService.isTokenValid()
         if !isValid {
             await refreshTokenSilently()
+        }
+    }
+    
+    // MARK: - App Launch Token Refresh
+    private func refreshTokenOnAppLaunch() async {
+        // 既に認証されているユーザーがいる場合のみトークンをリフレッシュ
+        guard let currentUser = Auth.auth().currentUser else { return }
+        
+        do {
+            let token = try await currentUser.getIDToken(forcingRefresh: true)
+            Network.shared.setupAuthenticationHeader(with: token)
+            print("App launch token refresh successful")
+        } catch {
+            print("App launch token refresh failed: \(error)")
+            // 失敗した場合はサイレントにログアウト
+            do {
+                try authService.signOut()
+            } catch {
+                print("Failed to sign out after token refresh failure: \(error)")
+            }
         }
     }
 }
