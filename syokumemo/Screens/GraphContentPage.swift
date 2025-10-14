@@ -109,7 +109,7 @@ struct GraphContentPage: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 if let lowestInfo = viewModel.getLowestPriceInfo(for: ingredient) {
-                                    HStack(spacing: 4) {
+                                    HStack(alignment: .bottom, spacing: 4) {
                                         Text("最安値")
                                             .font(.callout)
                                             .bold()
@@ -118,7 +118,7 @@ struct GraphContentPage: View {
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
-                                    HStack(alignment: .firstTextBaseline, spacing: 2) {
+                                    HStack(alignment: .bottom, spacing: 2) {
                                         Text("\(lowestInfo.price)")
                                             .font(.title)
                                             .fontWeight(.bold)
