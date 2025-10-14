@@ -54,7 +54,7 @@ struct ChartAnnotation: View {
                 .foregroundColor(.black)
             Text(selectedData.date, format: Date.FormatStyle(date: .numeric, time: .none))
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
         }
         .padding(8)
         .background(Color.white)
@@ -108,17 +108,32 @@ struct GraphContentPage: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("平均")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                HStack(alignment: .firstTextBaseline) {
-                                    Text(viewModel.getAveragePrice(for: ingredient))
-                                        .font(.title)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.black)
-                                    Text("円")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
+                                if let lowestInfo = viewModel.getLowestPriceInfo(for: ingredient) {
+                                    HStack(spacing: 4) {
+                                        Text("最安値")
+                                            .font(.callout)
+                                            .bold()
+                                            .foregroundColor(.secondary)
+                                        Text("(\(lowestInfo.date))")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    HStack(alignment: .firstTextBaseline, spacing: 2) {
+                                        Text("\(lowestInfo.price)")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.black)
+                                        Text("円")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("@ \(lowestInfo.location)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                } else {
+                                    Text("データなし")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
                             }
                             
@@ -129,7 +144,7 @@ struct GraphContentPage: View {
                         HStack {
                             Text(viewModel.getDisplayDateRange(for: ingredient))
                                 .font(.caption)
-                                .foregroundColor(.gray)
+                                .foregroundColor(.secondary)
                             
                             Spacer()
                             
@@ -229,7 +244,7 @@ struct GraphContentPage: View {
                                     .frame(width: 8, height: 8)
                                 Text(viewModel.selectedPurchaseUnit ?? "全て")
                                     .font(.caption)
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(.secondary)
                             }
                             Spacer()
                         }
@@ -264,13 +279,13 @@ struct GraphContentPage: View {
                                         if let date = DateFormatter.apiFormat.date(from: historyItem.date) {
                                             Text(DateFormatter.displayFormat.string(from: date))
                                                 .font(.body)
-                                                .foregroundColor(.gray)
+                                                .foregroundColor(.secondary)
                                         }
                                     }
                                     
                                     Image(systemName: "chevron.right")
                                         .font(.caption)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(.secondary)
                                 }
                                 .padding(.vertical, 4)
                             }

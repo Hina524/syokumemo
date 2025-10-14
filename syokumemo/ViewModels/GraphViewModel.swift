@@ -148,14 +148,27 @@ class GraphViewModel: ObservableObject {
         return "\(DateFormatter.displayFormat.string(from: minDate))〜\(DateFormatter.displayFormat.string(from: maxDate))"
     }
     
-    func getAveragePrice(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> String {
+    func getLowestPriceInfo(for ingredient: GetIngredientsAndParchaseHistoryQuery.Data.Ingredient) -> (price: Int, date: String, location: String)? {
         let filteredHistory = filteredPurchaseHistory(for: ingredient)
-        guard !filteredHistory.isEmpty else { return "データなし" }
+        guard !filteredHistory.isEmpty else { return nil }
         
-        let totalPrice = filteredHistory.reduce(0) { $0 + $1.price }
-        let averagePrice = Double(totalPrice) / Double(filteredHistory.count)
+        // 最安値のアイテムを検索
+        let lowestPriceHistory = filteredHistory.min(by: { $0.price < $1.price })
         
-        return String(format: "%.2f", averagePrice)
+        guard let lowestHistory = lowestPriceHistory,
+              let date = DateFormatter.apiFormat.date(from: lowestHistory.date) else {
+            return nil
+        }
+        
+        let shortFormatter = DateFormatter()
+        shortFormatter.dateFormat = "yyyy/MM/dd"
+        let dateString = shortFormatter.string(from: date)
+        
+        return (
+            price: lowestHistory.price,
+            date: dateString,
+            location: lowestHistory.location.name
+        )
     }
     
     var visibleDomainLength: TimeInterval {
