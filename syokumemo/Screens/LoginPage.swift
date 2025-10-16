@@ -92,8 +92,16 @@ struct LoginPage: View {
         .padding(.horizontal, 32)
         .background(Color(.systemBackground))
         .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
-            if isAuthenticated {
-                // 認証成功時にメイン画面へ遷移
+            if isAuthenticated && authViewModel.isTokenReady {
+                // 認証成功かつトークン準備完了時にメイン画面へ遷移
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    appState.appState = .main
+                }
+            }
+        }
+        .onChange(of: authViewModel.isTokenReady) { isTokenReady in
+            if authViewModel.isAuthenticated && isTokenReady {
+                // 認証成功かつトークン準備完了時にメイン画面へ遷移
                 withAnimation(.easeInOut(duration: 0.3)) {
                     appState.appState = .main
                 }
