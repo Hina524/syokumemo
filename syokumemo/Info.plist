@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ENDPOINT_URL_Debug</key>
+	<string>${ENDPOINT_URL_Debug}</string>
+	<key>ENDPOINT_URL_Release</key>
+	<string>${ENDPOINT_URL_Release}</string>
+	<key>ENDPOINT_URL_LOCAL</key>
+	<string>${ENDPOINT_URL_LOCAL}</string>
 	<key>ENDPOINT_URL</key>
 	<string>${ENDPOINT_URL}</string>
 </dict>

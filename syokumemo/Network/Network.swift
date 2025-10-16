@@ -16,7 +16,18 @@ class Network {
     private var currentToken: String?
     
     private(set) lazy var apollo: ApolloClient = {
-        let url = URL(string: Bundle.main.infoDictionary?["ENDPOINT_URL"] as! String)!
+        print("Debug: All Info.plist keys: \(Bundle.main.infoDictionary?.keys.sorted() ?? [])")
+        print("Debug: ENDPOINT_URL raw value: \(Bundle.main.infoDictionary?["ENDPOINT_URL"] ?? "nil")")
+        
+        guard let endpointString = Bundle.main.infoDictionary?["ENDPOINT_URL"] as? String,
+              !endpointString.isEmpty,
+              let url = URL(string: endpointString) else {
+            print("Debug: ENDPOINT_URL not found or empty in Info.plist")
+            print("Debug: Available keys: \(Bundle.main.infoDictionary?.keys.sorted() ?? [])")
+            fatalError("ENDPOINT_URL not found in Info.plist or invalid URL format. Check Config.xcconfig settings.")
+        }
+        
+        print("Using endpoint: \(endpointString)")
         
         let store = ApolloStore()
         let client = URLSessionClient()
