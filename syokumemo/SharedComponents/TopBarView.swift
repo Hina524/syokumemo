@@ -26,8 +26,8 @@ struct TopBarView: View {
                     showingLogoutConfirmation = true
                 }) {
                     Image(systemName: "person.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.blue)
+                        .font(.title)
+                        .foregroundColor(.green)
                 }
                 .accessibilityLabel("ユーザーメニュー")
                 .accessibilityHint("タップしてログアウトオプションを表示")

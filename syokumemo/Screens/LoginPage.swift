@@ -15,22 +15,22 @@ struct LoginPage: View {
         VStack(spacing: 40) {
             Spacer()
             
-            // ロゴ
-            Image("logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200, height: 200)
+            // ロゴ（将来的に画像ロゴに戻す予定）
+//            Image("logo")
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 200, height: 200)
             
-//            // アプリタイトル
+//            // 暫定的なアプリタイトル
 //            VStack(spacing: 8) {
-//                Text("食材管理アプリ")
-//                    .font(.largeTitle)
-//                    .fontWeight(.bold)
-//                    .foregroundColor(.primary)
-//                
-//                Text("Syokumemo")
-//                    .font(.title2)
-//                    .foregroundColor(.secondary)
+                Text("Syokumemo")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text("食材管理アプリ")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
 //            }
             
             Spacer()

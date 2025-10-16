@@ -12,10 +12,21 @@ struct SplashScreenPage: View {
     @EnvironmentObject var authViewModel: AuthenticationViewModel
     
     var body: some View {
-        VStack {
-            Image("logo")
-                .resizable()
-                .frame(width: 218.19, height: 95)
+        VStack(spacing: 8) {
+            // ロゴ（将来的に画像ロゴに戻す予定）
+//            Image("logo")
+//                .resizable()
+//                .frame(width: 218.19, height: 95)
+            
+            // 暫定的なテキストロゴ
+            Text("Syokumemo")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            
+            Text("食材管理アプリ")
+                .font(.title2)
+                .foregroundColor(.secondary)
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
