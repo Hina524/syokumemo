@@ -38,8 +38,6 @@ struct LoginPage: View {
             // Apple Sign In ボタン
             VStack(spacing: 16) {
                 SignInWithAppleButton(viewModel: authViewModel)
-                    .frame(height: 50)
-                    .cornerRadius(8)
                 
                 // ローディング表示
                 if authViewModel.isLoading {
@@ -54,11 +52,27 @@ struct LoginPage: View {
                 
                 // エラーメッセージ表示
                 if let errorMessage = authViewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                    VStack(spacing: 12) {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 16)
+                        
+                        // リトライボタン
+                        Button(action: {
+                            authViewModel.retrySignIn()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.caption)
+                                Text("再試行")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(.blue)
+                        }
+                        .disabled(authViewModel.isLoading)
+                    }
                 }
             }
             

@@ -78,6 +78,11 @@ class AuthenticationViewModel: ObservableObject {
         coordinator.startSignInWithApple()
     }
     
+    // MARK: - Retry Sign In
+    func retrySignIn() {
+        signInWithApple()
+    }
+    
     // MARK: - Sign Out
     func signOut() {
         do {
