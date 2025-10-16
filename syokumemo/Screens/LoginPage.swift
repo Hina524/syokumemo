@@ -90,13 +90,7 @@ struct LoginPage: View {
             .padding(.bottom, 20)
         }
         .padding(.horizontal, 32)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color(.systemBackground), Color(.systemGray6)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
+        .background(Color(.systemBackground))
         .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
             if isAuthenticated {
                 // 認証成功時にメイン画面へ遷移

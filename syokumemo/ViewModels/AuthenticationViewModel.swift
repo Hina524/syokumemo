@@ -9,6 +9,10 @@ import SwiftUI
 import FirebaseAuth
 import Combine
 
+extension Notification.Name {
+    static let userDidSignOut = Notification.Name("userDidSignOut")
+}
+
 class AuthenticationViewModel: ObservableObject {
     @Published var isAuthenticated = false
     @Published var isLoading = false
@@ -55,6 +59,9 @@ class AuthenticationViewModel: ObservableObject {
                 } else {
                     // サインアウト時にネットワークトークンをクリア
                     Network.shared.clearAuthenticationHeader()
+                    
+                    // ログアウト時の通知を送信
+                    NotificationCenter.default.post(name: .userDidSignOut, object: nil)
                 }
             }
         }
