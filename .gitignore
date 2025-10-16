@@ -4,4 +4,5 @@ syokumemo/CLAUDE/
 .swiftpm
 .claude/commands/create-pull-request.md
 GoogleService-Info.plist
+GoogleService-Info-prod.plist
 syokumemo.xcodeproj/project.xcworkspace/xcuserdata/hina.xcuserdatad/UserInterfaceState.xcuserstate

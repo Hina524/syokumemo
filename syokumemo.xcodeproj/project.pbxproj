@@ -14,9 +14,6 @@
 		323A813E2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
 		323A813F2E545AA00027C1C7 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 323A813C2E545A980027C1C7 /* .gitignore */; };
 		32A19FB32E8D599F00D6A0BC /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 32A19FB22E8D599F00D6A0BC /* FirebaseAuth */; };
-		32A19FB52E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
-		32A19FB62E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
-		32A19FB72E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */; };
 		32A19FC22E8D612800D6A0BC /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 32A19FC12E8D612800D6A0BC /* FirebaseCore */; };
 		32BC54402DCA5E640068D0D5 /* ShokumemoAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC543F2DCA5E640068D0D5 /* ShokumemoAPI */; };
 		32BC54422DCA60420068D0D5 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 32BC54412DCA60420068D0D5 /* Apollo */; };
@@ -50,6 +47,7 @@
 		325977372DC93A2C001A075D /* syokumemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = syokumemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		325977412DC93A2C001A075D /* syokumemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = syokumemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		32A9F7D92EA1422300687A2B /* GoogleService-Info-prod.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-prod.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -120,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				32A19FB42E8D5E9C00D6A0BC /* GoogleService-Info.plist */,
+				32A9F7D92EA1422300687A2B /* GoogleService-Info-prod.plist */,
 				320552772E548A4400CC1400 /* Config.xcconfig */,
 				323A813C2E545A980027C1C7 /* .gitignore */,
 				325977282DC93A2B001A075D /* syokumemo */,
@@ -149,6 +148,7 @@
 				325977222DC93A2B001A075D /* Sources */,
 				325977232DC93A2B001A075D /* Frameworks */,
 				325977242DC93A2B001A075D /* Resources */,
+				32COPY1212ECOPY543200ABC123 /* Copy GoogleService-Info.plist */,
 			);
 			buildRules = (
 			);
@@ -274,7 +274,6 @@
 			files = (
 				320552782E548A4400CC1400 /* Config.xcconfig in Resources */,
 				323A813E2E545AA00027C1C7 /* .gitignore in Resources */,
-				32A19FB52E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,7 +283,6 @@
 			files = (
 				3205527A2E548A4400CC1400 /* Config.xcconfig in Resources */,
 				323A813F2E545AA00027C1C7 /* .gitignore in Resources */,
-				32A19FB62E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,11 +292,34 @@
 			files = (
 				320552792E548A4400CC1400 /* Config.xcconfig in Resources */,
 				323A813D2E545AA00027C1C7 /* .gitignore in Resources */,
-				32A19FB72E8D5E9C00D6A0BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		32COPY1212ECOPY543200ABC123 /* Copy GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/GoogleService-Info.plist",
+				"$(SRCROOT)/GoogleService-Info-prod.plist",
+			);
+			name = "Copy GoogleService-Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Copy the appropriate GoogleService-Info.plist based on configuration\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    echo \"Using Debug GoogleService-Info.plist\"\n    cp \"${SRCROOT}/GoogleService-Info.plist\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\nelse\n    echo \"Using Release GoogleService-Info-prod.plist\"\n    cp \"${SRCROOT}/GoogleService-Info-prod.plist\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		325977222DC93A2B001A075D /* Sources */ = {
@@ -448,6 +469,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
