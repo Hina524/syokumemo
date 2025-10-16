@@ -15,22 +15,22 @@ struct LoginPage: View {
         VStack(spacing: 40) {
             Spacer()
             
-            // ロゴ
-            Image("logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200, height: 200)
+            // ロゴ（将来的に画像ロゴに戻す予定）
+//            Image("logo")
+//                .resizable()
+//                .scaledToFit()
+//                .frame(width: 200, height: 200)
             
-//            // アプリタイトル
+//            // 暫定的なアプリタイトル
 //            VStack(spacing: 8) {
-//                Text("食材管理アプリ")
-//                    .font(.largeTitle)
-//                    .fontWeight(.bold)
-//                    .foregroundColor(.primary)
-//                
-//                Text("Syokumemo")
-//                    .font(.title2)
-//                    .foregroundColor(.secondary)
+                Text("Syokumemo")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text("食材管理アプリ")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
 //            }
             
             Spacer()
@@ -38,8 +38,6 @@ struct LoginPage: View {
             // Apple Sign In ボタン
             VStack(spacing: 16) {
                 SignInWithAppleButton(viewModel: authViewModel)
-                    .frame(height: 50)
-                    .cornerRadius(8)
                 
                 // ローディング表示
                 if authViewModel.isLoading {
@@ -54,11 +52,27 @@ struct LoginPage: View {
                 
                 // エラーメッセージ表示
                 if let errorMessage = authViewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 16)
+                    VStack(spacing: 12) {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 16)
+                        
+                        // リトライボタン
+                        Button(action: {
+                            authViewModel.retrySignIn()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.caption)
+                                Text("再試行")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(.blue)
+                        }
+                        .disabled(authViewModel.isLoading)
+                    }
                 }
             }
             
@@ -76,16 +90,18 @@ struct LoginPage: View {
             .padding(.bottom, 20)
         }
         .padding(.horizontal, 32)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color(.systemBackground), Color(.systemGray6)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
+        .background(Color(.systemBackground))
         .onChange(of: authViewModel.isAuthenticated) { isAuthenticated in
-            if isAuthenticated {
-                // 認証成功時にメイン画面へ遷移
+            if isAuthenticated && authViewModel.isTokenReady {
+                // 認証成功かつトークン準備完了時にメイン画面へ遷移
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    appState.appState = .main
+                }
+            }
+        }
+        .onChange(of: authViewModel.isTokenReady) { isTokenReady in
+            if authViewModel.isAuthenticated && isTokenReady {
+                // 認証成功かつトークン準備完了時にメイン画面へ遷移
                 withAnimation(.easeInOut(duration: 0.3)) {
                     appState.appState = .main
                 }

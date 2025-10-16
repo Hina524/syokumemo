@@ -9,11 +9,16 @@ import SwiftUI
 import FirebaseAuth
 import Combine
 
+extension Notification.Name {
+    static let userDidSignOut = Notification.Name("userDidSignOut")
+}
+
 class AuthenticationViewModel: ObservableObject {
     @Published var isAuthenticated = false
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var currentUser: User?
+    @Published var isTokenReady = false
     
     private let authService = AuthenticationService.shared
     private var authStateListener: AuthStateDidChangeListenerHandle?
@@ -55,6 +60,10 @@ class AuthenticationViewModel: ObservableObject {
                 } else {
                     // サインアウト時にネットワークトークンをクリア
                     Network.shared.clearAuthenticationHeader()
+                    self?.isTokenReady = false
+                    
+                    // ログアウト時の通知を送信
+                    NotificationCenter.default.post(name: .userDidSignOut, object: nil)
                 }
             }
         }
@@ -64,8 +73,16 @@ class AuthenticationViewModel: ObservableObject {
         do {
             let token = try await authService.getIDToken()
             Network.shared.setupAuthenticationHeader(with: token)
+            
+            // トークン設定完了をメインスレッドで通知
+            await MainActor.run {
+                self.isTokenReady = true
+            }
         } catch {
             print("Failed to update network token: \(error)")
+            await MainActor.run {
+                self.isTokenReady = false
+            }
         }
     }
     
@@ -76,6 +93,11 @@ class AuthenticationViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         coordinator.startSignInWithApple()
+    }
+    
+    // MARK: - Retry Sign In
+    func retrySignIn() {
+        signInWithApple()
     }
     
     // MARK: - Sign Out

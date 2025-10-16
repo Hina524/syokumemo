@@ -37,6 +37,11 @@ struct SyokumemoApp: App {
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: appState.appState)
+            .onReceive(NotificationCenter.default.publisher(for: .userDidSignOut)) { _ in
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    appState.appState = .login
+                }
+            }
             .onChange(of: scenePhase) { phase in
                 authViewModel.handleScenePhaseChange(phase)
             }

@@ -159,17 +159,29 @@ enum AuthenticationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidNonce:
-            return "Invalid nonce. Sign in failed."
+            return "認証に失敗しました。もう一度お試しください。"
         case .invalidToken:
-            return "Unable to fetch identity token."
+            return "認証トークンの取得に失敗しました。"
         case .invalidTokenData:
-            return "Unable to serialize token string from data."
+            return "認証データの処理に失敗しました。"
         case .notAuthenticated:
-            return "User is not authenticated."
+            return "ログインしていません。"
         case .signInFailed(let message):
+            // 英語のメッセージを日本語に変換
+            if message.contains("Apple Sign In failed") {
+                return "Apple Sign In に失敗しました。"
+            } else if message.contains("Invalid response") {
+                return "Apple からの応答が無効です。"
+            } else if message.contains("Sign in not handled") {
+                return "サインイン処理が完了しませんでした。"
+            } else if message.contains("Unknown error") {
+                return "不明なエラーが発生しました。"
+            } else if message.contains("Unexpected error") {
+                return "予期しないエラーが発生しました。"
+            }
             return message
         case .tokenRefreshFailed:
-            return "Failed to refresh authentication token."
+            return "認証の更新に失敗しました。"
         }
     }
 }
