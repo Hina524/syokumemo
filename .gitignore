@@ -5,4 +5,5 @@ syokumemo/CLAUDE/
 .claude/commands/create-pull-request.md
 GoogleService-Info.plist
 GoogleService-Info-prod.plist
+GoogleService-Info-dev.plist
 syokumemo.xcodeproj/project.xcworkspace/xcuserdata/hina.xcuserdatad/UserInterfaceState.xcuserstate
