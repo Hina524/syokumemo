@@ -51,7 +51,7 @@ struct InputPurchaseHistoryPage: View {
                     }
                     Text("購入履歴のみ入力")
                         .font(.headline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 .padding()
             }
@@ -143,7 +143,7 @@ struct InputPurchaseHistoryPage: View {
                                     .foregroundColor(.gray)
                             }
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     } header: {
                         HStack(spacing: 4) {
                             Text("購入単位")

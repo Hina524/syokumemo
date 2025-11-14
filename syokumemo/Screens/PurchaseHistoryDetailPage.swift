@@ -49,7 +49,7 @@ struct PurchaseHistoryDetailPage: View {
                 
                 Text("購入履歴詳細")
                     .font(.headline)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
             }
             .padding(.horizontal)
             .padding(.vertical, 8)

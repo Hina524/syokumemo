@@ -71,7 +71,7 @@ struct IngredientRow: View {
                         
                         Text(ingredient.name)
                             .font(.headline)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                     
                     Spacer()
@@ -184,7 +184,7 @@ struct GraphPage: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 12)
-                                .background(Color.green)
+                                .background(Color(.systemGreen))
                                 .cornerRadius(25)
                                 .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                         }

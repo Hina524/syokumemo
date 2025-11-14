@@ -76,7 +76,7 @@ struct InputAllPage: View {
                     }
                     Text("在庫と購入履歴を同時に入力")
                         .font(.headline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 .padding()
             }
@@ -260,7 +260,7 @@ struct InputAllPage: View {
                                     .foregroundColor(.gray)
                             }
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     } header: {
                         HStack(spacing: 4) {
                             Text("購入単位")

@@ -30,7 +30,7 @@ struct EditInventoryNavigationHeader: View {
             
             Text(inventory.ingredient.name)
                 .font(.headline)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)

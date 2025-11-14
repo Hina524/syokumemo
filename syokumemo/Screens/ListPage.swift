@@ -21,7 +21,7 @@ struct ListPage: View {
                     ProgressView("読み込み中…")
                 } else if let error = viewModel.errorMessage {
                     Text(error)
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(.systemRed))
                 } else {
                     NavigationStack(path: $path) {
                     List {
@@ -136,7 +136,7 @@ struct ListPage: View {
                                                     .foregroundColor(.secondary)
                                                 Text(inventory.expiryDate.replacingOccurrences(of: "-", with: "/"))
                                                     .font(.body)
-                                                    .foregroundColor(.red)
+                                                    .foregroundColor(Color(.systemRed))
                                             }
                                         }
                                         .padding(.vertical, 4)
@@ -264,7 +264,7 @@ struct ListPage: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 12)
-                                .background(Color.green)
+                                .background(Color(.systemGreen))
                                 .cornerRadius(25)
                                 .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                         }

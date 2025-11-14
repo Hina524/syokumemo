@@ -32,7 +32,7 @@ struct NavigationHeader: View {
                 
                 Text(title)
                     .font(.headline)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -51,13 +51,13 @@ struct ChartAnnotation: View {
             Text("\(selectedData.price)円")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
             Text(selectedData.date, format: Date.FormatStyle(date: .numeric, time: .none))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
         .padding(8)
-        .background(Color.white)
+        .background(Color(.systemBackground))
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
@@ -122,7 +122,7 @@ struct GraphContentPage: View {
                                         Text("\(lowestInfo.price)")
                                             .font(.title)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                         Text("円")
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)
@@ -248,7 +248,7 @@ struct GraphContentPage: View {
                                         Text("\(historyItem.price)円")
                                             .font(.headline)
                                             .fontWeight(.medium)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                         
                                         Text(historyItem.purchaseUnit.name)
                                             .font(.footnote)
