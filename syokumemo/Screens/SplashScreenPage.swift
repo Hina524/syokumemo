@@ -13,20 +13,9 @@ struct SplashScreenPage: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            // ロゴ（将来的に画像ロゴに戻す予定）
-//            Image("logo")
-//                .resizable()
-//                .frame(width: 218.19, height: 95)
-            
-            // 暫定的なテキストロゴ
-            Text("Syokumemo")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-            
-            Text("食材管理アプリ")
-                .font(.title2)
-                .foregroundColor(.secondary)
+            Image("logo")
+                .resizable()
+                .frame(width: 218.19, height: 95)
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

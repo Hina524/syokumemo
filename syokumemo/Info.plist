@@ -10,5 +10,7 @@
 	<string>${ENDPOINT_URL_LOCAL}</string>
 	<key>ENDPOINT_URL</key>
 	<string>${ENDPOINT_URL}</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 </dict>
 </plist>
