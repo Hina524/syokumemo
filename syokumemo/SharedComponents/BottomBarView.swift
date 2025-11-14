@@ -17,7 +17,7 @@ struct BottomBarView: View {
             TabItem(icon: "chart.xyaxis.line", screen: .graph)
         }
         .padding()
-        .background(Color.white)
+        .background(Color(.systemBackground))
     }
 
     @ViewBuilder
@@ -31,7 +31,7 @@ struct BottomBarView: View {
                 Image(systemName: icon)
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(appState.currentScreen == screen ? .green : .gray)
+                    .foregroundColor(appState.currentScreen == screen ? Color(.systemGreen) : .secondary)
             }
 
             Text(screen.title)

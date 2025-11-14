@@ -17,7 +17,7 @@ struct TopBarView: View {
             // タイトルを中央に配置
             Text(title)
                 .font(.headline)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
             
             // ユーザーアイコンボタンを右端に配置
             HStack {
@@ -27,7 +27,7 @@ struct TopBarView: View {
                 }) {
                     Image(systemName: "person.circle.fill")
                         .font(.title)
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(.systemGreen))
                 }
                 .accessibilityLabel("ユーザーメニュー")
                 .accessibilityHint("タップしてログアウトオプションを表示")

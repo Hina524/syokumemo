@@ -47,7 +47,7 @@ struct SelectIngredientPage: View {
 
             Text(currentCategory.name)
                 .font(.headline)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
@@ -83,7 +83,7 @@ struct SelectIngredientPage: View {
                         path.removeAll()
                     }) {
                         Text(ingredient.name)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                 }
             }

@@ -23,7 +23,7 @@ struct PurchaseUnitPickerSheet: View {
                     ProgressView("読み込み中…")
                 } else if let error = viewModel.errorMessage {
                     Text(error)
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(.systemRed))
                 } else if viewModel.purchaseUnits.isEmpty {
                     VStack(spacing: 20) {
                         Image(systemName: "exclamationmark.circle")
@@ -70,7 +70,7 @@ struct PurchaseUnitPickerSheet: View {
                                 }) {
                                     HStack {
                                         Text(purchaseUnit.name)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                         Spacer()
                                         if purchaseUnit.id == selectedPurchaseUnitId {
                                             Image(systemName: "checkmark")

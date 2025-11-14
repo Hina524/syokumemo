@@ -49,7 +49,7 @@ struct InputInventoryPage: View {
                     }
                     Text("在庫のみ入力")
                         .font(.headline)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 .padding()
             }

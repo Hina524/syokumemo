@@ -53,7 +53,7 @@ struct SelectPurchaseUnitPage: View {
                         .foregroundColor(.orange)
                     Text("先に食材を選択してください")
                         .font(.headline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     Button("戻る") {
                         path.removeLast()
                     }
@@ -64,13 +64,13 @@ struct SelectPurchaseUnitPage: View {
                 VStack(spacing: 20) {
                     Image(systemName: "tray")
                         .font(.system(size: 50))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     Text("この食材の購入単位がありません")
                         .font(.headline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     Text("編集モードで追加できます")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -104,7 +104,7 @@ struct SelectPurchaseUnitPage: View {
                                 path.removeAll()
                             }) {
                                 Text(purchaseUnit.name)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                             }
                         }
                     }

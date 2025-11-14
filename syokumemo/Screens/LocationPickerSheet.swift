@@ -22,7 +22,7 @@ struct LocationPickerSheet: View {
                     ProgressView("読み込み中…")
                 } else if let error = viewModel.errorMessage {
                     Text(error)
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(.systemRed))
                 } else {
                     List {
                         ForEach(viewModel.locations, id: \.id) { location in
@@ -55,7 +55,7 @@ struct LocationPickerSheet: View {
                                 }) {
                                     HStack {
                                         Text(location.name)
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                         Spacer()
                                         if location.id == selectedLocationId {
                                             Image(systemName: "checkmark")

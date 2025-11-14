@@ -73,7 +73,7 @@ struct SelectLocationPage: View {
                         path.removeAll()
                     }) {
                         Text(location.name)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
                 }
             }
